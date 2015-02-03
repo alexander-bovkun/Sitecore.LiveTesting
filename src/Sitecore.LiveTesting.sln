@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting", "Sitecore.LiveTesting\Sitecore.LiveTesting.csproj", "{729A3B8E-FFEE-44BF-B3F9-08FE99767525}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.Tests", "Sitecore.LiveTesting.Tests\Sitecore.LiveTesting.Tests.csproj", "{8F852D6C-99DC-4E83-ABDA-C05F99B03DE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.SpecFlowPlugin", "Sitecore.LiveTesting.SpecFlowPlugin\Sitecore.LiveTesting.SpecFlowPlugin.csproj", "{16553F6F-9C96-42C1-917C-2CE2738B1D71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.Extensions", "Sitecore.LiveTesting.Extensions\Sitecore.LiveTesting.Extensions.csproj", "{84827EDD-3D97-44FD-A9B8-25EBD77D6309}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.SpecFlow.Tests", "Sitecore.LiveTesting.SpecFlow.Tests\Sitecore.LiveTesting.SpecFlow.Tests.csproj", "{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{729A3B8E-FFEE-44BF-B3F9-08FE99767525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{729A3B8E-FFEE-44BF-B3F9-08FE99767525}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{729A3B8E-FFEE-44BF-B3F9-08FE99767525}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{729A3B8E-FFEE-44BF-B3F9-08FE99767525}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F852D6C-99DC-4E83-ABDA-C05F99B03DE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F852D6C-99DC-4E83-ABDA-C05F99B03DE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F852D6C-99DC-4E83-ABDA-C05F99B03DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F852D6C-99DC-4E83-ABDA-C05F99B03DE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16553F6F-9C96-42C1-917C-2CE2738B1D71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16553F6F-9C96-42C1-917C-2CE2738B1D71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16553F6F-9C96-42C1-917C-2CE2738B1D71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16553F6F-9C96-42C1-917C-2CE2738B1D71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84827EDD-3D97-44FD-A9B8-25EBD77D6309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84827EDD-3D97-44FD-A9B8-25EBD77D6309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84827EDD-3D97-44FD-A9B8-25EBD77D6309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84827EDD-3D97-44FD-A9B8-25EBD77D6309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

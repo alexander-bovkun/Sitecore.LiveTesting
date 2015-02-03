@@ -1,0 +1,3 @@
+﻿live Sitecore.LiveTesting.Initialization.InitializationHandler {,typeof(Sitecore.LiveTesting.SpecFlow.Tests.StepDefinitions.InitializationHandler)}
+sampleTag Sitecore.LiveTesting.Initialization.InitializationHandler {,typeof(Sitecore.LiveTesting.SpecFlow.Tests.StepDefinitions.DisposableInitializationHandler)}
+lowPriorityTag Sitecore.LiveTesting.Initialization.InitializationHandler {,typeof(Sitecore.LiveTesting.SpecFlow.Tests.StepDefinitions.LowPriorityInitializationHandler)} {Priority,1}
