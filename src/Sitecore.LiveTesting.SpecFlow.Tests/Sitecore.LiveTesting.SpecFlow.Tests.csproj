@@ -75,10 +75,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sitecore.LiveTesting.SpecFlow.Extensions\Sitecore.LiveTesting.SpecFlow.Extensions.csproj">
-      <Project>{4945f6f0-3665-4333-b7df-7ec56f6687bd}</Project>
-      <Name>Sitecore.LiveTesting.SpecFlow.Extensions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sitecore.LiveTesting\Sitecore.LiveTesting.csproj">
       <Project>{729a3b8e-ffee-44bf-b3f9-08fe99767525}</Project>
       <Name>Sitecore.LiveTesting</Name>

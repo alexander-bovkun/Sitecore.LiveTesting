@@ -67,12 +67,6 @@
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Sitecore.LiveTesting\Sitecore.LiveTesting.csproj">
-      <Project>{729a3b8e-ffee-44bf-b3f9-08fe99767525}</Project>
-      <Name>Sitecore.LiveTesting</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>nuget pack $(ProjectPath) -OutputDirectory $(SolutionDir) -Prop Configuration=Release -sym</PostBuildEvent>
