@@ -72,7 +72,7 @@
       {
         throw new InvalidOperationException(string.Format("Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultApplicationHostName, typeof(LiveTest).FullName));
       }
-      
+
       ApplicationHost host = (ApplicationHost)getDefaultApplicationHostMethod.Invoke(null, new object[] { testType });
 
       if (host == null)
@@ -95,9 +95,16 @@
           }
           else
           {
-            AppDomain.CurrentDomain.DomainUnload += TestDomainOnDomainUnload;            
+            AppDomain.CurrentDomain.DomainUnload += TestDomainOnDomainUnload;
           }
         }
+      }
+      else
+      {
+        var hostingEnvironment = typeof(HostingEnvironment).GetField("_theHostingEnvironment", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        var eventHandler = (EventHandler)typeof(HostingEnvironment).GetField("_onAppDomainUnload", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(hostingEnvironment);
+
+        Thread.GetDomain().DomainUnload -= eventHandler;
       }
 
       return (LiveTest)ApplicationManager.GetApplicationManager().CreateObject(host.ApplicationId, testType, host.VirtualPath, Path.GetFullPath(host.PhysicalPath), false, true);
