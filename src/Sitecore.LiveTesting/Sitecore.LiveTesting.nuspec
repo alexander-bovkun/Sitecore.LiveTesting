@@ -6,10 +6,13 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
+    <projectUrl>https://github.com/alexander-bovkun/Sitecore.LiveTesting</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes/>
-    <copyright>Copyright © Sitecore 2015</copyright>
+    <copyright>Copyright Â© Sitecore 2015</copyright>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Web"/>
+    </frameworkAssemblies>
   </metadata>
 </package>
