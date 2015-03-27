@@ -89,13 +89,16 @@
     /// <summary>
     /// Should create initializer instance using parameters on initialization and save it into actions state.
     /// </summary>
-    [Fact]
-    public void ShouldCreateInitializerInstanceUsingParametersOnInitializationAndSaveItIntoActionsState()
+    /// <param name="initializerType">The initializer Type.</param>
+    [Theory]
+    [InlineData(typeof(SimpleInitializer))]
+    [InlineData(typeof(SimpleInitializerWithVariableNumberOfParameters))]
+    public void ShouldCreateInitializerInstanceUsingParametersOnInitializationAndSaveItIntoActionsState(Type initializerType)
     {
       const string Parameter = "parameter";
 
       InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(SimpleInitializer), new object[] { Parameter } } };
+      InitializationAction action = new InitializationAction("Action") { State = new object[] { initializerType, new object[] { Parameter } } };
 
       SimpleInitializer.Parameter = null;
 
@@ -188,6 +191,20 @@
       /// Gets or sets the parameters.
       /// </summary>
       public static string Parameter { get; set; }
+    }
+
+    /// <summary>
+    /// Defines a typical initializer which receives variable number of parameters in its constructor.
+    /// </summary>
+    public class SimpleInitializerWithVariableNumberOfParameters : SimpleInitializer
+    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="SimpleInitializerWithVariableNumberOfParameters"/> class.
+      /// </summary>
+      /// <param name="parameters">The parameters.</param>
+      public SimpleInitializerWithVariableNumberOfParameters(params object[] parameters) : base((string)parameters[0])
+      {        
+      }
     }
 
     /// <summary>

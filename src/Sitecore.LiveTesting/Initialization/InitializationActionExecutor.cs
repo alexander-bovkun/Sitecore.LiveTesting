@@ -49,16 +49,25 @@
 
       ConstructorInfo constructor = initializerType.GetConstructor(argumentTypes);
 
-      if (constructor != null)
+      if (constructor == null)
+      {
+        constructor = initializerType.GetConstructor(new[] { typeof(object[]) });
+
+        if (constructor != null)
+        {
+          action.State = constructor.Invoke(new object[] { initializerArguments });
+        }
+      }
+      else
       {
         action.State = constructor.Invoke(initializerArguments);
+      }
 
-        IInitializationContextAware contextAwareInitializer = action.State as IInitializationContextAware;
-        
-        if (contextAwareInitializer != null)
-        {
-          contextAwareInitializer.SetInitializationContext(action.Context);
-        }
+      IInitializationContextAware contextAwareInitializer = action.State as IInitializationContextAware;
+
+      if (contextAwareInitializer != null)
+      {
+        contextAwareInitializer.SetInitializationContext(action.Context);
       }
     }
 
