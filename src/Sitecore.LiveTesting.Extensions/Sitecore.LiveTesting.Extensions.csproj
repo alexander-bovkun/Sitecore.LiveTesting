@@ -44,7 +44,6 @@
     <Compile Include="Configuration\SitecoreConfigurationSwitcher.cs" />
     <Compile Include="Configuration\XPathNodeIteratorExtensions.cs" />
     <Compile Include="Initialization\HookToInitializationHandlerAdapter.cs" />
-    <Compile Include="Initialization\PipelineInitializationHandler.cs" />
     <Compile Include="Initialization\TransactionInitializationHandler.cs" />
     <Compile Include="Pipelines\PipelineDefinition.cs" />
     <Compile Include="Pipelines\PipelineManager.cs" />
