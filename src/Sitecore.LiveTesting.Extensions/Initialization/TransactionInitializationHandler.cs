@@ -2,6 +2,7 @@
 {
   using System;
   using System.Transactions;
+  using Sitecore.Configuration;
   using Sitecore.Data;
 
   /// <summary>
@@ -24,9 +25,10 @@
     /// </summary>
     public TransactionInitializationHandler()
     {
-      Database.GetDatabase("core").Caches.DataCache.Clear();
-      Database.GetDatabase("master").Caches.DataCache.Clear();
-      Database.GetDatabase("web").Caches.DataCache.Clear();
+      foreach (Database database in Factory.GetDatabases())
+      {
+        database.Caches.DataCache.Clear();
+      }
 
       this.transactionScope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, 10, 0));
     }
