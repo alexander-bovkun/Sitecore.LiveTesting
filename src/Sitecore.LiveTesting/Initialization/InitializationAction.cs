@@ -38,5 +38,10 @@
     /// Gets or sets the action state.
     /// </summary>
     public object State { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initialization context.
+    /// </summary>
+    public InitializationContext Context { get; set; }
   }
 }

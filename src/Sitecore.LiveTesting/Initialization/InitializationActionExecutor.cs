@@ -52,6 +52,13 @@
       if (constructor != null)
       {
         action.State = constructor.Invoke(initializerArguments);
+
+        IInitializationContextAware contextAwareInitializer = action.State as IInitializationContextAware;
+        
+        if (contextAwareInitializer != null)
+        {
+          contextAwareInitializer.SetInitializationContext(action.Context);
+        }
       }
     }
 

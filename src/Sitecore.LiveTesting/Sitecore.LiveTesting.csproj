@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApplicationHost.cs" />
+    <Compile Include="Initialization\IInitializationContextAware.cs" />
     <Compile Include="Initialization\InitializationAction.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -48,6 +49,7 @@
     <Compile Include="Initialization\InitializationActionExecutor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Initialization\InitializationContext.cs" />
     <Compile Include="Initialization\InitializationHandlerAttribute.cs">
       <SubType>Code</SubType>
     </Compile>

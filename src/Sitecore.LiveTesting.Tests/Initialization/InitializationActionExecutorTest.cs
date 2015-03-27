@@ -93,6 +93,7 @@
     public void ShouldCreateInitializerInstanceUsingParametersOnInitializationAndSaveItIntoActionsState()
     {
       const string Parameter = "parameter";
+
       InitializationActionExecutor executor = new InitializationActionExecutor();
       InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(SimpleInitializer), new object[] { Parameter } } };
 
@@ -102,6 +103,23 @@
 
       Assert.NotNull(SimpleInitializer.Parameter);
       Assert.Equal(Parameter, SimpleInitializer.Parameter);
+    }
+
+    /// <summary>
+    /// Should set initialization context if initialization handler implements IInitializationContextAware.
+    /// </summary>
+    [Fact]
+    public void ShouldSetInitializationContextIfInitializationHandlerImplementsIInitializationContextAware()
+    {
+      InitializationActionExecutor executor = new InitializationActionExecutor();
+      InitializationContext context = new InitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
+      InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(InitializationContextAwareInitializer), new object[0] }, Context = context };
+
+      InitializationContextAwareInitializer.InitializationContext = null;
+
+      executor.ExecuteInitializationForAction(action);
+
+      Assert.Equal(context, InitializationContextAwareInitializer.InitializationContext);
     }
 
     /// <summary>
@@ -188,6 +206,26 @@
       public void Dispose()
       {
         Disposed = true;
+      }
+    }
+
+    /// <summary>
+    /// Defines a typical initialization handler which is aware of its execution context.
+    /// </summary>
+    public class InitializationContextAwareInitializer : IInitializationContextAware
+    {
+      /// <summary>
+      /// Gets or sets the initialization context.
+      /// </summary>
+      public static InitializationContext InitializationContext { get; set; }
+
+      /// <summary>
+      /// The set initialization context.
+      /// </summary>
+      /// <param name="context">The context.</param>
+      public void SetInitializationContext(InitializationContext context)
+      {
+        InitializationContext = context;
       }
     }
   }
