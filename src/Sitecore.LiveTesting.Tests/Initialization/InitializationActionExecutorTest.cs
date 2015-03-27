@@ -3,6 +3,7 @@
   using System;
   using Sitecore.LiveTesting.Initialization;
   using Xunit;
+  using Xunit.Extensions;
 
   /// <summary>
   /// Defines the test class for <see cref="InitializationActionExecutor"/>
@@ -10,13 +11,58 @@
   public class InitializationActionExecutorTest
   {
     /// <summary>
-    /// Should throw exception on initialization if action state is not a type.
+    /// Should throw exception on initialization if action state is not an array.
     /// </summary>
     [Fact]
-    public void ShouldThrowExceptionOnInitializationIfActionStateIsNotAType()
+    public void ShouldThrowExceptionOnInitializationIfActionStateIsNotAnArray()
     {
       InitializationActionExecutor executor = new InitializationActionExecutor();
       InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = "a" };
+
+      Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
+
+      Assert.Throws<ArgumentException>(action);
+    }
+
+    /// <summary>
+    /// Should throw exception on initialization if state array has less than 2 elements.
+    /// </summary>
+    /// <param name="numberOfElements">The number of elements.</param>
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void ShouldThrowExceptionOnInitializationIfStateArrayHasLessThan2Elements(int numberOfElements)
+    {
+      InitializationActionExecutor executor = new InitializationActionExecutor();
+      InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = new object[numberOfElements] };
+
+      Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
+
+      Assert.Throws<ArgumentException>(action);
+    }
+
+    /// <summary>
+    /// Should throw exception on initialization if first state element is not a type.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowExceptionOnInitializationIfFirstStateElementIsNotAType()
+    {
+      InitializationActionExecutor executor = new InitializationActionExecutor();
+      InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = new object[] { "a", "b" } };
+
+      Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
+
+      Assert.Throws<ArgumentException>(action);      
+    }
+
+    /// <summary>
+    /// Should throw exception on initialization if second state element is not an object array.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowExceptionOnInitializationIfSecondStateElementIsNotAnObjectArray()
+    {
+      InitializationActionExecutor executor = new InitializationActionExecutor();
+      InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = new object[] { typeof(SimpleInitializer), "a" } };
 
       Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
 
@@ -30,14 +76,32 @@
     public void ShouldCreateInitializerInstanceOnInitializationAndSaveItIntoActionsState()
     {
       InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction action = new InitializationAction("Action") { State = typeof(SimpleInitializer) };
+      InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(SimpleInitializer), new object[0] } };
 
-      SimpleInitializer.Instance = null;
+      SimpleInitializer.Parameter = null;
       
       executor.ExecuteInitializationForAction(action);
 
-      Assert.NotNull(SimpleInitializer.Instance);
-      Assert.Equal(SimpleInitializer.Instance, action.State);
+      Assert.NotNull(SimpleInitializer.Parameter);
+      Assert.Equal(string.Empty, SimpleInitializer.Parameter);
+    }
+
+    /// <summary>
+    /// Should create initializer instance using parameters on initialization and save it into actions state.
+    /// </summary>
+    [Fact]
+    public void ShouldCreateInitializerInstanceUsingParametersOnInitializationAndSaveItIntoActionsState()
+    {
+      const string Parameter = "parameter";
+      InitializationActionExecutor executor = new InitializationActionExecutor();
+      InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(SimpleInitializer), new object[] { Parameter } } };
+
+      SimpleInitializer.Parameter = null;
+
+      executor.ExecuteInitializationForAction(action);
+
+      Assert.NotNull(SimpleInitializer.Parameter);
+      Assert.Equal(Parameter, SimpleInitializer.Parameter);
     }
 
     /// <summary>
@@ -87,16 +151,25 @@
     {
       /// <summary>
       /// Initializes a new instance of the <see cref="SimpleInitializer"/> class.
-      /// </summary>      
+      /// </summary>
       public SimpleInitializer()
       {
-        Instance = this;
+        Parameter = string.Empty;
+      }
+      
+      /// <summary>
+      /// Initializes a new instance of the <see cref="SimpleInitializer"/> class.
+      /// </summary>
+      /// <param name="parameter">The parameter.</param>
+      public SimpleInitializer(string parameter)
+      {
+        Parameter = parameter;
       }
 
       /// <summary>
-      /// Gets or sets the instance.
+      /// Gets or sets the parameters.
       /// </summary>
-      public static SimpleInitializer Instance { get; set; }
+      public static string Parameter { get; set; }
     }
 
     /// <summary>

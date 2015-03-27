@@ -24,9 +24,13 @@
 
       Assert.Equal(2, actions.Count());
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.First().Id);
-      Assert.Equal(typeof(InitializationHandler2), actions.First().State);
+      Assert.IsType<object[]>(actions.First().State);
+      Assert.Equal(typeof(InitializationHandler2), ((object[])actions.First().State)[0]);
+      Assert.Empty((object[])((object[])actions.First().State)[1]);
       Assert.Equal(typeof(InitializationHandler1).AssemblyQualifiedName, actions.ElementAt(1).Id);
-      Assert.Equal(typeof(InitializationHandler1), actions.ElementAt(1).State);
+      Assert.IsType<object[]>(actions.ElementAt(1).State);
+      Assert.Equal(typeof(InitializationHandler1), ((object[])actions.ElementAt(1).State)[0]);
+      Assert.Equal(new object[] { "parameter" }, ((object[])actions.ElementAt(1).State)[1]);
     }
 
     /// <summary>
@@ -42,17 +46,17 @@
 
       Assert.Equal(3, actions.Count());
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.First().Id);
-      Assert.Equal(typeof(InitializationHandler2), actions.First().State);
+      Assert.Equal(typeof(InitializationHandler2), ((object[])actions.First().State)[0]);
       Assert.Equal(typeof(InitializationHandler1).AssemblyQualifiedName, actions.ElementAt(1).Id);
-      Assert.Equal(typeof(InitializationHandler1), actions.ElementAt(1).State);
+      Assert.Equal(typeof(InitializationHandler1), ((object[])actions.ElementAt(1).State)[0]);
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.ElementAt(2).Id);
-      Assert.Equal(typeof(InitializationHandler2), actions.ElementAt(2).State);
+      Assert.Equal(typeof(InitializationHandler2), ((object[])actions.ElementAt(2).State)[0]);
     }
 
     /// <summary>
     /// Defines typical test example.
     /// </summary>
-    [InitializationHandler(typeof(InitializationHandler1))]
+    [InitializationHandler(typeof(InitializationHandler1), "parameter")]
     public class Test : LiveTestWithInitialization
     {
       /// <summary>

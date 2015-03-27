@@ -70,7 +70,7 @@
     /// <returns>The corresponding action.</returns>
     private static InitializationAction ActionFromAttribute(InitializationHandlerAttribute attribute)
     {
-      return new InitializationAction(attribute.InitializationHandlerType.AssemblyQualifiedName) { State = attribute.InitializationHandlerType };
+      return new InitializationAction(attribute.InitializationHandlerType.AssemblyQualifiedName) { State = new object[] { attribute.InitializationHandlerType, attribute.Arguments } };
     }
 
     /// <summary>
