@@ -10,4 +10,8 @@ If you would like to see more detailed description of framework features, please
 This framework is also available in form of NuGet packages:  
   * [Sitecore.LiveTesting](https://www.nuget.org/packages/Sitecore.LiveTesting)
   * [Sitecore.LiveTesting.Extensions](https://www.nuget.org/packages/Sitecore.LiveTesting.Extensions)
-  * [Sitecore.LiveTesting.SpecFlowPlugin](https://www.nuget.org/packages/Sitecore.LiveTesting.SpecFlowPlugin)
+  * [Sitecore.LiveTesting.SpecFlowPlugin](https://www.nuget.org/packages/Sitecore.LiveTesting.SpecFlowPlugin)  
+
+### Compilation
+In order to build the project, the following assemblies must be placed to the "lib" subdirectory:  
+  * Sitecore.Kernel.dll  
