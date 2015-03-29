@@ -22,7 +22,7 @@
     /// <summary>
     /// The website path setting name.
     /// </summary>
-    private const string WebsitePathSettingName = "Sitecore.LiveTest.WebsitePath";
+    private const string WebsitePathSettingName = "Sitecore.LiveTesting.WebsitePath";
 
     /// <summary>
     /// The name of method that gets default application host.
