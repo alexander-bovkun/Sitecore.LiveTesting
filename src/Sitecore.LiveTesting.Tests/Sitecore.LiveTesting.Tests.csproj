@@ -69,11 +69,18 @@
     <Compile Include="Initialization\InitializationManagerTest.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Requests\RemoteRequestManagerTest.cs" />
+    <Compile Include="Requests\RequestManagerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="bin\Website\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Website\TestPage.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
