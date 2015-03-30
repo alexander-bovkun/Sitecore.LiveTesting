@@ -1,17 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\xunit.core.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{84827EDD-3D97-44FD-A9B8-25EBD77D6309}</ProjectGuid>
+    <ProjectGuid>{AEA613A7-06D2-411E-BD6D-E900EDC2C16B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sitecore.LiveTesting.Extensions</RootNamespace>
-    <AssemblyName>Sitecore.LiveTesting.Extensions</AssemblyName>
+    <RootNamespace>Sitecore.LiveTesting.Extensions.Tests</RootNamespace>
+    <AssemblyName>Sitecore.LiveTesting.Extensions.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>ab0c2e92</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\Sitecore.LiveTesting.Extensions.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\Sitecore.LiveTesting.Extensions.Tests.xml</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <Prefer32Bit>false</Prefer32Bit>
@@ -35,41 +37,48 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Release\Sitecore.LiveTesting.Extensions.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Sitecore.LiveTesting.Extensions.Tests.xml</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Configuration\SitecoreConfigurationSwitcher.cs" />
-    <Compile Include="Configuration\XPathNodeIteratorExtensions.cs" />
-    <Compile Include="Initialization\HookToInitializationHandlerAdapter.cs" />
-    <Compile Include="Initialization\TransactionInitializationHandler.cs" />
-    <Compile Include="Pipelines\PipelineDefinition.cs" />
-    <Compile Include="Pipelines\PipelineManager.cs" />
-    <Compile Include="Pipelines\PipelineManagerExtensions.cs" />
-    <Compile Include="Pipelines\PipelineTracker.cs" />
-    <Compile Include="Pipelines\ProcessorDefinition.cs" />
-    <Compile Include="Pipelines\ProcessorProxy.cs" />
-    <Compile Include="Pipelines\RuntimePipelineCall.cs" />
-    <Compile Include="Pipelines\RuntimeProcessorCallEventArgs.cs" />
+    <Compile Include="Initialization\HookToInitializationHandlerAdapterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.1.8.1.0\lib\net45\NSubstitute.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Sitecore.Kernel">
       <HintPath>..\..\lib\Sitecore.Kernel.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit">
+      <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sitecore.LiveTesting.Extensions\Sitecore.LiveTesting.Extensions.csproj">
+      <Project>{84827edd-3d97-44fd-a9b8-25ebd77d6309}</Project>
+      <Name>Sitecore.LiveTesting.Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>nuget pack $(ProjectPath) -OutputDirectory $(SolutionDir) -Prop Configuration=Release -sym</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

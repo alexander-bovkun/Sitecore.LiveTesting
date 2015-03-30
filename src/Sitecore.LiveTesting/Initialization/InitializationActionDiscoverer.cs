@@ -28,6 +28,8 @@
         throw new ArgumentNullException("testMethod");
       }
 
+      InitializationContext context = new InitializationContext(testInstance, testMethod, arguments);
+
       List<InitializationHandlerAttribute> attributes = Utility.ToList(GetActionAttributes(testInstance.GetType()));
       attributes.AddRange(GetActionAttributes(testMethod));
       attributes.Sort(InitializationHandlerAttributePriorityComparer.Default);
@@ -35,7 +37,7 @@
       List<InitializationAction> result = new List<InitializationAction>();
       foreach (InitializationHandlerAttribute initializationHandlerAttribute in attributes)
       {
-        result.Add(ActionFromAttribute(initializationHandlerAttribute));
+        result.Add(ActionFromAttribute(initializationHandlerAttribute, context));
       }
 
       return result;
@@ -67,10 +69,11 @@
     /// Gets action from attribute.
     /// </summary>
     /// <param name="attribute">The attribute.</param>
+    /// <param name="context">The initialization context.</param>
     /// <returns>The corresponding action.</returns>
-    private static InitializationAction ActionFromAttribute(InitializationHandlerAttribute attribute)
+    private static InitializationAction ActionFromAttribute(InitializationHandlerAttribute attribute, InitializationContext context)
     {
-      return new InitializationAction(attribute.InitializationHandlerType.AssemblyQualifiedName) { State = attribute.InitializationHandlerType };
+      return new InitializationAction(attribute.InitializationHandlerType.AssemblyQualifiedName) { State = new object[] { attribute.InitializationHandlerType, attribute.Arguments }, Context = context };
     }
 
     /// <summary>

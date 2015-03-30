@@ -80,6 +80,34 @@
     }
 
     /// <summary>
+    /// Should crash if test initialization crashes.
+    /// </summary>
+    [Fact]
+    public void ShouldCrashIfTestInitializationCrashes()
+    {
+      Test.InitializationManager.WhenForAnyArgs(manager => manager.Initialize(null, 0, null, null)).Throw<Exception>();
+      Test test = new Test();
+
+      Assert.ThrowsDelegate action = test.TestSomething;
+
+      Assert.Throws<Exception>(action);
+    }
+
+    /// <summary>
+    /// Should crash if test cleanup crashes.
+    /// </summary>
+    [Fact]
+    public void ShouldCrashIfTestCleanupCrashes()
+    {
+      Test.InitializationManager.WhenForAnyArgs(manager => manager.Cleanup(null, 0, null, null)).Throw<Exception>();
+      Test test = new Test();
+
+      Assert.ThrowsDelegate action = test.TestSomething;
+
+      Assert.Throws<Exception>(action);
+    }
+
+    /// <summary>
     /// Defines a typical test class example.
     /// </summary>
     public class Test : LiveTestWithInitialization

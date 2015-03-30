@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.Extens
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.SpecFlow.Tests", "Sitecore.LiveTesting.SpecFlow.Tests\Sitecore.LiveTesting.SpecFlow.Tests.csproj", "{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.Extensions.Tests", "Sitecore.LiveTesting.Extensions.Tests\Sitecore.LiveTesting.Extensions.Tests.csproj", "{AEA613A7-06D2-411E-BD6D-E900EDC2C16B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C7CC864-E8B7-4B4C-A4E2-8315497F5AD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEA613A7-06D2-411E-BD6D-E900EDC2C16B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEA613A7-06D2-411E-BD6D-E900EDC2C16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA613A7-06D2-411E-BD6D-E900EDC2C16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEA613A7-06D2-411E-BD6D-E900EDC2C16B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

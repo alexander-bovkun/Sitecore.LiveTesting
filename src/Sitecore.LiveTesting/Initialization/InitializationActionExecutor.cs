@@ -19,18 +19,55 @@
         throw new ArgumentNullException("action");
       }
 
-      Type type = action.State as Type;
+      object[] initializerInfo = action.State as object[];
 
-      if (type == null)
+      if ((initializerInfo == null) || (initializerInfo.Length < 2))
       {
-        throw new ArgumentException("Action in not in a proper state. It's 'State' property should have reference to the actual initializer type.");
+        throw new ArgumentException("Action in not in a proper state. It's 'State' property should have reference to an array with at least 2 elements: initializer type and array of its arguments.");
       }
 
-      ConstructorInfo constructor = type.GetConstructor(new Type[0]);
+      Type initializerType = initializerInfo[0] as Type;
 
-      if (constructor != null)
+      if (initializerType == null)
       {
-        action.State = constructor.Invoke(new object[0]);
+        throw new ArgumentException("Action in not in a proper state. First element of array must be a type of initializer.");
+      }
+
+      object[] initializerArguments = initializerInfo[1] as object[];
+
+      if (initializerArguments == null)
+      {
+        throw new ArgumentException("Action in not in a proper state. Second element of array must be an System.Object[] array of initializer arguments.");
+      }
+
+      Type[] argumentTypes = new Type[initializerArguments.Length];
+
+      for (int index = 0; index < initializerArguments.Length; ++index)
+      {
+        argumentTypes[index] = initializerArguments[index].GetType();
+      }
+
+      ConstructorInfo constructor = initializerType.GetConstructor(argumentTypes);
+
+      if (constructor == null)
+      {
+        constructor = initializerType.GetConstructor(new[] { typeof(object[]) });
+
+        if (constructor != null)
+        {
+          action.State = constructor.Invoke(new object[] { initializerArguments });
+        }
+      }
+      else
+      {
+        action.State = constructor.Invoke(initializerArguments);
+      }
+
+      IInitializationContextAware contextAwareInitializer = action.State as IInitializationContextAware;
+
+      if (contextAwareInitializer != null)
+      {
+        contextAwareInitializer.SetInitializationContext(action.Context);
       }
     }
 
