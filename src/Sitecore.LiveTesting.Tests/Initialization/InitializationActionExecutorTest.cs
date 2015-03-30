@@ -234,13 +234,13 @@
       /// <summary>
       /// Gets or sets the initialization context.
       /// </summary>
-      public static InitializationContext InitializationContext { get; set; }
+      public static object InitializationContext { get; set; }
 
       /// <summary>
       /// The set initialization context.
       /// </summary>
       /// <param name="context">The context.</param>
-      public void SetInitializationContext(InitializationContext context)
+      public void SetInitializationContext(object context)
       {
         InitializationContext = context;
       }

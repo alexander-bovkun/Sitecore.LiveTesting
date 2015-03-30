@@ -42,6 +42,6 @@
     /// <summary>
     /// Gets or sets the initialization context.
     /// </summary>
-    public InitializationContext Context { get; set; }
+    public object Context { get; set; }
   }
 }

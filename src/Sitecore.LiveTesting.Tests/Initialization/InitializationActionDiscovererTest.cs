@@ -32,9 +32,9 @@
       Assert.IsType<object[]>(actions.Single().State);
       Assert.Equal(typeof(InitializationHandler1), ((object[])actions.Single().State)[0]);
       Assert.Equal(new object[] { "parameter" }, ((object[])actions.Single().State)[1]);
-      Assert.Equal(expectedInitializationContext.Instance, actions.Single().Context.Instance);
-      Assert.Equal(expectedInitializationContext.Method, actions.Single().Context.Method);
-      Assert.Equal(expectedInitializationContext.Arguments, actions.Single().Context.Arguments);
+      Assert.Equal(expectedInitializationContext.Instance, ((InitializationContext)actions.Single().Context).Instance);
+      Assert.Equal(expectedInitializationContext.Method, ((InitializationContext)actions.Single().Context).Method);
+      Assert.Equal(expectedInitializationContext.Arguments, ((InitializationContext)actions.Single().Context).Arguments);
     }
 
     /// <summary>

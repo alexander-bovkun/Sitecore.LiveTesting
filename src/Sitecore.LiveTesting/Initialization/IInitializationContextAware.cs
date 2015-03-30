@@ -9,6 +9,6 @@
     /// Sets initialization context.
     /// </summary>
     /// <param name="context">The initialization context.</param>
-    void SetInitializationContext(InitializationContext context);
+    void SetInitializationContext(object context);
   }
 }
