@@ -55,7 +55,7 @@
     /// <returns>An instance of <see cref="InitializationManager"/>.</returns>
     protected virtual InitializationManager GetTestInitializationManager()
     {
-      return this.initializationManager = this.initializationManager ?? new InitializationManager(new InitializationActionDiscoverer(), new InitializationActionExecutor());
+      return this.initializationManager = this.initializationManager ?? new InitializationManager(new TestInitializationActionDiscoverer(), new InitializationActionExecutor());
     }
 
     /// <summary>

@@ -18,7 +18,7 @@
     /// </summary>
     public LiveTestWithInitializationTest()
     {
-      Test.InitializationManager = Substitute.For<InitializationManager>(Substitute.For<InitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>());
+      Test.InitializationManager = Substitute.For<InitializationManager>(Substitute.For<TestInitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>());
     }
 
     /// <summary>
@@ -46,8 +46,8 @@
 
       Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
       int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[0];
-      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
-      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
     }
 
     /// <summary>
@@ -64,8 +64,8 @@
       Assert.Throws<Exception>(action);
       Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
       int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[0];
-      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
-      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
     }
 
     /// <summary>

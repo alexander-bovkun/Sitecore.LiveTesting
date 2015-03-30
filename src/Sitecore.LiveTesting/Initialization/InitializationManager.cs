@@ -11,7 +11,7 @@
     /// <summary>
     /// The initialization attribute discoverer.
     /// </summary>
-    private readonly InitializationActionDiscoverer initializationAttributeDiscoverer;
+    private readonly TestInitializationActionDiscoverer initializationAttributeDiscoverer;
 
     /// <summary>
     /// The initialization attribute executor.
@@ -29,7 +29,7 @@
     /// <param name="initializationAttributeDiscoverer">The initialization attribute discoverer.</param>
     /// <param name="initializationAttributeExecutor">The initialization attribute executor.</param>
     /// <param name="actions">The action container.</param>
-    public InitializationManager(InitializationActionDiscoverer initializationAttributeDiscoverer, InitializationActionExecutor initializationAttributeExecutor, IDictionary<int, IList<InitializationAction>> actions)
+    public InitializationManager(TestInitializationActionDiscoverer initializationAttributeDiscoverer, InitializationActionExecutor initializationAttributeExecutor, IDictionary<int, IList<InitializationAction>> actions)
     {
       if (initializationAttributeDiscoverer == null)
       {
@@ -56,7 +56,7 @@
     /// </summary>
     /// <param name="initializationAttributeDiscoverer">The initialization attribute discoverer.</param>
     /// <param name="initializationAttributeExecutor">The initialization attribute executor.</param>
-    public InitializationManager(InitializationActionDiscoverer initializationAttributeDiscoverer, InitializationActionExecutor initializationAttributeExecutor) : this(initializationAttributeDiscoverer, initializationAttributeExecutor, new Dictionary<int, IList<InitializationAction>>())
+    public InitializationManager(TestInitializationActionDiscoverer initializationAttributeDiscoverer, InitializationActionExecutor initializationAttributeExecutor) : this(initializationAttributeDiscoverer, initializationAttributeExecutor, new Dictionary<int, IList<InitializationAction>>())
     {
     }
 

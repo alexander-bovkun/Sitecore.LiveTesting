@@ -43,7 +43,8 @@
     <Compile Include="Initialization\InitializationAction.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Initialization\InitializationActionDiscoverer.cs">
+    <Compile Include="Initialization\InitializationActionDiscoverer.cs" />
+    <Compile Include="Initialization\TestInitializationActionDiscoverer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Initialization\InitializationActionExecutor.cs">

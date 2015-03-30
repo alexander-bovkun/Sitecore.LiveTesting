@@ -14,7 +14,7 @@
     /// <summary>
     /// The action discoverer.
     /// </summary>
-    private readonly InitializationActionDiscoverer actionDiscoverer;
+    private readonly TestInitializationActionDiscoverer actionDiscoverer;
 
     /// <summary>
     /// The action executor.
@@ -31,7 +31,7 @@
     /// </summary>
     public TestInitializationManagerTest()
     {
-      this.actionDiscoverer = Substitute.For<InitializationActionDiscoverer>();
+      this.actionDiscoverer = Substitute.For<TestInitializationActionDiscoverer>();
       this.actionExecutor = Substitute.For<InitializationActionExecutor>();
       this.manager = new InitializationManager(this.actionDiscoverer, this.actionExecutor);
     }

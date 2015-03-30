@@ -7,9 +7,9 @@
   using Xunit;
 
   /// <summary>
-  /// Defines the test class for <see cref="InitializationActionDiscoverer"/>
+  /// Defines the test class for <see cref="TestInitializationActionDiscoverer"/>
   /// </summary>
-  public class InitializationActionDiscovererTest
+  public class TestInitializationActionDiscovererTest
   {
     /// <summary>
     /// Should discover actions by initialization handler attributes.
@@ -19,7 +19,7 @@
     {
       const string Argument = "argument";
 
-      InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
+      TestInitializationActionDiscoverer actionDiscoverer = new TestInitializationActionDiscoverer();
       Test test = new Test();
 
       IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new TestInitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument })).ToArray();
@@ -43,7 +43,7 @@
     [Fact]
     public void ShouldTakeIntoTheAccoutThePriority()
     {
-      InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
+      TestInitializationActionDiscoverer actionDiscoverer = new TestInitializationActionDiscoverer();
       Test test = new Test();
 
       IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new TestInitializationContext(test, typeof(Test).GetMethod("TestMethodWithPrioritizedInitializationHandler"), new object[0])).ToArray();
@@ -63,7 +63,7 @@
     [Fact]
     public void ShouldThrowNotSupportedExceptionIfCalledWithOtherThanInitializationContextTypeOfContext()
     {
-      InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
+      TestInitializationActionDiscoverer actionDiscoverer = new TestInitializationActionDiscoverer();
 
       Assert.ThrowsDelegate action = () => actionDiscoverer.GetInitializationActions(new object());
 
