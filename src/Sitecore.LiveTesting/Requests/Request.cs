@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.Requests
 {
   using System;
+  using System.Collections.Generic;
 
   /// <summary>
   /// Defines the class for requests.
@@ -8,6 +9,16 @@
   [Serializable]
   public class Request
   {
+    /// <summary>
+    /// The server variables.
+    /// </summary>
+    private readonly IDictionary<string, string> serverVariables;
+
+    /// <summary>
+    /// The headers.
+    /// </summary>
+    private readonly IDictionary<string, string> headers;
+
     /// <summary>
     /// The path.
     /// </summary>
@@ -29,15 +40,52 @@
     private string verb;
 
     /// <summary>
+    /// The http version.
+    /// </summary>
+    private string httpVersion;
+
+    /// <summary>
+    /// The address.
+    /// </summary>
+    private string address;
+
+    /// <summary>
+    /// The client address.
+    /// </summary>
+    private string clientAddress;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Request"/> class.
     /// </summary>
     public Request()
     {
+      this.serverVariables = new Dictionary<string, string>();
+      this.headers = new Dictionary<string, string>();
+
       this.Path = string.Empty;
       this.QueryString = string.Empty;
       this.Data = string.Empty;
       this.Port = 80;
       this.Verb = "GET";
+      this.HttpVersion = "HTTP/1.0";
+      this.Address = "127.0.0.1";
+      this.ClientAddress = "127.0.0.1";
+    }
+
+    /// <summary>
+    /// Gets the server variables.
+    /// </summary>
+    public IDictionary<string, string> ServerVariables
+    {
+      get { return this.serverVariables; }
+    }
+
+    /// <summary>
+    /// Gets the headers.
+    /// </summary>
+    public IDictionary<string, string> Headers
+    {
+      get { return this.headers; }
     }
 
     /// <summary>
@@ -104,9 +152,56 @@
     }
 
     /// <summary>
+    /// Gets or sets the local address.
+    /// </summary>
+    public string Address
+    {
+      get
+      {
+        return this.address;
+      }
+
+      set
+      {
+        if (value == null)
+        {
+          throw new ArgumentNullException("value");
+        }
+
+        this.address = value;
+      } 
+    }
+
+    /// <summary>
     /// Gets or sets the port.
     /// </summary>
     public int Port { get; set; }
+
+    /// <summary>
+    /// Gets or sets the client address.
+    /// </summary>
+    public string ClientAddress
+    {
+      get
+      {
+        return this.clientAddress;
+      }
+
+      set
+      {
+        if (value == null)
+        {
+          throw new ArgumentNullException("value");
+        }
+
+        this.clientAddress = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the client port.
+    /// </summary>
+    public int ClientPort { get; set; }
 
     /// <summary>
     /// Gets or sets the verb.
@@ -128,5 +223,36 @@
         this.verb = value;
       }
     }
+
+    /// <summary>
+    /// Gets or sets the http version.
+    /// </summary>
+    public string HttpVersion
+    {
+      get
+      {
+        return this.httpVersion;
+      }
+
+      set
+      {
+        if (value == null)
+        {
+          throw new ArgumentNullException("value");
+        }
+
+        this.httpVersion = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the user token.
+    /// </summary>
+    public IntPtr UserToken { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the request is secure.
+    /// </summary>
+    public bool IsSecure { get; set; }
   }
 }

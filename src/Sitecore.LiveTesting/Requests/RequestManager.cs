@@ -47,7 +47,7 @@
     /// <returns> The <see cref="HttpWorkerRequest"/>.</returns>
     protected virtual HttpWorkerRequest GetWorkerRequest(Request request)
     {
-      return new WorkerRequest(request);
+      return new WorkerRequest(request, new Response());
     }
 
     /// <summary>
@@ -63,19 +63,8 @@
       }
 
       WorkerRequest request = (WorkerRequest)workerRequest;
-      Response result = new Response();
 
-      if (request.ResponseText != null)
-      {
-        result.Content = request.ResponseText;
-      }
-
-      if (request.Context != null)
-      {
-        result.StatusCode = request.Context.Response.StatusCode;
-      }
-
-      return result;
+      return request.Response;
     }
 
     /// <summary>
