@@ -5,6 +5,7 @@
   using System.Text;
   using System.Web;
   using System.Web.Hosting;
+  using Sitecore.LiveTesting.Initialization;
 
   /// <summary>
   /// Defines the more convenient version of <see cref="SimpleWorkerRequest"/> to use.
@@ -12,44 +13,44 @@
   internal class WorkerRequest : SimpleWorkerRequest
   {
     /// <summary>
-    /// The request.
+    /// The initialization manager.
     /// </summary>
-    private readonly Request request;
+    private readonly InitializationManager initializationManager;
 
     /// <summary>
-    /// The response.
+    /// The request initialization context.
     /// </summary>
-    private readonly Response response;
+    private readonly RequestInitializationContext context;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WorkerRequest"/> class.
     /// </summary>
-    /// <param name="request">The request.</param>
-    /// <param name="response">The response.</param>
-    internal WorkerRequest(Request request, Response response) : this(request, response, new StringWriter())
+    /// <param name="initializationManager">The initialization Manager.</param>
+    /// <param name="context">The request initialization context.</param>
+    internal WorkerRequest(InitializationManager initializationManager, RequestInitializationContext context) : this(initializationManager, context, new StringWriter())
     {
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WorkerRequest"/> class.
     /// </summary>
-    /// <param name="request">The request.</param>
-    /// <param name="response">The response.</param>
+    /// <param name="initializationManager">The initialization Manager.</param>
+    /// <param name="context">The request initialization context.</param>
     /// <param name="writer">The writer.</param>
-    internal WorkerRequest(Request request, Response response, StringWriter writer) : base(request.Path, request.QueryString, writer)
+    internal WorkerRequest(InitializationManager initializationManager, RequestInitializationContext context, StringWriter writer) : base(context.Request.Path, context.Request.QueryString, writer)
     {
-      if (request == null)
+      if (initializationManager == null)
       {
-        throw new ArgumentNullException("request");
+        throw new ArgumentNullException("initializationManager");
       }
 
-      if (response == null)
+      if (context == null)
       {
-        throw new ArgumentNullException("response");
+        throw new ArgumentNullException("context");
       }
 
-      this.request = request;
-      this.response = response;
+      this.initializationManager = initializationManager;
+      this.context = context;
     }
 
     /// <summary>
@@ -57,7 +58,7 @@
     /// </summary>
     internal Response Response
     {
-      get { return this.response; }
+      get { return this.context.Response; }
     }
 
     /// <summary>
@@ -66,7 +67,7 @@
     /// <returns>The query string.</returns>
     public override string GetQueryString()
     {
-      return this.request.QueryString;
+      return this.context.Request.QueryString;
     }
 
     /// <summary>
@@ -75,7 +76,7 @@
     /// <returns>The HTTP verb for this request.</returns>
     public override string GetHttpVerbName()
     {
-      return this.request.Verb;
+      return this.context.Request.Verb;
     }
 
     /// <summary>
@@ -84,7 +85,7 @@
     /// <returns>The HTTP version.</returns>
     public override string GetHttpVersion()
     {
-      return this.request.HttpVersion;
+      return this.context.Request.HttpVersion;
     }
 
     /// <summary>
@@ -93,7 +94,7 @@
     /// <returns>The local address.</returns>
     public override string GetLocalAddress()
     {
-      return this.request.Address;
+      return this.context.Request.Address;
     }
 
     /// <summary>
@@ -102,7 +103,7 @@
     /// <returns>The local port number.</returns>
     public override int GetLocalPort()
     {
-      return this.request.Port;
+      return this.context.Request.Port;
     }
 
     /// <summary>
@@ -111,7 +112,7 @@
     /// <returns>The remote address.</returns>
     public override string GetRemoteAddress()
     {
-      return this.request.ClientAddress;
+      return this.context.Request.ClientAddress;
     }
 
     /// <summary>
@@ -120,7 +121,7 @@
     /// <returns>The remote port number. </returns>
     public override int GetRemotePort()
     {
-      return this.request.ClientPort;
+      return this.context.Request.ClientPort;
     }
 
     /// <summary>
@@ -137,7 +138,7 @@
         throw new ArgumentNullException("name");
       }
 
-      if (this.request.ServerVariables.TryGetValue(name, out result))
+      if (this.context.Request.ServerVariables.TryGetValue(name, out result))
       {
         return result;
       }
@@ -151,7 +152,7 @@
     /// <returns>The user token.</returns>
     public override IntPtr GetUserToken()
     {
-      return this.request.UserToken;
+      return this.context.Request.UserToken;
     }
 
     /// <summary>
@@ -173,7 +174,7 @@
     {
       string result;
 
-      if (this.request.Headers.TryGetValue(name, out result))
+      if (this.context.Request.Headers.TryGetValue(name, out result))
       {
         return result;
       }
@@ -187,7 +188,7 @@
     /// <returns>The value indicating whether the request is secure or not.</returns>
     public override bool IsSecure()
     {
-      return this.request.IsSecure;
+      return this.context.Request.IsSecure;
     }
 
     /// <summary>
@@ -196,7 +197,7 @@
     /// <returns>The portion of the HTTP request body that has been read.</returns>
     public override byte[] GetPreloadedEntityBody()
     {
-      return Encoding.Unicode.GetBytes(this.request.Data);
+      return Encoding.Unicode.GetBytes(this.context.Request.Data);
     }
 
     /// <summary>
@@ -205,7 +206,7 @@
     /// <returns>An integer containing the length of the currently read HTTP request body.</returns>
     public override int GetPreloadedEntityBodyLength()
     {
-      return Encoding.Unicode.GetBytes(this.request.Data).Length;
+      return Encoding.Unicode.GetBytes(this.context.Request.Data).Length;
     }
 
     /// <summary>
@@ -297,7 +298,7 @@
         throw new ArgumentNullException("filename");
       }
 
-      this.response.Content += File.ReadAllText(filename).Substring((int)offset, (int)length);
+      this.context.Response.Content += File.ReadAllText(filename).Substring((int)offset, (int)length);
     }
 
     /// <summary>

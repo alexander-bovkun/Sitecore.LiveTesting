@@ -9,14 +9,14 @@
   public class InitializationManager
   {
     /// <summary>
-    /// The initialization attribute discoverer.
+    /// The initialization action discoverer.
     /// </summary>
-    private readonly TestInitializationActionDiscoverer initializationAttributeDiscoverer;
+    private readonly InitializationActionDiscoverer initializationActionDiscoverer;
 
     /// <summary>
-    /// The initialization attribute executor.
+    /// The initialization action executor.
     /// </summary>
-    private readonly InitializationActionExecutor initializationAttributeExecutor;
+    private readonly InitializationActionExecutor initializationActionExecutor;
 
     /// <summary>
     /// The actions.
@@ -26,19 +26,19 @@
     /// <summary>
     /// Initializes a new instance of the <see cref="InitializationManager"/> class.
     /// </summary>
-    /// <param name="initializationAttributeDiscoverer">The initialization attribute discoverer.</param>
-    /// <param name="initializationAttributeExecutor">The initialization attribute executor.</param>
+    /// <param name="initializationActionDiscoverer">The initialization Action discoverer.</param>
+    /// <param name="initializationActionExecutor">The initialization Action executor.</param>
     /// <param name="actions">The action container.</param>
-    public InitializationManager(TestInitializationActionDiscoverer initializationAttributeDiscoverer, InitializationActionExecutor initializationAttributeExecutor, IDictionary<int, IList<InitializationAction>> actions)
+    public InitializationManager(InitializationActionDiscoverer initializationActionDiscoverer, InitializationActionExecutor initializationActionExecutor, IDictionary<int, IList<InitializationAction>> actions)
     {
-      if (initializationAttributeDiscoverer == null)
+      if (initializationActionDiscoverer == null)
       {
-        throw new ArgumentNullException("initializationAttributeDiscoverer");
+        throw new ArgumentNullException("initializationActionDiscoverer");
       }
 
-      if (initializationAttributeExecutor == null)
+      if (initializationActionExecutor == null)
       {
-        throw new ArgumentNullException("initializationAttributeExecutor");
+        throw new ArgumentNullException("initializationActionExecutor");
       }
 
       if (actions == null)
@@ -46,17 +46,17 @@
         throw new ArgumentNullException("actions");
       }
 
-      this.initializationAttributeDiscoverer = initializationAttributeDiscoverer;
-      this.initializationAttributeExecutor = initializationAttributeExecutor;
+      this.initializationActionDiscoverer = initializationActionDiscoverer;
+      this.initializationActionExecutor = initializationActionExecutor;
       this.actions = actions;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InitializationManager"/> class.
     /// </summary>
-    /// <param name="initializationAttributeDiscoverer">The initialization attribute discoverer.</param>
-    /// <param name="initializationAttributeExecutor">The initialization attribute executor.</param>
-    public InitializationManager(TestInitializationActionDiscoverer initializationAttributeDiscoverer, InitializationActionExecutor initializationAttributeExecutor) : this(initializationAttributeDiscoverer, initializationAttributeExecutor, new Dictionary<int, IList<InitializationAction>>())
+    /// <param name="initializationActionDiscoverer">The initialization Action discoverer.</param>
+    /// <param name="initializationActionExecutor">The initialization Action executor.</param>
+    public InitializationManager(InitializationActionDiscoverer initializationActionDiscoverer, InitializationActionExecutor initializationActionExecutor) : this(initializationActionDiscoverer, initializationActionExecutor, new Dictionary<int, IList<InitializationAction>>())
     {
     }
 
@@ -67,7 +67,7 @@
     /// <param name="context">The initialization context.</param>
     public virtual void Initialize(int id, object context)
     {
-      IEnumerable<InitializationAction> actionsToExecute = this.initializationAttributeDiscoverer.GetInitializationActions(context);
+      IEnumerable<InitializationAction> actionsToExecute = this.initializationActionDiscoverer.GetInitializationActions(context);
 
       lock (this.actions)
       {
@@ -81,7 +81,7 @@
 
       foreach (InitializationAction action in this.actions[id])
       {
-        this.initializationAttributeExecutor.ExecuteInitializationForAction(action);
+        this.initializationActionExecutor.ExecuteInitializationForAction(action);
       }
     }
 
@@ -109,7 +109,7 @@
       while (actionsToExecute.Count > 0)
       {
         InitializationAction action = actionsToExecute.Pop();
-        this.initializationAttributeExecutor.ExecuteCleanupForAction(action);
+        this.initializationActionExecutor.ExecuteCleanupForAction(action);
       }
     }
   }

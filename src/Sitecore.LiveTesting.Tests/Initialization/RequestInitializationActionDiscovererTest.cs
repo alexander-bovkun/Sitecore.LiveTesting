@@ -35,7 +35,7 @@
       Request request = new Request { InitializationHandlers = { { typeof(SampleInitializationHandler), arguments } } };
       RequestInitializationActionDiscoverer discoverer = new RequestInitializationActionDiscoverer();
 
-      IEnumerable<InitializationAction> result = discoverer.GetInitializationActions(new RequestInitializationContext(request)).ToArray();
+      IEnumerable<InitializationAction> result = discoverer.GetInitializationActions(new RequestInitializationContext(request, new Response())).ToArray();
 
       Assert.Equal(1, result.Count());
       Assert.Equal(typeof(SampleInitializationHandler).FullName, result.Single().Id);

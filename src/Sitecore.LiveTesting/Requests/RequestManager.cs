@@ -3,12 +3,47 @@
   using System;
   using System.Web;
   using System.Web.Hosting;
+  using Sitecore.LiveTesting.Initialization;
 
   /// <summary>
   /// The request manager.
   /// </summary>
   public class RequestManager : MarshalByRefObject, IRegisteredObject
   {
+    /// <summary>
+    /// The initialization action discoverer.
+    /// </summary>
+    private readonly InitializationManager initializationManager;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RequestManager"/> class.
+    /// </summary>
+    public RequestManager() : this(new InitializationManager(new RequestInitializationActionDiscoverer(), new InitializationActionExecutor()))
+    {      
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RequestManager"/> class.
+    /// </summary>
+    /// <param name="initializationManager">The initialization action discoverer.</param>
+    protected RequestManager(InitializationManager initializationManager)
+    {
+      if (initializationManager == null)
+      {
+        throw new ArgumentNullException("initializationManager");
+      }
+
+      this.initializationManager = initializationManager;
+    }
+
+    /// <summary>
+    /// Gets the initialization manager.
+    /// </summary>
+    protected InitializationManager InitializationManager
+    {
+      get { return this.initializationManager; }
+    }
+
     /// <summary>
     /// Executes the request.
     /// </summary>
@@ -47,7 +82,7 @@
     /// <returns> The <see cref="HttpWorkerRequest"/>.</returns>
     protected virtual HttpWorkerRequest GetWorkerRequest(Request request)
     {
-      return new WorkerRequest(request, new Response());
+      return new WorkerRequest(this.InitializationManager, new RequestInitializationContext(request, new Response()));
     }
 
     /// <summary>
