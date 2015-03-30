@@ -2,7 +2,6 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.Reflection;
 
   /// <summary>
   /// Defines the class responsible for initialization before and after each test runs.
@@ -64,25 +63,23 @@
     /// <summary>
     /// Performs initialization.
     /// </summary>
-    /// <param name="testInstance">Test instance.</param>
-    /// <param name="methodCallId">Method call id.</param>
-    /// <param name="testMethod">Test method.</param>
-    /// <param name="arguments">The arguments.</param>
-    public virtual void Initialize(LiveTestWithInitialization testInstance, int methodCallId, MethodBase testMethod, object[] arguments)
+    /// <param name="id">The id of initialization attempt.</param>
+    /// <param name="context">The initialization context.</param>
+    public virtual void Initialize(int id, object context)
     {
-      IEnumerable<InitializationAction> actionsToExecute = this.initializationAttributeDiscoverer.GetInitializationActions(testInstance, testMethod, arguments);
+      IEnumerable<InitializationAction> actionsToExecute = this.initializationAttributeDiscoverer.GetInitializationActions(context);
 
       lock (this.actions)
       {
-        if (this.actions.ContainsKey(methodCallId))
+        if (this.actions.ContainsKey(id))
         {
           throw new InvalidOperationException("Concurrency problem occured. Initialize method has been called twice or more for the same method call id.");
         }
 
-        this.actions.Add(methodCallId, Utility.ToList(actionsToExecute));
+        this.actions.Add(id, Utility.ToList(actionsToExecute));
       }
 
-      foreach (InitializationAction action in this.actions[methodCallId])
+      foreach (InitializationAction action in this.actions[id])
       {
         this.initializationAttributeExecutor.ExecuteInitializationForAction(action);
       }
@@ -91,22 +88,20 @@
     /// <summary>
     /// Performs cleanup.
     /// </summary>
-    /// <param name="testInstance">Test instance.</param>
-    /// <param name="methodCallId">Method call id.</param>
-    /// <param name="testMethod">Test method.</param>
-    /// <param name="arguments">The arguments.</param>
-    public virtual void Cleanup(LiveTestWithInitialization testInstance, int methodCallId, MethodBase testMethod, object[] arguments)
+    /// <param name="id">The id of initialization attempt.</param>
+    /// <param name="context">The initialization context.</param>
+    public virtual void Cleanup(int id, object context)
     {
       IEnumerable<InitializationAction> actionsInOriginalOrder;
 
       lock (this.actions)
       {
-        if (!this.actions.ContainsKey(methodCallId))
+        if (!this.actions.ContainsKey(id))
         {
           throw new InvalidOperationException("Possible concurrency problem occured. Seems that Initialize method was not called before clean up.");
         }
 
-        actionsInOriginalOrder = this.actions[methodCallId];
+        actionsInOriginalOrder = this.actions[id];
       }
 
       Stack<InitializationAction> actionsToExecute = new Stack<InitializationAction>(actionsInOriginalOrder);

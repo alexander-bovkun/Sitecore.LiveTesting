@@ -45,9 +45,9 @@
       test.TestSomething();
 
       Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
-      int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[1];
-      Test.InitializationManager.Received().Initialize(test, methodCallId, typeof(Test).GetMethod("TestSomething"), Arg.Is<object[]>(array => array.Length == 0));
-      Test.InitializationManager.Received().Cleanup(test, methodCallId, typeof(Test).GetMethod("TestSomething"), Arg.Is<object[]>(array => array.Length == 0));
+      int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[0];
+      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
     }
 
     /// <summary>
@@ -63,9 +63,9 @@
 
       Assert.Throws<Exception>(action);
       Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
-      int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[1];
-      Test.InitializationManager.Received().Initialize(test, methodCallId, typeof(Test).GetMethod("FailingTest"), Arg.Is<object[]>(array => array.Length == 0));
-      Test.InitializationManager.Received().Cleanup(test, methodCallId, typeof(Test).GetMethod("FailingTest"), Arg.Is<object[]>(array => array.Length == 0));
+      int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[0];
+      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<InitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
     }
 
     /// <summary>
@@ -85,7 +85,7 @@
     [Fact]
     public void ShouldCrashIfTestInitializationCrashes()
     {
-      Test.InitializationManager.WhenForAnyArgs(manager => manager.Initialize(null, 0, null, null)).Throw<Exception>();
+      Test.InitializationManager.WhenForAnyArgs(manager => manager.Initialize(0, null)).Throw<Exception>();
       Test test = new Test();
 
       Assert.ThrowsDelegate action = test.TestSomething;
@@ -99,7 +99,7 @@
     [Fact]
     public void ShouldCrashIfTestCleanupCrashes()
     {
-      Test.InitializationManager.WhenForAnyArgs(manager => manager.Cleanup(null, 0, null, null)).Throw<Exception>();
+      Test.InitializationManager.WhenForAnyArgs(manager => manager.Cleanup(0, null)).Throw<Exception>();
       Test test = new Test();
 
       Assert.ThrowsDelegate action = test.TestSomething;
@@ -131,7 +131,7 @@
       {
         LiveTestWithInitialization test = (LiveTestWithInitialization)Activator.CreateInstance(testType);
         RealTest = test;
-        return Intercept(test, testType);
+        return LiveTestWithInitialization.Intercept(test, testType);
       }
 
       /// <summary>
@@ -177,7 +177,7 @@
       public static new LiveTestWithInitialization Instantiate(Type testType)
       {
         LiveTestWithInitialization test = (LiveTestWithInitialization)TestAppDomain.CreateInstanceAndUnwrap(typeof(RealLiveTest).Assembly.FullName, typeof(RealLiveTest).FullName);
-        return Intercept(test, testType);
+        return LiveTestWithInitialization.Intercept(test, testType);
       }
 
       /// <summary>

@@ -22,7 +22,7 @@
       InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
       Test test = new Test();
 
-      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument }).ToArray();
+      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new InitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument })).ToArray();
 
       Assert.Equal(1, actions.Count());
 
@@ -46,7 +46,7 @@
       InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
       Test test = new Test();
 
-      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(test, typeof(Test).GetMethod("TestMethodWithPrioritizedInitializationHandler"), new object[0]).ToArray();
+      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new InitializationContext(test, typeof(Test).GetMethod("TestMethodWithPrioritizedInitializationHandler"), new object[0])).ToArray();
 
       Assert.Equal(3, actions.Count());
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.First().Id);
@@ -55,6 +55,19 @@
       Assert.Equal(typeof(InitializationHandler1), ((object[])actions.ElementAt(1).State)[0]);
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.ElementAt(2).Id);
       Assert.Equal(typeof(InitializationHandler2), ((object[])actions.ElementAt(2).State)[0]);
+    }
+
+    /// <summary>
+    /// Should throw not supported exception if called with other than initialization context type of context.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowNotSupportedExceptionIfCalledWithOtherThanInitializationContextTypeOfContext()
+    {
+      InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
+
+      Assert.ThrowsDelegate action = () => actionDiscoverer.GetInitializationActions(new object());
+
+      Assert.Throws<NotSupportedException>(action);
     }
 
     /// <summary>

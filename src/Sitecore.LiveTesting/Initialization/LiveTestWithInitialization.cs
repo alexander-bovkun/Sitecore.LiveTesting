@@ -65,7 +65,7 @@
     /// <param name="args">The arguments.</param>
     protected virtual void OnAfterMethodCall(object sender, MethodCallEventArgs args)
     {
-      this.GetTestInitializationManager().Cleanup(this, args.MethodCallId, args.Method, args.Arguments);
+      this.GetTestInitializationManager().Cleanup(args.MethodCallId, new InitializationContext(this, args.Method, args.Arguments));
     }
 
     /// <summary>
@@ -75,7 +75,7 @@
     /// <param name="args">The arguments.</param>
     protected virtual void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
     {
-      this.GetTestInitializationManager().Initialize(this, args.MethodCallId, args.Method, args.Arguments);
+      this.GetTestInitializationManager().Initialize(args.MethodCallId, new InitializationContext(this, args.Method, args.Arguments));
     }
 
     /// <summary>

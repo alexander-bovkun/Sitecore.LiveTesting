@@ -12,32 +12,30 @@
     /// <summary>
     /// Gets initialization actions.
     /// </summary>
-    /// <param name="testInstance">The test instance.</param>
-    /// <param name="testMethod">The test method.</param>
-    /// <param name="arguments">The arguments.</param>
+    /// <param name="context">The initialization context.</param>
     /// <returns>List of discovered initialization actions.</returns>
-    public virtual IEnumerable<InitializationAction> GetInitializationActions(LiveTestWithInitialization testInstance, MethodBase testMethod, object[] arguments)
+    public virtual IEnumerable<InitializationAction> GetInitializationActions(object context)
     {
-      if (testInstance == null)
+      if (context == null)
       {
-        throw new ArgumentNullException("testInstance");
+        throw new ArgumentNullException("context");
       }
 
-      if (testMethod == null)
+      InitializationContext initializationContext = context as InitializationContext;
+
+      if (initializationContext == null)
       {
-        throw new ArgumentNullException("testMethod");
+        throw new NotSupportedException(string.Format("Only contexts derived from {0} are supported.", typeof(InitializationContext).FullName));
       }
 
-      InitializationContext context = new InitializationContext(testInstance, testMethod, arguments);
-
-      List<InitializationHandlerAttribute> attributes = Utility.ToList(GetActionAttributes(testInstance.GetType()));
-      attributes.AddRange(GetActionAttributes(testMethod));
+      List<InitializationHandlerAttribute> attributes = Utility.ToList(GetActionAttributes(initializationContext.Instance.GetType()));
+      attributes.AddRange(GetActionAttributes(initializationContext.Method));
       attributes.Sort(InitializationHandlerAttributePriorityComparer.Default);
 
       List<InitializationAction> result = new List<InitializationAction>();
       foreach (InitializationHandlerAttribute initializationHandlerAttribute in attributes)
       {
-        result.Add(ActionFromAttribute(initializationHandlerAttribute, context));
+        result.Add(ActionFromAttribute(initializationHandlerAttribute, initializationContext));
       }
 
       return result;

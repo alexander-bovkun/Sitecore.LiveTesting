@@ -2,7 +2,6 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.Reflection;
   using NSubstitute;
   using Sitecore.LiveTesting.Initialization;
   using Xunit;
@@ -45,12 +44,11 @@
     {
       const int MethodCallId = 123;
 
-      MethodInfo testMethod = typeof(Test).GetMethod("TestMethod");
-      Test test = new Test();
+      InitializationContext context = new InitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
 
-      this.actionDiscoverer.GetInitializationActions(test, testMethod, Arg.Is<object[]>(args => args.Length == 0)).Returns(new[] { new InitializationAction("Action1"), new InitializationAction("Action2") });
+      this.actionDiscoverer.GetInitializationActions(context).Returns(new[] { new InitializationAction("Action1"), new InitializationAction("Action2") });
 
-      this.manager.Initialize(test, MethodCallId, testMethod, new object[0]);
+      this.manager.Initialize(MethodCallId, context);
 
       Received.InOrder(
         () =>
@@ -68,13 +66,12 @@
     {
       const int MethodCallId = 123;
 
-      MethodInfo testMethod = typeof(Test).GetMethod("TestMethod");
-      Test test = new Test();
+      InitializationContext context = new InitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
 
-      this.actionDiscoverer.GetInitializationActions(test, testMethod, Arg.Is<object[]>(args => args.Length == 0)).Returns(new[] { new InitializationAction("Action1"), new InitializationAction("Action2") });
+      this.actionDiscoverer.GetInitializationActions(context).Returns(new[] { new InitializationAction("Action1"), new InitializationAction("Action2") });
 
-      this.manager.Initialize(test, MethodCallId, testMethod, new object[0]);
-      Assert.ThrowsDelegate action = () => this.manager.Initialize(test, MethodCallId, testMethod, new object[0]);
+      this.manager.Initialize(MethodCallId, context);
+      Assert.ThrowsDelegate action = () => this.manager.Initialize(MethodCallId, context);
 
       Assert.Throws<InvalidOperationException>(action);
     }
@@ -87,12 +84,9 @@
     {
       const int MethodCallId = 123;
 
-      MethodInfo testMethod = typeof(Test).GetMethod("TestMethod");
-      Test test = new Test();
+      this.manager = new InitializationManager(this.actionDiscoverer, this.actionExecutor, new Dictionary<int, IList<InitializationAction>> { { MethodCallId, new[] { new InitializationAction("Action1"), new InitializationAction("Action2") } } });
 
-      this.manager = new InitializationManager(this.actionDiscoverer, this.actionExecutor, new Dictionary<int, IList<InitializationAction>>() { { MethodCallId, new InitializationAction[] { new InitializationAction("Action1"), new InitializationAction("Action2") } } });
-
-      this.manager.Cleanup(test, MethodCallId, testMethod, new object[0]);
+      this.manager.Cleanup(MethodCallId, null);
 
       Received.InOrder(
         () =>
@@ -110,10 +104,7 @@
     {
       const int MethodCallId = 123;
 
-      MethodInfo testMethod = typeof(Test).GetMethod("TestMethod");
-      Test test = new Test();
-
-      Assert.ThrowsDelegate action = () => this.manager.Cleanup(test, MethodCallId, testMethod, new object[0]);
+      Assert.ThrowsDelegate action = () => this.manager.Cleanup(MethodCallId, null);
 
       Assert.Throws<InvalidOperationException>(action);
     }
