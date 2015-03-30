@@ -36,8 +36,13 @@
     /// </summary>
     /// <param name="context">The test initialization context.</param>
     /// <returns>List of discovered initialization actions.</returns>
-    public virtual IEnumerable<InitializationAction> GetInitializationActions(TestInitializationContext context)
+    protected virtual IEnumerable<InitializationAction> GetInitializationActions(TestInitializationContext context)
     {
+      if (context == null)
+      {
+        throw new ArgumentNullException("context");
+      }
+
       List<InitializationHandlerAttribute> attributes = Utility.ToList(GetActionAttributes(context.Instance.GetType()));
       attributes.AddRange(GetActionAttributes(context.Method));
       attributes.Sort(InitializationHandlerAttributePriorityComparer.Default);

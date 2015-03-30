@@ -44,6 +44,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Initialization\InitializationActionDiscoverer.cs" />
+    <Compile Include="Initialization\RequestInitializationActionDiscoverer.cs" />
+    <Compile Include="Initialization\RequestInitializationContext.cs" />
     <Compile Include="Initialization\TestInitializationActionDiscoverer.cs">
       <SubType>Code</SubType>
     </Compile>

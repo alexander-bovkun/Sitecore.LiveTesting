@@ -20,6 +20,11 @@
     private readonly IDictionary<string, string> headers;
 
     /// <summary>
+    /// The initialization handlers.
+    /// </summary>
+    private readonly IDictionary<Type, object[]> initializationHandlers;
+
+    /// <summary>
     /// The path.
     /// </summary>
     private string path;
@@ -61,6 +66,7 @@
     {
       this.serverVariables = new Dictionary<string, string>();
       this.headers = new Dictionary<string, string>();
+      this.initializationHandlers = new Dictionary<Type, object[]>();
 
       this.Path = string.Empty;
       this.QueryString = string.Empty;
@@ -86,6 +92,14 @@
     public IDictionary<string, string> Headers
     {
       get { return this.headers; }
+    }
+
+    /// <summary>
+    /// Gets the initialization handlers.
+    /// </summary>
+    public IDictionary<Type, object[]> InitializationHandlers
+    {
+      get { return this.initializationHandlers; }
     }
 
     /// <summary>
