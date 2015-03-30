@@ -44,7 +44,7 @@
     {
       const int MethodCallId = 123;
 
-      InitializationContext context = new InitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
+      TestInitializationContext context = new TestInitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
 
       this.actionDiscoverer.GetInitializationActions(context).Returns(new[] { new InitializationAction("Action1"), new InitializationAction("Action2") });
 
@@ -66,7 +66,7 @@
     {
       const int MethodCallId = 123;
 
-      InitializationContext context = new InitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
+      TestInitializationContext context = new TestInitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
 
       this.actionDiscoverer.GetInitializationActions(context).Returns(new[] { new InitializationAction("Action1"), new InitializationAction("Action2") });
 

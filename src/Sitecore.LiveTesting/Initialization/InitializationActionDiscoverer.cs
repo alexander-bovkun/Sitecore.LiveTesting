@@ -21,11 +21,11 @@
         throw new ArgumentNullException("context");
       }
 
-      InitializationContext initializationContext = context as InitializationContext;
+      TestInitializationContext initializationContext = context as TestInitializationContext;
 
       if (initializationContext == null)
       {
-        throw new NotSupportedException(string.Format("Only contexts derived from {0} are supported.", typeof(InitializationContext).FullName));
+        throw new NotSupportedException(string.Format("Only contexts derived from {0} are supported.", typeof(TestInitializationContext).FullName));
       }
 
       List<InitializationHandlerAttribute> attributes = Utility.ToList(GetActionAttributes(initializationContext.Instance.GetType()));
@@ -69,7 +69,7 @@
     /// <param name="attribute">The attribute.</param>
     /// <param name="context">The initialization context.</param>
     /// <returns>The corresponding action.</returns>
-    private static InitializationAction ActionFromAttribute(InitializationHandlerAttribute attribute, InitializationContext context)
+    private static InitializationAction ActionFromAttribute(InitializationHandlerAttribute attribute, TestInitializationContext context)
     {
       return new InitializationAction(attribute.InitializationHandlerType.AssemblyQualifiedName) { State = new object[] { attribute.InitializationHandlerType, attribute.Arguments }, Context = context };
     }

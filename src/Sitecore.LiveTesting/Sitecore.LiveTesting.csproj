@@ -49,7 +49,7 @@
     <Compile Include="Initialization\InitializationActionExecutor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Initialization\InitializationContext.cs" />
+    <Compile Include="Initialization\TestInitializationContext.cs" />
     <Compile Include="Initialization\InitializationHandlerAttribute.cs">
       <SubType>Code</SubType>
     </Compile>

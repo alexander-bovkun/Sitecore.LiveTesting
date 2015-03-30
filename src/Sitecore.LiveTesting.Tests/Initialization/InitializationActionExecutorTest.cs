@@ -115,7 +115,7 @@
     public void ShouldSetInitializationContextIfInitializationHandlerImplementsIInitializationContextAware()
     {
       InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationContext context = new InitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
+      TestInitializationContext context = new TestInitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
       InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(InitializationContextAwareInitializer), new object[0] }, Context = context };
 
       InitializationContextAwareInitializer.InitializationContext = null;

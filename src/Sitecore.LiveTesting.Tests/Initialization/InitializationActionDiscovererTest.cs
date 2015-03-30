@@ -22,19 +22,19 @@
       InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
       Test test = new Test();
 
-      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new InitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument })).ToArray();
+      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new TestInitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument })).ToArray();
 
       Assert.Equal(1, actions.Count());
 
-      InitializationContext expectedInitializationContext = new InitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument });
+      TestInitializationContext expectedInitializationContext = new TestInitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument });
       
       Assert.Equal(typeof(InitializationHandler1).AssemblyQualifiedName, actions.Single().Id);
       Assert.IsType<object[]>(actions.Single().State);
       Assert.Equal(typeof(InitializationHandler1), ((object[])actions.Single().State)[0]);
       Assert.Equal(new object[] { "parameter" }, ((object[])actions.Single().State)[1]);
-      Assert.Equal(expectedInitializationContext.Instance, ((InitializationContext)actions.Single().Context).Instance);
-      Assert.Equal(expectedInitializationContext.Method, ((InitializationContext)actions.Single().Context).Method);
-      Assert.Equal(expectedInitializationContext.Arguments, ((InitializationContext)actions.Single().Context).Arguments);
+      Assert.Equal(expectedInitializationContext.Instance, ((TestInitializationContext)actions.Single().Context).Instance);
+      Assert.Equal(expectedInitializationContext.Method, ((TestInitializationContext)actions.Single().Context).Method);
+      Assert.Equal(expectedInitializationContext.Arguments, ((TestInitializationContext)actions.Single().Context).Arguments);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@
       InitializationActionDiscoverer actionDiscoverer = new InitializationActionDiscoverer();
       Test test = new Test();
 
-      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new InitializationContext(test, typeof(Test).GetMethod("TestMethodWithPrioritizedInitializationHandler"), new object[0])).ToArray();
+      IEnumerable<InitializationAction> actions = actionDiscoverer.GetInitializationActions(new TestInitializationContext(test, typeof(Test).GetMethod("TestMethodWithPrioritizedInitializationHandler"), new object[0])).ToArray();
 
       Assert.Equal(3, actions.Count());
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.First().Id);

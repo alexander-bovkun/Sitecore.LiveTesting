@@ -6,7 +6,7 @@
   /// <summary>
   /// Defines the initialization context which provides additional information about the test being executed to initialization handlers.
   /// </summary>
-  public class InitializationContext
+  public class TestInitializationContext
   {
     /// <summary>
     /// The instance.
@@ -24,12 +24,12 @@
     private readonly object[] arguments;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InitializationContext"/> class.
+    /// Initializes a new instance of the <see cref="TestInitializationContext"/> class.
     /// </summary>
     /// <param name="instance">The instance.</param>
     /// <param name="method">The method.</param>
     /// <param name="arguments">The arguments.</param>
-    public InitializationContext(object instance, MethodBase method, object[] arguments)
+    public TestInitializationContext(object instance, MethodBase method, object[] arguments)
     {
       if (method == null)
       {
