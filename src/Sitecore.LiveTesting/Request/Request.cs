@@ -22,7 +22,7 @@
     /// <summary>
     /// The initialization handlers.
     /// </summary>
-    private readonly IDictionary<Type, object[]> initializationHandlers;
+    private readonly IList<KeyValuePair<Type, object[]>> initializationHandlers;
 
     /// <summary>
     /// The path.
@@ -66,7 +66,7 @@
     {
       this.serverVariables = new Dictionary<string, string>();
       this.headers = new Dictionary<string, string>();
-      this.initializationHandlers = new Dictionary<Type, object[]>();
+      this.initializationHandlers = new List<KeyValuePair<Type, object[]>>();
 
       this.Path = string.Empty;
       this.QueryString = string.Empty;
@@ -97,7 +97,7 @@
     /// <summary>
     /// Gets the initialization handlers.
     /// </summary>
-    public IDictionary<Type, object[]> InitializationHandlers
+    public IList<KeyValuePair<Type, object[]>> InitializationHandlers
     {
       get { return this.initializationHandlers; }
     }

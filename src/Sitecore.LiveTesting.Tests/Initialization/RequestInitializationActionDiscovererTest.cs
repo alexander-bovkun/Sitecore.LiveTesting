@@ -32,7 +32,7 @@
     public void ShouldGetInitializationActionsFromRequest()
     {
       object[] arguments = { "argument" };
-      RequestInitializationContext context = new RequestInitializationContext(new Request { InitializationHandlers = { { typeof(SampleInitializationHandler), arguments } } }, new Response());
+      RequestInitializationContext context = new RequestInitializationContext(new Request { InitializationHandlers = { new KeyValuePair<Type, object[]>(typeof(SampleInitializationHandler), arguments) } }, new Response());
       RequestInitializationActionDiscoverer discoverer = new RequestInitializationActionDiscoverer();
 
       IEnumerable<InitializationAction> result = discoverer.GetInitializationActions(context).ToArray();
