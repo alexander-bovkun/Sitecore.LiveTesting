@@ -11,7 +11,11 @@
     <description>$description$</description>
     <releaseNotes/>
     <copyright>Copyright © Sitecore 2015</copyright>
+    <dependencies>
+      <dependency id="Sitecore.LiveTesting"/>
+    </dependencies>
     <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Web"/>
       <frameworkAssembly assemblyName="System.Xml"/>
     </frameworkAssemblies>
   </metadata>

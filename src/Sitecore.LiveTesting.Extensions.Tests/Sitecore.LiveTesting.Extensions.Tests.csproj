@@ -44,6 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="InitializationHandlers\HookAdapterTest.cs" />
+    <Compile Include="InitializationHandlers\Request\HttpContextProviderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +56,8 @@
       <HintPath>..\..\lib\Sitecore.Kernel.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
@@ -67,6 +70,10 @@
     <ProjectReference Include="..\Sitecore.LiveTesting.Extensions\Sitecore.LiveTesting.Extensions.csproj">
       <Project>{84827edd-3d97-44fd-a9b8-25ebd77d6309}</Project>
       <Name>Sitecore.LiveTesting.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sitecore.LiveTesting\Sitecore.LiveTesting.csproj">
+      <Project>{729a3b8e-ffee-44bf-b3f9-08fe99767525}</Project>
+      <Name>Sitecore.LiveTesting</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -45,6 +45,7 @@
     <Compile Include="Configuration\XPathNodeIteratorExtensions.cs" />
     <Compile Include="InitializationHandlers\HookAdapter.cs" />
     <Compile Include="InitializationHandlers\DatabaseCleanup.cs" />
+    <Compile Include="InitializationHandlers\Request\HttpContextProvider.cs" />
     <Compile Include="Pipelines\PipelineDefinition.cs" />
     <Compile Include="Pipelines\PipelineManager.cs" />
     <Compile Include="Pipelines\PipelineManagerExtensions.cs" />
@@ -63,8 +64,15 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sitecore.LiveTesting\Sitecore.LiveTesting.csproj">
+      <Project>{729A3B8E-FFEE-44BF-B3F9-08FE99767525}</Project>
+      <Name>Sitecore.LiveTesting</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
