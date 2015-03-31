@@ -9,14 +9,9 @@
   public class InitializationHandlerAttribute : Attribute
   {
     /// <summary>
-    /// Initialization handler type.
+    /// The initialization handler.
     /// </summary>
-    private readonly Type initializationHandlerType;
-
-    /// <summary>
-    /// The arguments.
-    /// </summary>
-    private readonly object[] arguments;
+    private readonly InitializationHandler initializationHandler;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InitializationHandlerAttribute"/> class.
@@ -25,34 +20,15 @@
     /// <param name="arguments">The arguments to provide to initialization handler.</param>
     public InitializationHandlerAttribute(Type initializationHandlerType, params object[] arguments)
     {
-      if (initializationHandlerType == null)
-      {
-        throw new ArgumentNullException("initializationHandlerType");
-      }
-
-      if (arguments == null)
-      {
-        throw new ArgumentNullException("arguments");
-      }
-
-      this.initializationHandlerType = initializationHandlerType;
-      this.arguments = arguments;
+      this.initializationHandler = new InitializationHandler(initializationHandlerType, arguments);
     }
 
     /// <summary>
-    /// Gets the type of initialization handler.
+    /// Gets the initialization handler.
     /// </summary>
-    public Type InitializationHandlerType
+    public InitializationHandler InitializationHandler
     {
-      get { return this.initializationHandlerType; } 
-    }
-
-    /// <summary>
-    /// Gets the arguments to be provided to initialization handler.
-    /// </summary>
-    public object[] Arguments
-    {
-      get { return this.arguments; }
+      get { return this.initializationHandler; }
     }
 
     /// <summary>
