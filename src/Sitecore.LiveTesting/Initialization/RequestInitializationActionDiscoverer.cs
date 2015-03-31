@@ -46,7 +46,7 @@
 
       foreach (KeyValuePair<Type, object[]> initializationHandler in context.Request.InitializationHandlers)
       {
-        result.Add(new InitializationAction(initializationHandler.Key.FullName) { State = new object[] { initializationHandler.Key, initializationHandler.Value } });
+        result.Add(new InitializationAction(initializationHandler.Key.FullName) { State = new object[] { initializationHandler.Key, initializationHandler.Value }, Context = context });
       }
 
       return result;

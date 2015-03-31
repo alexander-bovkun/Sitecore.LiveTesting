@@ -32,16 +32,17 @@
     public void ShouldGetInitializationActionsFromRequest()
     {
       object[] arguments = { "argument" };
-      Request request = new Request { InitializationHandlers = { { typeof(SampleInitializationHandler), arguments } } };
+      RequestInitializationContext context = new RequestInitializationContext(new Request { InitializationHandlers = { { typeof(SampleInitializationHandler), arguments } } }, new Response());
       RequestInitializationActionDiscoverer discoverer = new RequestInitializationActionDiscoverer();
 
-      IEnumerable<InitializationAction> result = discoverer.GetInitializationActions(new RequestInitializationContext(request, new Response())).ToArray();
+      IEnumerable<InitializationAction> result = discoverer.GetInitializationActions(context).ToArray();
 
       Assert.Equal(1, result.Count());
       Assert.Equal(typeof(SampleInitializationHandler).FullName, result.Single().Id);
       Assert.IsType<object[]>(result.Single().State);
       Assert.Equal(typeof(SampleInitializationHandler), ((object[])result.Single().State)[0]);
       Assert.Equal(arguments, ((object[])result.Single().State)[1]);
+      Assert.Equal(context, result.Single().Context);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.Initialization
 {
   using System;
+  using System.Web;
   using Sitecore.LiveTesting.Requests;
 
   /// <summary>
@@ -54,5 +55,10 @@
     {
       get { return this.response; }
     }
+
+    /// <summary>
+    /// Gets or sets the http context.
+    /// </summary>
+    public HttpContext HttpContext { get; set; }
   }
 }

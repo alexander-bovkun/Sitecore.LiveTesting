@@ -3,6 +3,7 @@
   using System;
   using System.IO;
   using System.Text;
+  using System.Threading;
   using System.Web;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;
@@ -12,6 +13,16 @@
   /// </summary>
   internal class WorkerRequest : SimpleWorkerRequest
   {
+    /// <summary>
+    /// The connection count.
+    /// </summary>
+    private static int connectionCount;
+
+    /// <summary>
+    /// The connection id.
+    /// </summary>
+    private readonly int connectionId;
+
     /// <summary>
     /// The initialization manager.
     /// </summary>
@@ -48,6 +59,8 @@
       {
         throw new ArgumentNullException("context");
       }
+
+      this.connectionId = Interlocked.Increment(ref connectionCount);
 
       this.initializationManager = initializationManager;
       this.context = context;
@@ -228,6 +241,15 @@
     }
 
     /// <summary>
+    /// The get connection id.
+    /// </summary>
+    /// <returns>The connection id.</returns>
+    public override long GetConnectionID()
+    {
+      return this.connectionId;
+    }
+
+    /// <summary>
     /// Sets the status for the response.
     /// </summary>
     /// <param name="statusCode">The status code.</param>
@@ -310,6 +332,9 @@
     {
       base.SetEndOfSendNotification(callback, extraData);
 
+      HttpContext httpContext = extraData as HttpContext;
+      this.context.HttpContext = httpContext;
+
       this.Initialization();
     }
 
@@ -332,6 +357,8 @@
       this.Response.Headers.Clear();
       this.Response.StatusCode = 0;
       this.Response.StatusDescription = string.Empty;
+
+      this.initializationManager.Initialize((int)this.GetConnectionID(), this.context);
     }
 
     /// <summary>
@@ -339,6 +366,7 @@
     /// </summary>
     private void Termination()
     {
+      this.initializationManager.Cleanup((int)this.GetConnectionID(), this.context);
     }
   }
 }
