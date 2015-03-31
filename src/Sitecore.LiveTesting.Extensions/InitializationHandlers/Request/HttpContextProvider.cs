@@ -2,6 +2,7 @@
 {
   using System;
   using System.Web;
+  using Sitecore.Diagnostics;
   using Sitecore.LiveTesting.Initialization;
 
   /// <summary>
@@ -39,12 +40,9 @@
     /// The set initialization context.
     /// </summary>
     /// <param name="context">The context.</param>
-    public void SetInitializationContext(object context)
+    public void SetInitializationContext([NotNull] object context)
     {
-      if (context == null)
-      {
-        throw new ArgumentNullException("context");
-      }
+      Assert.ArgumentNotNull(context, "context");
 
       RequestInitializationContext requestInitializationContext = context as RequestInitializationContext;
 

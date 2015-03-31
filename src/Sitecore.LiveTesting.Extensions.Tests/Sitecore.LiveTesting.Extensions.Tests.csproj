@@ -46,6 +46,7 @@
     <Compile Include="InitializationHandlers\HookAdapterTest.cs" />
     <Compile Include="InitializationHandlers\Request\HttpContextProviderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request\AuthenticatedRequestTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NSubstitute">

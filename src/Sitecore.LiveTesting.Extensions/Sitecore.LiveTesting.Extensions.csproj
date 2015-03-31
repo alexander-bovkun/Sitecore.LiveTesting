@@ -55,6 +55,7 @@
     <Compile Include="Pipelines\RuntimePipelineCall.cs" />
     <Compile Include="Pipelines\RuntimeProcessorCallEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request\AuthenticatedRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Sitecore.Kernel">
