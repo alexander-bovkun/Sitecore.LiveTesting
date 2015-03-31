@@ -29,9 +29,9 @@
       TestInitializationContext expectedInitializationContext = new TestInitializationContext(test, typeof(Test).GetMethod("TestMethod"), new object[] { Argument });
       
       Assert.Equal(typeof(InitializationHandler1).AssemblyQualifiedName, actions.Single().Id);
-      Assert.IsType<object[]>(actions.Single().State);
-      Assert.Equal(typeof(InitializationHandler1), ((object[])actions.Single().State)[0]);
-      Assert.Equal(new object[] { "parameter" }, ((object[])actions.Single().State)[1]);
+      Assert.IsType<InitializationHandler>(actions.Single().State);
+      Assert.Equal(typeof(InitializationHandler1), ((InitializationHandler)actions.Single().State).Type);
+      Assert.Equal(new object[] { "parameter" }, ((InitializationHandler)actions.Single().State).Arguments);
       Assert.Equal(expectedInitializationContext.Instance, ((TestInitializationContext)actions.Single().Context).Instance);
       Assert.Equal(expectedInitializationContext.Method, ((TestInitializationContext)actions.Single().Context).Method);
       Assert.Equal(expectedInitializationContext.Arguments, ((TestInitializationContext)actions.Single().Context).Arguments);
@@ -50,11 +50,11 @@
 
       Assert.Equal(3, actions.Count());
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.First().Id);
-      Assert.Equal(typeof(InitializationHandler2), ((object[])actions.First().State)[0]);
+      Assert.Equal(typeof(InitializationHandler2), ((InitializationHandler)actions.First().State).Type);
       Assert.Equal(typeof(InitializationHandler1).AssemblyQualifiedName, actions.ElementAt(1).Id);
-      Assert.Equal(typeof(InitializationHandler1), ((object[])actions.ElementAt(1).State)[0]);
+      Assert.Equal(typeof(InitializationHandler1), ((InitializationHandler)actions.ElementAt(1).State).Type);
       Assert.Equal(typeof(InitializationHandler2).AssemblyQualifiedName, actions.ElementAt(2).Id);
-      Assert.Equal(typeof(InitializationHandler2), ((object[])actions.ElementAt(2).State)[0]);
+      Assert.Equal(typeof(InitializationHandler2), ((InitializationHandler)actions.ElementAt(2).State).Type);
     }
 
     /// <summary>

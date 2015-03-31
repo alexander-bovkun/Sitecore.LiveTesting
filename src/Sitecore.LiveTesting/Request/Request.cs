@@ -2,6 +2,7 @@
 {
   using System;
   using System.Collections.Generic;
+  using Sitecore.LiveTesting.Initialization;
 
   /// <summary>
   /// Defines the class for requests.
@@ -22,7 +23,7 @@
     /// <summary>
     /// The initialization handlers.
     /// </summary>
-    private readonly IList<KeyValuePair<Type, object[]>> initializationHandlers;
+    private readonly IList<InitializationHandler> initializationHandlers;
 
     /// <summary>
     /// The path.
@@ -66,7 +67,7 @@
     {
       this.serverVariables = new Dictionary<string, string>();
       this.headers = new Dictionary<string, string>();
-      this.initializationHandlers = new List<KeyValuePair<Type, object[]>>();
+      this.initializationHandlers = new List<InitializationHandler>();
 
       this.Path = string.Empty;
       this.QueryString = string.Empty;
@@ -97,7 +98,7 @@
     /// <summary>
     /// Gets the initialization handlers.
     /// </summary>
-    public IList<KeyValuePair<Type, object[]>> InitializationHandlers
+    public IList<InitializationHandler> InitializationHandlers
     {
       get { return this.initializationHandlers; }
     }

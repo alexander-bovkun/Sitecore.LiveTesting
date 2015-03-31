@@ -1,9 +1,9 @@
 ﻿namespace Sitecore.LiveTesting.Extensions.Request
 {
   using System;
-  using System.Collections.Generic;
   using Sitecore.Diagnostics;
   using Sitecore.LiveTesting.Extensions.InitializationHandlers.Request;
+  using Sitecore.LiveTesting.Initialization;
   using Sitecore.LiveTesting.Request;
   using Sitecore.Security.Accounts;
 
@@ -21,8 +21,8 @@
     {
       Assert.ArgumentNotNullOrEmpty(userName, "userName");
 
-      this.InitializationHandlers.Add(new KeyValuePair<Type, object[]>(typeof(HttpContextProvider), new object[0]));
-      this.InitializationHandlers.Add(new KeyValuePair<Type, object[]>(typeof(UserSwitcher), new object[] { userName, true }));
+      this.InitializationHandlers.Add(new InitializationHandler(typeof(HttpContextProvider), new object[0]));
+      this.InitializationHandlers.Add(new InitializationHandler(typeof(UserSwitcher), new object[] { userName, true }));
     }
   }
 }

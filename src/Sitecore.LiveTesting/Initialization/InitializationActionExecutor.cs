@@ -19,48 +19,34 @@
         throw new ArgumentNullException("action");
       }
 
-      object[] initializerInfo = action.State as object[];
+      InitializationHandler initializationHandler = action.State as InitializationHandler;
 
-      if ((initializerInfo == null) || (initializerInfo.Length < 2))
+      if (initializationHandler == null)
       {
-        throw new ArgumentException("Action in not in a proper state. It's 'State' property should have reference to an array with at least 2 elements: initializer type and array of its arguments.");
+        throw new ArgumentException(string.Format("Action in not in a proper state. It's 'State' property should be of type '{0}' and should not be null.", typeof(InitializationHandler)));
       }
 
-      Type initializerType = initializerInfo[0] as Type;
+      Type[] argumentTypes = new Type[initializationHandler.Arguments.Length];
 
-      if (initializerType == null)
+      for (int index = 0; index < initializationHandler.Arguments.Length; ++index)
       {
-        throw new ArgumentException("Action in not in a proper state. First element of array must be a type of initializer.");
+        argumentTypes[index] = initializationHandler.Arguments[index].GetType();
       }
 
-      object[] initializerArguments = initializerInfo[1] as object[];
-
-      if (initializerArguments == null)
-      {
-        throw new ArgumentException("Action in not in a proper state. Second element of array must be an System.Object[] array of initializer arguments.");
-      }
-
-      Type[] argumentTypes = new Type[initializerArguments.Length];
-
-      for (int index = 0; index < initializerArguments.Length; ++index)
-      {
-        argumentTypes[index] = initializerArguments[index].GetType();
-      }
-
-      ConstructorInfo constructor = initializerType.GetConstructor(argumentTypes);
+      ConstructorInfo constructor = initializationHandler.Type.GetConstructor(argumentTypes);
 
       if (constructor == null)
       {
-        constructor = initializerType.GetConstructor(new[] { typeof(object[]) });
+        constructor = initializationHandler.Type.GetConstructor(new[] { typeof(object[]) });
 
         if (constructor != null)
         {
-          action.State = constructor.Invoke(new object[] { initializerArguments });
+          action.State = constructor.Invoke(new object[] { initializationHandler.Arguments });
         }
       }
       else
       {
-        action.State = constructor.Invoke(initializerArguments);
+        action.State = constructor.Invoke(initializationHandler.Arguments);
       }
 
       IInitializationContextAware contextAwareInitializer = action.State as IInitializationContextAware;

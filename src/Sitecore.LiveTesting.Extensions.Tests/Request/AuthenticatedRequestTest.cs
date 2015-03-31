@@ -22,12 +22,12 @@
       AuthenticatedRequest request = new AuthenticatedRequest(UserName);
 
       Assert.Equal(2, request.InitializationHandlers.Count);
-      Assert.Equal(typeof(HttpContextProvider), request.InitializationHandlers.First().Key);
-      Assert.Empty(request.InitializationHandlers.First().Value);
-      Assert.Equal(typeof(UserSwitcher), request.InitializationHandlers.ElementAt(1).Key);
-      Assert.Equal(2, request.InitializationHandlers.ElementAt(1).Value.Length);
-      Assert.Equal(UserName, request.InitializationHandlers.ElementAt(1).Value[0]);
-      Assert.Equal(true, request.InitializationHandlers.ElementAt(1).Value[1]);
+      Assert.Equal(typeof(HttpContextProvider), request.InitializationHandlers.First().Type);
+      Assert.Empty(request.InitializationHandlers.First().Arguments);
+      Assert.Equal(typeof(UserSwitcher), request.InitializationHandlers.ElementAt(1).Type);
+      Assert.Equal(2, request.InitializationHandlers.ElementAt(1).Arguments.Length);
+      Assert.Equal(UserName, request.InitializationHandlers.ElementAt(1).Arguments[0]);
+      Assert.Equal(true, request.InitializationHandlers.ElementAt(1).Arguments[1]);
     }
   }
 }

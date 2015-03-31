@@ -11,58 +11,13 @@
   public class InitializationActionExecutorTest
   {
     /// <summary>
-    /// Should throw exception on initialization if action state is not an array.
+    /// Should throw exception on initialization if action state is not an initialization handler.
     /// </summary>
     [Fact]
-    public void ShouldThrowExceptionOnInitializationIfActionStateIsNotAnArray()
+    public void ShouldThrowExceptionOnInitializationIfActionStateIsNotAnInitializationHandler()
     {
       InitializationActionExecutor executor = new InitializationActionExecutor();
       InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = "a" };
-
-      Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
-
-      Assert.Throws<ArgumentException>(action);
-    }
-
-    /// <summary>
-    /// Should throw exception on initialization if state array has less than 2 elements.
-    /// </summary>
-    /// <param name="numberOfElements">The number of elements.</param>
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public void ShouldThrowExceptionOnInitializationIfStateArrayHasLessThan2Elements(int numberOfElements)
-    {
-      InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = new object[numberOfElements] };
-
-      Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
-
-      Assert.Throws<ArgumentException>(action);
-    }
-
-    /// <summary>
-    /// Should throw exception on initialization if first state element is not a type.
-    /// </summary>
-    [Fact]
-    public void ShouldThrowExceptionOnInitializationIfFirstStateElementIsNotAType()
-    {
-      InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = new object[] { "a", "b" } };
-
-      Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
-
-      Assert.Throws<ArgumentException>(action);      
-    }
-
-    /// <summary>
-    /// Should throw exception on initialization if second state element is not an object array.
-    /// </summary>
-    [Fact]
-    public void ShouldThrowExceptionOnInitializationIfSecondStateElementIsNotAnObjectArray()
-    {
-      InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction initializationAction = new InitializationAction("System.String,mscorlib") { State = new object[] { typeof(SimpleInitializer), "a" } };
 
       Assert.ThrowsDelegate action = () => executor.ExecuteInitializationForAction(initializationAction);
 
@@ -76,7 +31,7 @@
     public void ShouldCreateInitializerInstanceOnInitializationAndSaveItIntoActionsState()
     {
       InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(SimpleInitializer), new object[0] } };
+      InitializationAction action = new InitializationAction("Action") { State = new InitializationHandler(typeof(SimpleInitializer), new object[0]) };
 
       SimpleInitializer.Parameter = null;
       
@@ -98,7 +53,7 @@
       const string Parameter = "parameter";
 
       InitializationActionExecutor executor = new InitializationActionExecutor();
-      InitializationAction action = new InitializationAction("Action") { State = new object[] { initializerType, new object[] { Parameter } } };
+      InitializationAction action = new InitializationAction("Action") { State = new InitializationHandler(initializerType, new object[] { Parameter }) };
 
       SimpleInitializer.Parameter = null;
 
@@ -116,7 +71,7 @@
     {
       InitializationActionExecutor executor = new InitializationActionExecutor();
       TestInitializationContext context = new TestInitializationContext(null, typeof(string).GetMethod("Intern"), new object[0]);
-      InitializationAction action = new InitializationAction("Action") { State = new object[] { typeof(InitializationContextAwareInitializer), new object[0] }, Context = context };
+      InitializationAction action = new InitializationAction("Action") { State = new InitializationHandler(typeof(InitializationContextAwareInitializer), new object[0]), Context = context };
 
       InitializationContextAwareInitializer.InitializationContext = null;
 

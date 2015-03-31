@@ -86,7 +86,7 @@
     /// <returns>The corresponding action.</returns>
     private static InitializationAction ActionFromAttribute(InitializationHandlerAttribute attribute, TestInitializationContext context)
     {
-      return new InitializationAction(attribute.InitializationHandler.Type.AssemblyQualifiedName) { State = new object[] { attribute.InitializationHandler.Type, attribute.InitializationHandler.Arguments }, Context = context };
+      return new InitializationAction(attribute.InitializationHandler.Type.AssemblyQualifiedName) { State = attribute.InitializationHandler, Context = context };
     }
 
     /// <summary>

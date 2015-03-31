@@ -1,7 +1,6 @@
 ﻿namespace Sitecore.LiveTesting.Tests.Request
 {
   using System;
-  using System.Collections.Generic;
   using Sitecore.LiveTesting.Initialization;
   using Sitecore.LiveTesting.Request;
   using Xunit;
@@ -33,7 +32,7 @@
     public void ShouldCallInitializationHandlerBeforeAndAfterRequest()
     {
       RequestManager manager = new RequestManager();
-      Request request = new Request { Path = "TestPage.aspx", InitializationHandlers = { new KeyValuePair<Type, object[]>(typeof(SampleRequestInitializationHandler), new object[] { "parameter" }) } };
+      Request request = new Request { Path = "TestPage.aspx", InitializationHandlers = { new InitializationHandler(typeof(SampleRequestInitializationHandler), new object[] { "parameter" }) } };
 
       Response response = manager.ExecuteRequest(request);
 
