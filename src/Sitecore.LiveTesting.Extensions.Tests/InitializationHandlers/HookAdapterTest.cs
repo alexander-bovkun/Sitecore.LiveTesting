@@ -1,12 +1,12 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Tests.Initialization
+﻿namespace Sitecore.LiveTesting.Extensions.Tests.InitializationHandlers
 {
   using System;
   using Sitecore.Events.Hooks;
-  using Sitecore.LiveTesting.Extensions.Initialization;
+  using Sitecore.LiveTesting.Extensions.InitializationHandlers;
   using Xunit;
 
   /// <summary>
-  /// Defines the test class for <see cref="HookToInitializationHandlerAdapter{T}"/>
+  /// Defines the test class for <see cref="HookAdapter{T}"/>
   /// </summary>
   public class HookToInitializationHandlerAdapterTest
   {
@@ -16,7 +16,7 @@
     [Fact]
     public void ShouldCreateNewInstanceOfTypeProvidedInGenericArgumentAndCallItsInitializeMethod()
     {
-      Activator.CreateInstance<HookToInitializationHandlerAdapter<Hook>>();
+      Activator.CreateInstance<HookAdapter<Hook>>();
 
       Assert.True(Hook.Initialized);
     }

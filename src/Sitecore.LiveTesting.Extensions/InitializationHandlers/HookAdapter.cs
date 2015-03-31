@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Initialization
+﻿namespace Sitecore.LiveTesting.Extensions.InitializationHandlers
 {
   using Sitecore.Events.Hooks;
 
@@ -6,12 +6,12 @@
   /// Defines the adapter class from <see cref="IHook"/> to proper initialization handler.
   /// </summary>
   /// <typeparam name="T">The type of adapted class.</typeparam>
-  public class HookToInitializationHandlerAdapter<T> where T : IHook, new()
+  public class HookAdapter<T> where T : IHook, new()
   {
     /// <summary>
-    /// Initializes a new instance of the <see cref="HookToInitializationHandlerAdapter{T}"/> class.
+    /// Initializes a new instance of the <see cref="HookAdapter{T}"/> class.
     /// </summary>
-    public HookToInitializationHandlerAdapter()
+    public HookAdapter()
     {
       new T().Initialize();
     }

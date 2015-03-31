@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Initialization
+﻿namespace Sitecore.LiveTesting.Extensions.InitializationHandlers
 {
   using System;
   using System.Transactions;

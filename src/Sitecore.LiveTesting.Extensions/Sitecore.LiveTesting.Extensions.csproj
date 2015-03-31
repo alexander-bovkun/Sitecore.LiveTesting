@@ -43,8 +43,8 @@
   <ItemGroup>
     <Compile Include="Configuration\SitecoreConfigurationSwitcher.cs" />
     <Compile Include="Configuration\XPathNodeIteratorExtensions.cs" />
-    <Compile Include="Initialization\HookToInitializationHandlerAdapter.cs" />
-    <Compile Include="Initialization\TransactionInitializationHandler.cs" />
+    <Compile Include="InitializationHandlers\HookAdapter.cs" />
+    <Compile Include="InitializationHandlers\DatabaseCleanup.cs" />
     <Compile Include="Pipelines\PipelineDefinition.cs" />
     <Compile Include="Pipelines\PipelineManager.cs" />
     <Compile Include="Pipelines\PipelineManagerExtensions.cs" />
