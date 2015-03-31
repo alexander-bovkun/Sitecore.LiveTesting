@@ -1,7 +1,7 @@
-﻿namespace Sitecore.LiveTesting.Tests.Requests
+﻿namespace Sitecore.LiveTesting.Tests.Request
 {
   using System.Web.Hosting;
-  using Sitecore.LiveTesting.Requests;
+  using Sitecore.LiveTesting.Request;
   using Xunit;
   using ApplicationHost = Sitecore.LiveTesting.ApplicationHost;
 

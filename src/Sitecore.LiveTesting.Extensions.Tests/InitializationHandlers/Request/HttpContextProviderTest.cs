@@ -5,7 +5,7 @@
   using System.Web;
   using Sitecore.LiveTesting.Extensions.InitializationHandlers.Request;
   using Sitecore.LiveTesting.Initialization;
-  using Sitecore.LiveTesting.Requests;
+  using Sitecore.LiveTesting.Request;
   using Xunit;
 
   /// <summary>

@@ -73,8 +73,8 @@
     <Compile Include="Initialization\InitializationManagerTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Requests\RemoteRequestManagerTest.cs" />
-    <Compile Include="Requests\RequestManagerTest.cs" />
+    <Compile Include="Request\RemoteRequestManagerTest.cs" />
+    <Compile Include="Request\RequestManagerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

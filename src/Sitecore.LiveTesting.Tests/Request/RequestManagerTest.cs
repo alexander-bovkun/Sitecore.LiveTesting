@@ -1,8 +1,8 @@
-﻿namespace Sitecore.LiveTesting.Tests.Requests
+﻿namespace Sitecore.LiveTesting.Tests.Request
 {
   using System;
   using Sitecore.LiveTesting.Initialization;
-  using Sitecore.LiveTesting.Requests;
+  using Sitecore.LiveTesting.Request;
   using Xunit;
 
   /// <summary>

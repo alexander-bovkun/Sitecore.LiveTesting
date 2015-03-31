@@ -4,7 +4,7 @@
   using System.Collections.Generic;
   using System.Linq;
   using Sitecore.LiveTesting.Initialization;
-  using Sitecore.LiveTesting.Requests;
+  using Sitecore.LiveTesting.Request;
   using Xunit;
 
   /// <summary>

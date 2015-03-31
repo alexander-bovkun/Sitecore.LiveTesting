@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.Requests
+﻿namespace Sitecore.LiveTesting.Request
 {
   using System;
   using System.IO;

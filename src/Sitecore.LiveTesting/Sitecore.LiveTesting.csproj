@@ -68,12 +68,12 @@
     <Compile Include="Initialization\InitializationManager.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Requests\RemoteRequestManager.cs" />
-    <Compile Include="Requests\Request.cs" />
-    <Compile Include="Requests\RequestManager.cs" />
-    <Compile Include="Requests\Response.cs" />
+    <Compile Include="Request\RemoteRequestManager.cs" />
+    <Compile Include="Request\Request.cs" />
+    <Compile Include="Request\RequestManager.cs" />
+    <Compile Include="Request\Response.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="Requests\WorkerRequest.cs" />
+    <Compile Include="Request\WorkerRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
