@@ -18,7 +18,31 @@
     /// <summary>
     /// The test initialization manager.
     /// </summary>
-    private InitializationManager initializationManager;
+    private readonly InitializationManager initializationManager;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LiveTestWithInitialization"/> class.
+    /// </summary>
+    public LiveTestWithInitialization() : this(HostingEnvironment.IsHosted ? new InitializationManager(new TestInitializationActionDiscoverer(), new InitializationActionExecutor()) : null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LiveTestWithInitialization"/> class.
+    /// </summary>
+    /// <param name="initializationManager">The initialization manager.</param>
+    protected LiveTestWithInitialization(InitializationManager initializationManager)
+    {
+      this.initializationManager = initializationManager;
+    }
+
+    /// <summary>
+    /// Gets the initialization manager.
+    /// </summary>
+    protected InitializationManager InitializationManager
+    {
+      get { return this.initializationManager; }
+    }
 
     /// <summary>
     /// Creates an instance of corresponding class.
@@ -50,22 +74,16 @@
     }
 
     /// <summary>
-    /// Gets an instance of <see cref="InitializationManager"/>.
-    /// </summary>
-    /// <returns>An instance of <see cref="InitializationManager"/>.</returns>
-    protected virtual InitializationManager GetTestInitializationManager()
-    {
-      return this.initializationManager = this.initializationManager ?? new InitializationManager(new TestInitializationActionDiscoverer(), new InitializationActionExecutor());
-    }
-
-    /// <summary>
     /// Event handler executed before each method call.
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="args">The arguments.</param>
     protected virtual void OnAfterMethodCall(object sender, MethodCallEventArgs args)
     {
-      this.GetTestInitializationManager().Cleanup(args.MethodCallId, new TestInitializationContext(this, args.Method, args.Arguments));
+      if (this.InitializationManager != null)
+      {
+        this.InitializationManager.Cleanup(args.MethodCallId, new TestInitializationContext(this, args.Method, args.Arguments));        
+      }
     }
 
     /// <summary>
@@ -75,7 +93,10 @@
     /// <param name="args">The arguments.</param>
     protected virtual void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
     {
-      this.GetTestInitializationManager().Initialize(args.MethodCallId, new TestInitializationContext(this, args.Method, args.Arguments));
+      if (this.InitializationManager != null)
+      {
+        this.InitializationManager.Initialize(args.MethodCallId, new TestInitializationContext(this, args.Method, args.Arguments));
+      }
     }
 
     /// <summary>

@@ -18,7 +18,7 @@
     /// </summary>
     public LiveTestWithInitializationTest()
     {
-      Test.InitializationManager = Substitute.For<InitializationManager>(Substitute.For<TestInitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>());
+      Test.Manager = Substitute.For<InitializationManager>(Substitute.For<TestInitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>());
     }
 
     /// <summary>
@@ -45,9 +45,9 @@
       test.TestSomething();
 
       Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
-      int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[0];
-      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
-      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      int methodCallId = (int)Test.Manager.ReceivedCalls().First().GetArguments()[0];
+      Test.Manager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      Test.Manager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
     }
 
     /// <summary>
@@ -63,9 +63,9 @@
 
       Assert.Throws<Exception>(action);
       Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
-      int methodCallId = (int)Test.InitializationManager.ReceivedCalls().First().GetArguments()[0];
-      Test.InitializationManager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
-      Test.InitializationManager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      int methodCallId = (int)Test.Manager.ReceivedCalls().First().GetArguments()[0];
+      Test.Manager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      Test.Manager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
     }
 
     /// <summary>
@@ -85,7 +85,7 @@
     [Fact]
     public void ShouldCrashIfTestInitializationCrashes()
     {
-      Test.InitializationManager.WhenForAnyArgs(manager => manager.Initialize(0, null)).Throw<Exception>();
+      Test.Manager.WhenForAnyArgs(manager => manager.Initialize(0, null)).Throw<Exception>();
       Test test = new Test();
 
       Assert.ThrowsDelegate action = test.TestSomething;
@@ -99,7 +99,7 @@
     [Fact]
     public void ShouldCrashIfTestCleanupCrashes()
     {
-      Test.InitializationManager.WhenForAnyArgs(manager => manager.Cleanup(0, null)).Throw<Exception>();
+      Test.Manager.WhenForAnyArgs(manager => manager.Cleanup(0, null)).Throw<Exception>();
       Test test = new Test();
 
       Assert.ThrowsDelegate action = test.TestSomething;
@@ -113,9 +113,16 @@
     public class Test : LiveTestWithInitialization
     {
       /// <summary>
+      /// Initializes a new instance of the <see cref="Test"/> class.
+      /// </summary>
+      public Test() : base(Manager)
+      {
+      }
+
+      /// <summary>
       /// Gets or sets test initialization manager.
       /// </summary>
-      public static InitializationManager InitializationManager { get; set; }
+      public static InitializationManager Manager { get; set; }
 
       /// <summary>
       /// Gets or sets real test.
@@ -147,15 +154,6 @@
       public void FailingTest()
       {
         throw new Exception();
-      }
-
-      /// <summary>
-      /// Gets test initialization manager.
-      /// </summary>
-      /// <returns>Test initialization manager.</returns>
-      protected override InitializationManager GetTestInitializationManager()
-      {
-        return InitializationManager;
       }
     }
 

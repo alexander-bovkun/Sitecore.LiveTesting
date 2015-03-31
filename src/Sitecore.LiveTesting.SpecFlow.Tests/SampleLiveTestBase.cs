@@ -9,13 +9,20 @@
   public class SampleLiveTestBase : LiveTestWithInitialization
   {
     /// <summary>
+    /// Initializes a new instance of the <see cref="SampleLiveTestBase"/> class.
+    /// </summary>
+    public SampleLiveTestBase() : base(new InitializationManager(new TestInitializationActionDiscoverer(), new InitializationActionExecutor()))
+    {
+    }
+
+    /// <summary>
     /// Instantiates the test class.
     /// </summary>
     /// <param name="testType">Type of the test class.</param>
     /// <returns>Instance of the test class.</returns>
     public static new LiveTestWithInitialization Instantiate(Type testType)
     {
-      return Intercept((LiveTestWithInitialization)Activator.CreateInstance(testType), testType);
+      return LiveTestWithInitialization.Intercept((LiveTestWithInitialization)Activator.CreateInstance(testType), testType);
     }
 
     /// <summary>
