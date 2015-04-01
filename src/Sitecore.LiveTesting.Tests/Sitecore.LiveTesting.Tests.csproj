@@ -76,6 +76,7 @@
     </Compile>
     <Compile Include="Request\RemoteRequestManagerTest.cs" />
     <Compile Include="Request\RequestManagerTest.cs" />
+    <Compile Include="TestApplicationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

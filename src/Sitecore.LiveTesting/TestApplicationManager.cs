@@ -3,7 +3,6 @@
   using System;
   using System.Collections.Generic;
   using System.IO;
-  using System.Reflection;
   using System.Web.Hosting;
 
   /// <summary>
@@ -109,30 +108,6 @@
       }
 
       return result;
-    }
-
-    /// <summary>
-    /// Create object in the application context for the specified application host.
-    /// </summary>
-    /// <param name="applicationHost">The application host.</param>
-    /// <param name="type">The type.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>The created object.</returns>
-    public virtual object CreateObjectInApplicationContext(ApplicationHost applicationHost, Type type, params object[] arguments)
-    {
-      return null;
-    }
-
-    /// <summary>
-    /// Execute action in the application context for the specified application host.
-    /// </summary>
-    /// <param name="applicationHost">The application host.</param>
-    /// <param name="targetAction">The target action.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>The result of action execution.</returns>
-    public virtual object ExecuteActionInApplicationContext(ApplicationHost applicationHost, MethodBase targetAction, params object[] arguments)
-    {
-      return null;
     }
   }
 }
