@@ -39,6 +39,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApplicationHost.cs" />
+    <Compile Include="DefaultTestApplicationManager.cs" />
+    <Compile Include="TestApplicationManager.cs" />
     <Compile Include="Initialization\IInitializationContextAware.cs" />
     <Compile Include="Initialization\InitializationAction.cs">
       <SubType>Code</SubType>
@@ -73,6 +75,7 @@
     <Compile Include="Request\Request.cs" />
     <Compile Include="Request\RequestManager.cs" />
     <Compile Include="Request\Response.cs" />
+    <Compile Include="TestApplication.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Request\WorkerRequest.cs" />
   </ItemGroup>
