@@ -40,6 +40,9 @@
   <ItemGroup>
     <Compile Include="ApplicationHost.cs" />
     <Compile Include="DefaultTestApplicationManager.cs" />
+    <Compile Include="Initialization\GlobalInitializationActionDiscoverer.cs" />
+    <Compile Include="Initialization\InitializationHandlerAttributePriorityComparer.cs" />
+    <Compile Include="Initialization\TestApplicationInitializationContext.cs" />
     <Compile Include="TestApplicationManager.cs" />
     <Compile Include="Initialization\IInitializationContextAware.cs" />
     <Compile Include="Initialization\InitializationAction.cs">

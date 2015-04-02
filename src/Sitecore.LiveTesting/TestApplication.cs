@@ -3,6 +3,7 @@
   using System;
   using System.Reflection;
   using System.Web.Hosting;
+  using Sitecore.LiveTesting.Initialization;
 
   /// <summary>
   /// The test application.
@@ -10,11 +11,46 @@
   public class TestApplication : MarshalByRefObject, IRegisteredObject
   {
     /// <summary>
+    /// The initialization manager.
+    /// </summary>
+    private readonly InitializationManager initializationManager;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestApplication"/> class.
+    /// </summary>
+    public TestApplication() : this(new InitializationManager(new GlobalInitializationActionDiscoverer(), new InitializationActionExecutor()))
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestApplication"/> class.
+    /// </summary>
+    /// <param name="initializationManager">The initialization manager.</param>
+    public TestApplication(InitializationManager initializationManager)
+    {
+      if (initializationManager == null)
+      {
+        throw new ArgumentNullException("initializationManager");
+      }
+
+      this.initializationManager = initializationManager;
+      this.initializationManager.Initialize(0, new TestApplicationInitializationContext(this));
+    }
+
+    /// <summary>
     /// Gets the application id.
     /// </summary>
     public string Id
     {
       get { return HostingEnvironment.ApplicationID; }
+    }
+
+    /// <summary>
+    /// Gets the initialization manager.
+    /// </summary>
+    protected InitializationManager InitializationManager
+    {
+      get { return this.initializationManager; }
     }
 
     /// <summary>
@@ -60,6 +96,11 @@
     protected virtual void Stop(bool immediate)
     {
       HostingEnvironment.UnregisterObject(this);
+      
+      if (!immediate)
+      {
+        this.initializationManager.Cleanup(0, new TestApplicationInitializationContext(this));
+      }
     }
   }
 }

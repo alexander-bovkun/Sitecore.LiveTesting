@@ -58,6 +58,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Initialization\GlobalInitializationActionDiscovererTest.cs" />
     <Compile Include="TestApplicationManagerTest.cs" />
     <Compile Include="Initialization\RequestInitializationActionDiscovererTest.cs" />
     <Compile Include="Initialization\TestInitializationActionDiscovererTest.cs">

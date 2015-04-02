@@ -2,6 +2,9 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.Web.Hosting;
+  using NSubstitute;
+  using Sitecore.LiveTesting.Initialization;
   using Xunit;
 
   /// <summary>
@@ -56,6 +59,32 @@
       object result = application.ExecuteAction(this.GetType().GetMethod("Action"), "parameter");
 
       Assert.Equal("Parameter: parameter", result);
+    }
+
+    /// <summary>
+    /// Should call initialization manager on construction.
+    /// </summary>
+    [Fact]
+    public void ShouldCallInitializationManagerOnConstruction()
+    {
+      InitializationManager initializationManager = Substitute.For<InitializationManager>(new TestInitializationActionDiscoverer(), new InitializationActionExecutor());
+      TestApplication application = new TestApplication(initializationManager);
+
+      initializationManager.Received().Initialize(0, Arg.Is<TestApplicationInitializationContext>(context => context.Application == application));
+    }
+
+    /// <summary>
+    /// Should call initialization manager on stop.
+    /// </summary>
+    [Fact]
+    public void ShouldCallInitializationManagerOnStop()
+    {
+      InitializationManager initializationManager = Substitute.For<InitializationManager>(new TestInitializationActionDiscoverer(), new InitializationActionExecutor());
+      TestApplication application = new TestApplication(initializationManager);
+
+      ((IRegisteredObject)application).Stop(false);
+
+      initializationManager.Received().Cleanup(0, Arg.Is<TestApplicationInitializationContext>(context => context.Application == application));
     }
   }
 }
