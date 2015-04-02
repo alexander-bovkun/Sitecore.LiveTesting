@@ -18,7 +18,7 @@
     /// <summary>
     /// Initializes a new instance of the <see cref="TestApplication"/> class.
     /// </summary>
-    public TestApplication() : this(new InitializationManager(new GlobalInitializationActionDiscoverer(), new InitializationActionExecutor()))
+    public TestApplication() : this(new InitializationManager(new TestApplicationInitializationActionDiscoverer(), new InitializationActionExecutor()))
     {
     }
 

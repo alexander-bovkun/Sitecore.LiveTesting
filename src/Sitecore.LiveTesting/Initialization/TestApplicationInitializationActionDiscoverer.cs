@@ -7,7 +7,7 @@
   /// <summary>
   /// Defines the initialization action discoverer for application scoped actions.
   /// </summary>
-  public class GlobalInitializationActionDiscoverer : InitializationActionDiscoverer
+  public class TestApplicationInitializationActionDiscoverer : InitializationActionDiscoverer
   {
     /// <summary>
     /// Gets initialization actions.
