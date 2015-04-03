@@ -51,9 +51,9 @@
     /// </summary>
     /// <param name="testType">Type of the test.</param>
     /// <returns>The default application host.</returns>
-    public static ApplicationHost GetDefaultApplicationHost(Type testType)
+    public static TestApplicationHost GetDefaultApplicationHost(Type testType)
     {
-      return new ApplicationHost(DefaultApplicationId, "/", ConfigurationManager.AppSettings.Get(WebsitePathSettingName) ?? Directory.GetParent(Environment.CurrentDirectory).FullName);
+      return new TestApplicationHost(DefaultApplicationId, "/", ConfigurationManager.AppSettings.Get(WebsitePathSettingName) ?? Directory.GetParent(Environment.CurrentDirectory).FullName);
     }
 
     /// <summary>
@@ -85,11 +85,11 @@
         throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(TestApplicationManager).FullName));
       }
 
-      ApplicationHost host = (ApplicationHost)getDefaultApplicationHostMethod.Invoke(null, typeArguments);
+      TestApplicationHost host = (TestApplicationHost)getDefaultApplicationHostMethod.Invoke(null, typeArguments);
 
       if (host == null)
       {
-        throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(ApplicationHost).FullName));
+        throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(TestApplicationHost).FullName));
       }
 
       TestApplication testApplication = testApplicationManager.StartApplication(host);

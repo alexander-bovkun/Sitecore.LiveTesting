@@ -29,8 +29,8 @@
     /// The get default application host.
     /// </summary>
     /// <param name="type">The type.</param>
-    /// <returns>The <see cref="ApplicationHost"/>.</returns>
-    public static new ApplicationHost GetDefaultApplicationHost(Type type)
+    /// <returns>The <see cref="TestApplicationHost"/>.</returns>
+    public static new TestApplicationHost GetDefaultApplicationHost(Type type)
     {
       return null;
     }

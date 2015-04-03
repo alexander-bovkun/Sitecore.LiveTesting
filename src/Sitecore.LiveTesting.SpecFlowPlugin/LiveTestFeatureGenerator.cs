@@ -7,8 +7,6 @@
   using TechTalk.SpecFlow.Generator.UnitTestConverter;
   using TechTalk.SpecFlow.Parser.SyntaxElements;
 
-  using ApplicationHost = Sitecore.LiveTesting.ApplicationHost;
-
   /// <summary>
   /// Defines the LiveTestFeatureGenerator class.
   /// </summary>
@@ -86,7 +84,7 @@
         CodeStatement[] originalCodeStatements = method.Statements.Cast<CodeStatement>().ToArray<CodeStatement>();
 
         CodeVariableReferenceExpression defaultApplicationHostReferenceExpression = new CodeVariableReferenceExpression(DefaultApplicationHostVariableName);
-        CodeStatement defaultApplicationHostDeclarationStatement = new CodeVariableDeclarationStatement(typeof(ApplicationHost), DefaultApplicationHostVariableName);
+        CodeStatement defaultApplicationHostDeclarationStatement = new CodeVariableDeclarationStatement(typeof(TestApplicationHost), DefaultApplicationHostVariableName);
         CodeStatement defaultApplicationHostAssignStatement = new CodeAssignStatement(defaultApplicationHostReferenceExpression, new CodeMethodInvokeExpression(this.GetStaticMethodReference(type, GetDefaultApplicationHostMethodName), new CodeTypeOfExpression(type.Name)));
         
         CodeStatement domainInitializationStatement = new CodeExpressionStatement(new CodeMethodInvokeExpression(this.GetStaticMethodReference(type, InstantiateMethodName), new CodeTypeOfExpression(type.Name)));

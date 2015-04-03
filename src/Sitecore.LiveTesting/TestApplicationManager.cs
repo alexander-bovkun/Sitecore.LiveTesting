@@ -8,7 +8,7 @@
   using System.Web.Hosting;
 
   /// <summary>
-  /// Defines the class that creates and manages applications from <see cref="ApplicationHost"/>.
+  /// Defines the class that creates and manages applications from <see cref="TestApplicationHost"/>.
   /// </summary>
   /// <typeparam name="T">Type of the application object to create remotely.</typeparam>
   public class TestApplicationManager<T> where T : TestApplication, new()
@@ -67,7 +67,7 @@
     /// </summary>
     /// <param name="applicationHost">The application host.</param>
     /// <returns>Instance of test application.</returns>
-    public virtual T StartApplication(ApplicationHost applicationHost)
+    public virtual T StartApplication(TestApplicationHost applicationHost)
     {
       if (applicationHost == null)
       {
@@ -84,7 +84,7 @@
     /// </summary>
     /// <param name="applicationHost">The application host.</param>
     /// <returns>Matching application instance.</returns>
-    public virtual TestApplication GetRunningApplication(ApplicationHost applicationHost)
+    public virtual TestApplication GetRunningApplication(TestApplicationHost applicationHost)
     {
       if (applicationHost == null)
       {

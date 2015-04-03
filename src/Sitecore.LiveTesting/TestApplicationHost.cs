@@ -5,7 +5,7 @@
   /// <summary>
   /// The class that provides basic information about the hosting environment.
   /// </summary>
-  public class ApplicationHost
+  public class TestApplicationHost
   {
     /// <summary>
     /// The application id.
@@ -23,12 +23,12 @@
     private readonly string physicalPath;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ApplicationHost"/> class.
+    /// Initializes a new instance of the <see cref="TestApplicationHost"/> class.
     /// </summary>
     /// <param name="applicationId">The application id.</param>
     /// <param name="virtualPath">The virtual path.</param>
     /// <param name="physicalPath">The physical path.</param>
-    public ApplicationHost(string applicationId, string virtualPath, string physicalPath)
+    public TestApplicationHost(string applicationId, string virtualPath, string physicalPath)
     {
       if (applicationId == null)
       {

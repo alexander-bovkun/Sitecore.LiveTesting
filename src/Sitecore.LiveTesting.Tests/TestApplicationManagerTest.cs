@@ -6,7 +6,6 @@
   using System.Runtime.Remoting;
   using System.Web.Hosting;
   using Xunit;
-  using ApplicationHost = Sitecore.LiveTesting.ApplicationHost;
 
   /// <summary>
   /// Defines the test class for <see cref="TestApplicationManager"/>.
@@ -17,7 +16,7 @@
     /// <summary>
     /// The application host.
     /// </summary>
-    private readonly ApplicationHost applicationHost = new ApplicationHost("ApplicationId", "/", "..\\Website");
+    private readonly TestApplicationHost applicationHost = new TestApplicationHost("ApplicationId", "/", "..\\Website");
 
     /// <summary>
     /// The dispose.

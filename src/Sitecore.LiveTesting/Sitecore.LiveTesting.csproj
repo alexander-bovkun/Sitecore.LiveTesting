@@ -38,7 +38,7 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ApplicationHost.cs" />
+    <Compile Include="TestApplicationHost.cs" />
     <Compile Include="DefaultTestApplicationManager.cs" />
     <Compile Include="Initialization\TestApplicationInitializationActionDiscoverer.cs" />
     <Compile Include="Initialization\InitializationHandlerAttributePriorityComparer.cs" />

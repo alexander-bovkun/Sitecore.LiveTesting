@@ -17,7 +17,7 @@
       TestApplication testApplication = Substitute.For<TestApplication>();
       
       testApplication.CreateObject(null, null).ReturnsForAnyArgs(callInfo => Activator.CreateInstance(callInfo.Arg<Type>(), callInfo.Arg<object[]>()));
-      LiveTestBase.TestApplicationManager.StartApplication(Arg.Any<ApplicationHost>()).Returns(testApplication);
+      LiveTestBase.TestApplicationManager.StartApplication(Arg.Any<TestApplicationHost>()).Returns(testApplication);
     }
 
     /// <summary>
