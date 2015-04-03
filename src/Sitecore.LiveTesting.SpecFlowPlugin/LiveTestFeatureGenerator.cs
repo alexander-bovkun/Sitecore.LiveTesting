@@ -70,6 +70,7 @@
     protected virtual void DecorateStaticMethods(CodeNamespace output)
     {
       const string InstantiateMethodName = "Instantiate";
+      const string GetDefaultTestApplicationManagerMethodName = "GetDefaultTestApplicationManager";
       const string GetDefaultApplicationHostMethodName = "GetDefaultApplicationHost";
       const string DoCallbackMethodName = "DoCallBack";
       const string GetAppDomainMethodName = "GetAppDomain";
@@ -80,7 +81,7 @@
 
       CodeTypeDeclaration type = output.Types.Cast<CodeTypeDeclaration>().Single();
 
-      foreach (CodeMemberMethod method in type.Members.OfType<CodeMemberMethod>().Where(m => (m.Name != InstantiateMethodName) && (m.Name != GetDefaultApplicationHostMethodName) && ((m.Attributes & (MemberAttributes.Static | MemberAttributes.Public)) == (MemberAttributes.Static | MemberAttributes.Public)) && (m.Parameters.Count == 0)))
+      foreach (CodeMemberMethod method in type.Members.OfType<CodeMemberMethod>().Where(m => (m.Name != InstantiateMethodName) && (m.Name != GetDefaultTestApplicationManagerMethodName) && (m.Name != GetDefaultApplicationHostMethodName) && ((m.Attributes & (MemberAttributes.Static | MemberAttributes.Public)) == (MemberAttributes.Static | MemberAttributes.Public)) && (m.Parameters.Count == 0)))
       {
         CodeStatement[] originalCodeStatements = method.Statements.Cast<CodeStatement>().ToArray<CodeStatement>();
 
