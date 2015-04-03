@@ -10,8 +10,7 @@
   /// <summary>
   /// Defines the class that creates and manages applications from <see cref="TestApplicationHost"/>.
   /// </summary>
-  /// <typeparam name="T">Type of the application object to create remotely.</typeparam>
-  public class TestApplicationManager<T> where T : TestApplication, new()
+  public class TestApplicationManager
   {
     /// <summary>
     /// The global testing event handler type name.
@@ -34,24 +33,41 @@
     private readonly ApplicationManager applicationManager;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestApplicationManager{T}"/> class.
+    /// The test application type.
     /// </summary>
-    public TestApplicationManager() : this(ApplicationManager.GetApplicationManager())
+    private readonly Type testApplicationType;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestApplicationManager"/> class.
+    /// </summary>
+    public TestApplicationManager() : this(ApplicationManager.GetApplicationManager(), typeof(TestApplication))
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestApplicationManager{T}"/> class.
+    /// Initializes a new instance of the <see cref="TestApplicationManager"/> class.
     /// </summary>
     /// <param name="applicationManager">The application manager.</param>
-    public TestApplicationManager(ApplicationManager applicationManager)
+    /// <param name="testApplicationType">The test application type.</param>
+    public TestApplicationManager(ApplicationManager applicationManager, Type testApplicationType)
     {
       if (applicationManager == null)
       {
         throw new ArgumentNullException("applicationManager");
       }
 
+      if (testApplicationType == null)
+      {
+        throw new ArgumentNullException("testApplicationType");
+      }
+
+      if (!typeof(TestApplication).IsAssignableFrom(testApplicationType))
+      {
+        throw new NotSupportedException(string.Format("Only applications derived from '{0}' are supported.", typeof(TestApplication).FullName));
+      }
+
       this.applicationManager = applicationManager;
+      this.testApplicationType = testApplicationType;
     }
 
     /// <summary>
@@ -63,11 +79,19 @@
     }
 
     /// <summary>
+    /// Gets the test application type.
+    /// </summary>
+    protected Type TestApplicationType
+    {
+      get { return this.testApplicationType; }
+    }
+
+    /// <summary>
     /// Starts application from the application host definition.
     /// </summary>
     /// <param name="applicationHost">The application host.</param>
     /// <returns>Instance of test application.</returns>
-    public virtual T StartApplication(TestApplicationHost applicationHost)
+    public virtual TestApplication StartApplication(TestApplicationHost applicationHost)
     {
       if (applicationHost == null)
       {
@@ -76,7 +100,7 @@
 
       this.EnsureGlobalInitializationIsPerformed();
 
-      return (T)this.ApplicationManager.CreateObject(applicationHost.ApplicationId, typeof(T), applicationHost.VirtualPath, Path.GetFullPath(applicationHost.PhysicalPath), false, true);
+      return (TestApplication)this.ApplicationManager.CreateObject(applicationHost.ApplicationId, this.TestApplicationType, applicationHost.VirtualPath, Path.GetFullPath(applicationHost.PhysicalPath), false, true);
     }
 
     /// <summary>
@@ -91,7 +115,7 @@
         throw new ArgumentNullException("applicationHost");
       }
 
-      return (T)this.ApplicationManager.GetObject(applicationHost.ApplicationId, typeof(T));
+      return (TestApplication)this.ApplicationManager.GetObject(applicationHost.ApplicationId, this.TestApplicationType);
     }
 
     /// <summary>
@@ -116,9 +140,9 @@
     {
       List<TestApplication> result = new List<TestApplication>();
 
-      foreach (ApplicationInfo application in this.applicationManager.GetRunningApplications())
+      foreach (ApplicationInfo application in this.ApplicationManager.GetRunningApplications())
       {
-        TestApplication candidate = this.applicationManager.GetObject(application.ID, typeof(T)) as TestApplication;
+        TestApplication candidate = this.ApplicationManager.GetObject(application.ID, this.TestApplicationType) as TestApplication;
 
         if (candidate != null)
         {
