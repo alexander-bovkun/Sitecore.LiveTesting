@@ -13,7 +13,8 @@
 #pragma warning disable
 namespace Sitecore.LiveTesting.SpecFlow.Tests
 {
-    using TechTalk.SpecFlow;
+  using Sitecore.LiveTesting.Application;
+  using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.9.0.77")]
@@ -34,7 +35,7 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
         
         public static void FeatureSetup()
         {
-            Sitecore.LiveTesting.TestApplicationHost defaultApplicationHost;
+            TestApplicationHost defaultApplicationHost;
             defaultApplicationHost = Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.GetDefaultApplicationHost(typeof(InitializationHandlersFeature));
             if ((System.Web.Hosting.HostingEnvironment.IsHosted 
                         || (defaultApplicationHost == null)))
@@ -54,7 +55,7 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
         
         public static void FeatureTearDown()
         {
-            Sitecore.LiveTesting.TestApplicationHost defaultApplicationHost;
+            TestApplicationHost defaultApplicationHost;
             defaultApplicationHost = Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.GetDefaultApplicationHost(typeof(InitializationHandlersFeature));
             if ((System.Web.Hosting.HostingEnvironment.IsHosted 
                         || (defaultApplicationHost == null)))

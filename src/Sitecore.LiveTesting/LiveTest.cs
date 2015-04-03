@@ -4,6 +4,7 @@
   using System.Configuration;
   using System.IO;
   using System.Reflection;
+  using Sitecore.LiveTesting.Application;
 
   /// <summary>
   /// Defines the base class for tests.

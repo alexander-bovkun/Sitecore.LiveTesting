@@ -5,6 +5,7 @@
   using System.Linq;
   using System.Runtime.Remoting;
   using System.Web.Hosting;
+  using Sitecore.LiveTesting.Application;
   using Xunit;
 
   /// <summary>

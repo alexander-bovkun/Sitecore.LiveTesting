@@ -38,11 +38,11 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="TestApplicationHost.cs" />
+    <Compile Include="Application\TestApplicationHost.cs" />
     <Compile Include="Initialization\TestApplicationInitializationActionDiscoverer.cs" />
     <Compile Include="Initialization\InitializationHandlerAttributePriorityComparer.cs" />
     <Compile Include="Initialization\TestApplicationInitializationContext.cs" />
-    <Compile Include="TestApplicationManager.cs" />
+    <Compile Include="Application\TestApplicationManager.cs" />
     <Compile Include="Initialization\IInitializationContextAware.cs" />
     <Compile Include="Initialization\InitializationAction.cs">
       <SubType>Code</SubType>
@@ -76,7 +76,7 @@
     <Compile Include="Request\Request.cs" />
     <Compile Include="Request\RequestManager.cs" />
     <Compile Include="Request\Response.cs" />
-    <Compile Include="TestApplication.cs" />
+    <Compile Include="Application\TestApplication.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Request\WorkerRequest.cs" />
   </ItemGroup>

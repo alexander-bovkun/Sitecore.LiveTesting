@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting
+﻿namespace Sitecore.LiveTesting.Application
 {
   using System;
 

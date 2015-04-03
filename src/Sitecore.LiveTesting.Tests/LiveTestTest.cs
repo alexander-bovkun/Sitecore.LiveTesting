@@ -2,6 +2,7 @@
 {
   using System;
   using NSubstitute;
+  using Sitecore.LiveTesting.Application;
   using Xunit;
 
   /// <summary>

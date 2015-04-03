@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Initialization\TestApplicationInitializationActionDiscovererTest.cs" />
-    <Compile Include="TestApplicationManagerTest.cs" />
+    <Compile Include="Application\TestApplicationManagerTest.cs" />
     <Compile Include="Initialization\RequestInitializationActionDiscovererTest.cs" />
     <Compile Include="Initialization\TestInitializationActionDiscovererTest.cs">
       <SubType>Code</SubType>
@@ -76,7 +76,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Request\RequestManagerTest.cs" />
-    <Compile Include="TestApplicationTest.cs" />
+    <Compile Include="Application\TestApplicationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
