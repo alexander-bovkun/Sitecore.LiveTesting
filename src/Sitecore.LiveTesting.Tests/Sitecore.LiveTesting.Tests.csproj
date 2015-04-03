@@ -75,7 +75,6 @@
     <Compile Include="Initialization\InitializationManagerTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Request\RemoteRequestManagerTest.cs" />
     <Compile Include="Request\RequestManagerTest.cs" />
     <Compile Include="TestApplicationTest.cs" />
   </ItemGroup>

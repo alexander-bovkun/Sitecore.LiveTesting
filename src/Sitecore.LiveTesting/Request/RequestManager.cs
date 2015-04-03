@@ -8,7 +8,7 @@
   /// <summary>
   /// The request manager.
   /// </summary>
-  public class RequestManager : MarshalByRefObject, IRegisteredObject
+  public class RequestManager : MarshalByRefObject
   {
     /// <summary>
     /// The initialization action discoverer.
@@ -19,7 +19,7 @@
     /// Initializes a new instance of the <see cref="RequestManager"/> class.
     /// </summary>
     public RequestManager() : this(new InitializationManager(new RequestInitializationActionDiscoverer(), new InitializationActionExecutor()))
-    {      
+    {
     }
 
     /// <summary>
@@ -67,15 +67,6 @@
     }
 
     /// <summary>
-    /// Unregisters the object..
-    /// </summary>
-    /// <param name="immediate"><value>true</value> if register immediately, otherwise <value>false</value>.</param>
-    void IRegisteredObject.Stop(bool immediate)
-    {
-      HostingEnvironment.UnregisterObject(this);
-    }
-
-    /// <summary>
     /// Gets the worker request.
     /// </summary>
     /// <param name="request">The request.</param>
@@ -92,14 +83,19 @@
     /// <returns>The <see cref="Response"/>.</returns>
     protected virtual Response GetResponse(HttpWorkerRequest workerRequest)
     {
-      if (!(workerRequest is WorkerRequest))
+      if (workerRequest == null)
+      {
+        throw new ArgumentNullException("workerRequest");
+      }
+
+      WorkerRequest workerRequestCandidate = workerRequest as WorkerRequest;
+
+      if (workerRequestCandidate == null)
       {
         throw new ArgumentException(string.Format("workerRequest is of improper type. It should be based on {0}", typeof(WorkerRequest).FullName));
       }
 
-      WorkerRequest request = (WorkerRequest)workerRequest;
-
-      return request.Response;
+      return workerRequestCandidate.Response;
     }
 
     /// <summary>
