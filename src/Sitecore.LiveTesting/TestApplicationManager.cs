@@ -3,6 +3,8 @@
   using System;
   using System.Collections.Generic;
   using System.IO;
+  using System.Reflection;
+  using System.Threading;
   using System.Web.Hosting;
 
   /// <summary>
@@ -11,6 +13,21 @@
   /// <typeparam name="T">Type of the application object to create remotely.</typeparam>
   public class TestApplicationManager<T> where T : TestApplication, new()
   {
+    /// <summary>
+    /// The global testing event handler type name.
+    /// </summary>
+    private const string GlobalInitializationHandlerTypeName = "SitecoreLiveTestingInitializationHandler";
+
+    /// <summary>
+    /// The value indicating whether search for global initialization handler was initiated or not.
+    /// </summary>
+    private static int subscribedForInitializationFlag;
+
+    /// <summary>
+    /// The global initialization handler.
+    /// </summary>
+    private static object globalInitializationHandler;
+
     /// <summary>
     /// The application manager.
     /// </summary>
@@ -57,6 +74,8 @@
         throw new ArgumentNullException("applicationHost");
       }
 
+      this.EnsureGlobalInitializationIsPerformed();
+
       return (T)this.ApplicationManager.CreateObject(applicationHost.ApplicationId, typeof(T), applicationHost.VirtualPath, Path.GetFullPath(applicationHost.PhysicalPath), false, true);
     }
 
@@ -93,7 +112,7 @@
     /// Gets the list of running applications.
     /// </summary>
     /// <returns>The list of running applications.</returns>
-    public IEnumerable<TestApplication> GetRunningApplications()
+    public virtual IEnumerable<TestApplication> GetRunningApplications()
     {
       List<TestApplication> result = new List<TestApplication>();
 
@@ -108,6 +127,69 @@
       }
 
       return result;
+    }
+
+    /// <summary>
+    /// Ensures that the global initialization is performed.
+    /// </summary>
+    protected virtual void EnsureGlobalInitializationIsPerformed()
+    {
+      if ((!HostingEnvironment.IsHosted) && (subscribedForInitializationFlag == 0) && (Interlocked.Increment(ref subscribedForInitializationFlag) == 1))
+      {
+        Type globalInitializationHandlerType = null;
+
+        foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+          foreach (Type type in assembly.GetTypes())
+          {
+            if (type.Name == GlobalInitializationHandlerTypeName)
+            {
+              if (globalInitializationHandlerType != null)
+              {
+                throw new InvalidOperationException(string.Format("Only one global initialization handler with the name '{0}' if permitted per application domain.", GlobalInitializationHandlerTypeName));
+              }
+
+              globalInitializationHandlerType = type;
+            }
+          }
+        }
+
+        if (globalInitializationHandlerType != null)
+        {
+          globalInitializationHandler = Activator.CreateInstance(globalInitializationHandlerType);
+        }
+
+        if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+        {
+          AppDomain.CurrentDomain.ProcessExit += TestDomainOnDomainUnload;
+        }
+        else
+        {
+          AppDomain.CurrentDomain.DomainUnload += TestDomainOnDomainUnload;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Handles test domain unload.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">The event arguments.</param>
+    private static void TestDomainOnDomainUnload(object sender, EventArgs e)
+    {
+      ApplicationManager manager = ApplicationManager.GetApplicationManager();
+      
+      foreach (ApplicationInfo application in manager.GetRunningApplications())
+      {
+        manager.ShutdownApplication(application.ID);
+      }
+
+      IDisposable disposableCandidate = globalInitializationHandler as IDisposable;
+
+      if (disposableCandidate != null)
+      {
+        disposableCandidate.Dispose();
+      }
     }
   }
 }

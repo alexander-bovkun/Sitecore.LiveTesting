@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.Tests
 {
   using System;
+  using NSubstitute;
   using Xunit;
 
   /// <summary>
@@ -8,6 +9,17 @@
   /// </summary>
   public class LiveTestTest
   {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LiveTestTest"/> class.
+    /// </summary>
+    public LiveTestTest()
+    {
+      TestApplication testApplication = Substitute.For<TestApplication>();
+      
+      testApplication.CreateObject(null, null).ReturnsForAnyArgs(callInfo => Activator.CreateInstance(callInfo.Arg<Type>(), callInfo.Arg<object[]>()));
+      LiveTestBase.TestApplicationManager.StartApplication(Arg.Any<ApplicationHost>()).Returns(testApplication);
+    }
+
     /// <summary>
     /// Should recreate class.
     /// </summary>
@@ -23,7 +35,7 @@
     [Fact]
     public void ShouldUseCustomInstantiationProcedure()
     {
-      LiveTest test = new TestWithCustomInstantiation();
+      LiveTestBase test = new TestWithCustomInstantiation();
 
       Assert.IsType<LiveTestBase>(test);
       Assert.IsNotType<TestWithCustomInstantiation>(test);
@@ -39,27 +51,31 @@
     }
 
     /// <summary>
-    /// Should execute test in specially prepared application domain.
-    /// </summary>
-    [Fact]
-    public void ShouldExecuteTestInSpeciallyPreparedApplicationDomain()
-    {
-      new RealLiveTest();
-    }
-
-    /// <summary>
     /// Defines the fake live test version.
     /// </summary>
     public class LiveTestBase : LiveTest
     {
       /// <summary>
-      /// Instantiates the test class.
+      /// Initializes static members of the <see cref="LiveTestBase"/> class.
+      /// </summary>
+      static LiveTestBase()
+      {
+        TestApplicationManager = Substitute.For<TestApplicationManager>();
+      }
+
+      /// <summary>
+      /// Gets the test application manager.
+      /// </summary>
+      public static TestApplicationManager TestApplicationManager { get; private set; }
+
+      /// <summary>
+      /// Gets the default test application manager.
       /// </summary>
       /// <param name="type">Test type.</param>
-      /// <returns>Instance of the test.</returns>
-      public static new LiveTest Instantiate(Type type)
+      /// <returns>Instance of the test application manager.</returns>
+      public static new TestApplicationManager GetDefaultTestApplicationManager(Type type)
       {
-        return (LiveTest)Activator.CreateInstance(type);
+        return TestApplicationManager;
       }
     }
 
@@ -83,13 +99,6 @@
     /// Defines the sample test class.
     /// </summary>
     public class Test : LiveTestBase
-    {
-    }
-
-    /// <summary>
-    /// The real live test.
-    /// </summary>
-    public class RealLiveTest : LiveTest
     {
     }
   }

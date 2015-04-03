@@ -2,6 +2,7 @@
 {
   using System;
   using System.Reflection;
+  using System.Threading;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;
 
@@ -31,6 +32,15 @@
       if (initializationManager == null)
       {
         throw new ArgumentNullException("initializationManager");
+      }
+
+      // INFO: workaround to avoid AppDomainUnloadedException because of Sitecore agents
+      if (HostingEnvironment.IsHosted)
+      {
+        var hostingEnvironment = typeof(HostingEnvironment).GetField("_theHostingEnvironment", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        var eventHandler = (EventHandler)typeof(HostingEnvironment).GetField("_onAppDomainUnload", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(hostingEnvironment);
+
+        Thread.GetDomain().DomainUnload -= eventHandler;        
       }
 
       this.initializationManager = initializationManager;

@@ -1,18 +1,15 @@
 ﻿namespace Sitecore.LiveTesting
 {
   using System;
-  using System.Collections.Generic;
   using System.Configuration;
   using System.IO;
   using System.Reflection;
-  using System.Threading;
-  using System.Web.Hosting;
 
   /// <summary>
   /// Defines the base class for tests.
   /// </summary>
   [DynamicConstruction]
-  public class LiveTest : ContextBoundObject, IRegisteredObject
+  public class LiveTest : ContextBoundObject
   {
     /// <summary>
     /// The default application id.
@@ -25,29 +22,29 @@
     private const string WebsitePathSettingName = "Sitecore.LiveTesting.WebsitePath";
 
     /// <summary>
+    /// The name of method that gets default application manager.
+    /// </summary>
+    private const string GetDefaultTestApplicationManagerName = "GetDefaultTestApplicationManager";
+
+    /// <summary>
     /// The name of method that gets default application host.
     /// </summary>
     private const string GetDefaultApplicationHostName = "GetDefaultApplicationHost";
 
     /// <summary>
-    /// The global testing event handler type name.
+    /// The default test application manager.
     /// </summary>
-    private const string GlobalInitializationHandlerTypeName = "GlobalInitializationHandler";
+    private static readonly TestApplicationManager DefaultTestApplicationManager = new TestApplicationManager();
 
     /// <summary>
-    /// The value indicating whether search for global initialization handler was initiated or not.
+    /// Gets default test application manager for the specified test type.
     /// </summary>
-    private static int subscribedForInitializationFlag;
-
-    /// <summary>
-    /// The value indicating whether infrastructure was subscribed for termination of current test <see cref="AppDomain"/>.
-    /// </summary>
-    private static int subscribedForTerminationFlag;
-
-    /// <summary>
-    /// The global initialization handlers.
-    /// </summary>
-    private static IEnumerable<object> globalInitializationHandlers;
+    /// <param name="testType">The test type.</param>
+    /// <returns>An instance of <see cref="DefaultTestApplicationManager"/>.</returns>
+    public static TestApplicationManager GetDefaultTestApplicationManager(Type testType)
+    {
+      return DefaultTestApplicationManager;
+    }
 
     /// <summary>
     /// Gets default application host for the specified test type.
@@ -66,111 +63,43 @@
     /// <returns>Instance of the class.</returns>
     public static LiveTest Instantiate(Type testType)
     {
+      MethodInfo getDefaultTestApplicationManagerMethod = Utility.GetInheritedMethod(testType, GetDefaultTestApplicationManagerName, new[] { typeof(Type) });
       MethodInfo getDefaultApplicationHostMethod = Utility.GetInheritedMethod(testType, GetDefaultApplicationHostName, new[] { typeof(Type) });
+
+      if (getDefaultTestApplicationManagerMethod == null)
+      {
+        throw new InvalidOperationException(string.Format("Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultTestApplicationManagerName, typeof(LiveTest).FullName));
+      }
 
       if (getDefaultApplicationHostMethod == null)
       {
         throw new InvalidOperationException(string.Format("Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultApplicationHostName, typeof(LiveTest).FullName));
       }
 
-      ApplicationHost host = (ApplicationHost)getDefaultApplicationHostMethod.Invoke(null, new object[] { testType });
+      object[] typeArguments = { testType };
+
+      TestApplicationManager testApplicationManager = (TestApplicationManager)getDefaultTestApplicationManagerMethod.Invoke(null, typeArguments);
+
+      if (testApplicationManager == null)
+      {
+        throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(TestApplicationManager).FullName));
+      }
+
+      ApplicationHost host = (ApplicationHost)getDefaultApplicationHostMethod.Invoke(null, typeArguments);
 
       if (host == null)
       {
         throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(ApplicationHost).FullName));
       }
 
-      if (!HostingEnvironment.IsHosted)
-      {
-        if ((subscribedForInitializationFlag == 0) && (Interlocked.Increment(ref subscribedForInitializationFlag) == 1))
-        {
-          globalInitializationHandlers = GetDiscoveredGlobalInitializationHandlers();
-        }
+      TestApplication testApplication = testApplicationManager.StartApplication(host);
 
-        if ((subscribedForTerminationFlag == 0) && (Interlocked.Increment(ref subscribedForTerminationFlag) == 1))
-        {
-          if (AppDomain.CurrentDomain.IsDefaultAppDomain())
-          {
-            AppDomain.CurrentDomain.ProcessExit += TestDomainOnDomainUnload;
-          }
-          else
-          {
-            AppDomain.CurrentDomain.DomainUnload += TestDomainOnDomainUnload;
-          }
-        }
-      }
-      else
+      if (testApplication == null)
       {
-        var hostingEnvironment = typeof(HostingEnvironment).GetField("_theHostingEnvironment", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
-        var eventHandler = (EventHandler)typeof(HostingEnvironment).GetField("_onAppDomainUnload", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(hostingEnvironment);
-
-        Thread.GetDomain().DomainUnload -= eventHandler;
+        throw new InvalidOperationException("Failed to get application to execute tests in.");
       }
 
-      return (LiveTest)ApplicationManager.GetApplicationManager().CreateObject(host.ApplicationId, testType, host.VirtualPath, Path.GetFullPath(host.PhysicalPath), false, true);
-    }
-
-    /// <summary>
-    /// Stops the instance of the test.
-    /// </summary>
-    /// <param name="immediate"><value>true</value> if must be stopped immediately, otherwise <value>false</value>.</param>
-    public virtual void Stop(bool immediate)
-    {
-      HostingEnvironment.UnregisterObject(this);
-    }
-
-    /// <summary>
-    /// Gets global initialization handler instance.
-    /// </summary>
-    /// <returns>Global initialization handler instances.</returns>
-    private static IEnumerable<object> GetDiscoveredGlobalInitializationHandlers()
-    {
-      List<object> result = new List<object>();
-
-      foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-      {
-        foreach (Type type in assembly.GetTypes())
-        {
-          if (type.Name == GlobalInitializationHandlerTypeName)
-          {
-            ConstructorInfo constructorInfo = type.GetConstructor(new Type[0]);
-
-            if (constructorInfo != null)
-            {
-              result.Add(constructorInfo.Invoke(new object[0]));
-            }
-          }
-        }
-      }
-
-      return result;
-    }
-
-    /// <summary>
-    /// Defines the handler for the test domain unload event.
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="eventArgs">The arguments.</param>
-    private static void TestDomainOnDomainUnload(object sender, EventArgs eventArgs)
-    {
-      ApplicationManager manager = ApplicationManager.GetApplicationManager();
-
-      foreach (ApplicationInfo appInfo in manager.GetRunningApplications())
-      {
-        manager.ShutdownApplication(appInfo.ID);
-      }
-
-      Stack<object> globalInitializationHandlersInOrder = new Stack<object>(globalInitializationHandlers);
-
-      while (globalInitializationHandlersInOrder.Count > 0)
-      {
-        IDisposable disposableCandidate = globalInitializationHandlersInOrder.Pop() as IDisposable;
-
-        if (disposableCandidate != null)
-        {
-          disposableCandidate.Dispose();
-        }
-      }
+      return (LiveTest)testApplication.CreateObject(testType);
     }
   }
 }
