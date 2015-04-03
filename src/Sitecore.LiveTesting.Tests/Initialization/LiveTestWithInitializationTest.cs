@@ -22,18 +22,6 @@
     }
 
     /// <summary>
-    /// The interface for sample remote test.
-    /// </summary>
-    private interface ISampleRemoteTest
-    {
-      /// <summary>
-      /// The sample test method.
-      /// </summary>
-      /// <param name="argument">The argument.</param>
-      void TestSomething(int argument);
-    }
-
-    /// <summary>
     /// Should initialize and cleanup before and after method is called.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "It's ok to use it from tests")]
@@ -66,17 +54,6 @@
       int methodCallId = (int)Test.Manager.ReceivedCalls().First().GetArguments()[0];
       Test.Manager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
       Test.Manager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
-    }
-
-    /// <summary>
-    /// Should not fail when actual test instance is remote proxy.
-    /// </summary>
-    [Fact]
-    public void ShouldNotFailWhenActualTestInstanceIsRemoteProxy()
-    {
-      ISampleRemoteTest test = new RemoteTest();
-
-      test.TestSomething(1);
     }
 
     /// <summary>
@@ -154,60 +131,6 @@
       public void FailingTest()
       {
         throw new Exception();
-      }
-    }
-
-    /// <summary>
-    /// Defines a typical test class example.
-    /// </summary>
-    public class RemoteTest : LiveTestWithInitialization, ISampleRemoteTest
-    {
-      /// <summary>
-      /// The test application domain.
-      /// </summary>
-      private static readonly AppDomain TestAppDomain = AppDomain.CreateDomain("TestAppDomain", null, new AppDomainSetup { ApplicationBase = Environment.CurrentDirectory });
-
-      /// <summary>
-      /// Creates an instance of corresponding class.
-      /// </summary>
-      /// <param name="testType">Type of the test to instantiate.</param>
-      /// <returns>Instance of the class.</returns>    
-      public static new LiveTestWithInitialization Instantiate(Type testType)
-      {
-        LiveTestWithInitialization test = (LiveTestWithInitialization)TestAppDomain.CreateInstanceAndUnwrap(typeof(RealLiveTest).Assembly.FullName, typeof(RealLiveTest).FullName);
-        return LiveTestWithInitialization.Intercept(test, testType);
-      }
-
-      /// <summary>
-      /// Typical test method example.
-      /// </summary>
-      /// <param name="argument">The test argument.</param>
-      public void TestSomething(int argument)
-      {
-      }
-    }
-
-    /// <summary>
-    /// Defines the real live test class which will be instantiated in order to avoid <see cref="StackOverflowException"/>.
-    /// </summary>
-    public class RealLiveTest : LiveTestWithInitialization, ISampleRemoteTest
-    {
-      /// <summary>
-      /// Creates an instance of corresponding class.
-      /// </summary>
-      /// <param name="testType">Type of the test to instantiate.</param>
-      /// <returns>Instance of the class.</returns>    
-      public static new LiveTestWithInitialization Instantiate(Type testType)
-      {
-        return (LiveTestWithInitialization)Activator.CreateInstance(testType);
-      }
-
-      /// <summary>
-      /// Typical test method example.
-      /// </summary>
-      /// <param name="argument">The test argument.</param>
-      public void TestSomething(int argument)
-      {
       }
     }
   }

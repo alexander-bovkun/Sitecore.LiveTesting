@@ -91,6 +91,8 @@
     [Fact]
     public void ShouldReturnAllRunningApplications()
     {
+      ApplicationManager.GetApplicationManager().GetRunningApplications().Select(a => a.ID).ToList().ForEach(i => ApplicationManager.GetApplicationManager().ShutdownApplication(i));
+
       TestApplicationManager applicationManager = new TestApplicationManager();
       TestApplication application = (TestApplication)ApplicationManager.GetApplicationManager().CreateObject(this.applicationHost.ApplicationId, typeof(TestApplication), this.applicationHost.VirtualPath, Path.GetFullPath(this.applicationHost.PhysicalPath), false, true);
 

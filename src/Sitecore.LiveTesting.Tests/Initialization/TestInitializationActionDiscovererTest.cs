@@ -74,18 +74,8 @@
     /// Defines typical test example.
     /// </summary>
     [InitializationHandler(typeof(InitializationHandler1), "parameter")]
-    public class Test : LiveTestWithInitialization
+    public class Test
     {
-      /// <summary>
-      /// Instantiates the test class.
-      /// </summary>
-      /// <param name="testType">Type of the test class.</param>
-      /// <returns>Instance of the test class.</returns>
-      public static new LiveTestWithInitialization Instantiate(Type testType)
-      {
-        return new Test();
-      }
-
       /// <summary>
       /// Sample test method.
       /// </summary>

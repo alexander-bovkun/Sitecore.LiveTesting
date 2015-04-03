@@ -108,28 +108,5 @@
 
       Assert.Throws<InvalidOperationException>(action);
     }
-
-    /// <summary>
-    /// Defines a typical test example.
-    /// </summary>
-    public class Test : LiveTestWithInitialization
-    {
-      /// <summary>
-      /// Instantiates the test class.
-      /// </summary>
-      /// <param name="testType">Type of the test class.</param>
-      /// <returns>Instance of the test class.</returns>
-      public static new LiveTestWithInitialization Instantiate(Type testType)
-      {
-        return new Test();
-      }
-
-      /// <summary>
-      /// Sample test method.
-      /// </summary>
-      public void TestMethod()
-      {
-      }
-    }
   }
 }
