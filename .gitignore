@@ -97,7 +97,13 @@ publish/
 
 # NuGet Packages Directory
 ## TODO: If you have NuGet Package Restore enabled, uncomment the next line
-#packages/
+packages/
+
+# Automatically build NuGet packages
+*.nupkg
+
+# Sitecore dependencies
+lib/
 
 # Windows Azure Build Output
 csx
