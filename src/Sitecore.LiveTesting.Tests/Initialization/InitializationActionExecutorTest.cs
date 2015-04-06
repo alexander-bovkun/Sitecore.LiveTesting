@@ -64,6 +64,20 @@
     }
 
     /// <summary>
+    /// Should throw invalid operation exception if there is no constructor that matches arguments.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowInvalidOperationExceptionIfThereIsNoConstructorThatMatchesArguments()
+    {
+      InitializationActionExecutor executor = new InitializationActionExecutor();
+      InitializationAction action = new InitializationAction("Action") { State = new InitializationHandler(typeof(SimpleInitializer), new object[] { 1 }) };
+
+      Assert.ThrowsDelegate routine = () => executor.ExecuteInitializationForAction(action);
+
+      Assert.Throws<InvalidOperationException>(routine);
+    }
+
+    /// <summary>
     /// Should set initialization context if initialization handler implements IInitializationContextAware.
     /// </summary>
     [Fact]

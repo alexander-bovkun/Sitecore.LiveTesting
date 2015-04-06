@@ -1,9 +1,9 @@
 ﻿using Sitecore.LiveTesting.Initialization;
 using Sitecore.LiveTesting.Tests.Initialization;
 
-[assembly: InitializationHandler(typeof(TestApplicationInitializationActionDiscovererTest), "parameter")]
-[assembly: InitializationHandler(typeof(TestApplicationInitializationActionDiscovererTest), Priority = -1)]
-[assembly: InitializationHandler(typeof(TestApplicationInitializationActionDiscovererTest), Priority = 1)]
+[assembly: InitializationHandler(typeof(TestApplicationInitializationActionDiscovererTest.SampleInitializationHandler), "parameter")]
+[assembly: InitializationHandler(typeof(TestApplicationInitializationActionDiscovererTest.SampleInitializationHandler), Priority = -1)]
+[assembly: InitializationHandler(typeof(TestApplicationInitializationActionDiscovererTest.SampleInitializationHandler), Priority = 1)]
 
 namespace Sitecore.LiveTesting.Tests.Initialization
 {
@@ -46,23 +46,37 @@ namespace Sitecore.LiveTesting.Tests.Initialization
 
       Assert.Equal(3, result.Count());
 
-      Assert.Equal(typeof(TestApplicationInitializationActionDiscovererTest).AssemblyQualifiedName, result.First().Id);
+      Assert.Equal(typeof(SampleInitializationHandler).AssemblyQualifiedName, result.First().Id);
       Assert.IsType<InitializationHandler>(result.First().State);
-      Assert.Equal(typeof(TestApplicationInitializationActionDiscovererTest), ((InitializationHandler)result.First().State).Type);
+      Assert.Equal(typeof(SampleInitializationHandler), ((InitializationHandler)result.First().State).Type);
       Assert.Empty(((InitializationHandler)result.First().State).Arguments);
       Assert.Equal(context, result.First().Context);
 
-      Assert.Equal(typeof(TestApplicationInitializationActionDiscovererTest).AssemblyQualifiedName, result.ElementAt(1).Id);
+      Assert.Equal(typeof(SampleInitializationHandler).AssemblyQualifiedName, result.ElementAt(1).Id);
       Assert.IsType<InitializationHandler>(result.ElementAt(1).State);
-      Assert.Equal(typeof(TestApplicationInitializationActionDiscovererTest), ((InitializationHandler)result.ElementAt(1).State).Type);
+      Assert.Equal(typeof(SampleInitializationHandler), ((InitializationHandler)result.ElementAt(1).State).Type);
       Assert.Equal(new object[] { "parameter" }, ((InitializationHandler)result.ElementAt(1).State).Arguments);
       Assert.Equal(context, result.ElementAt(1).Context);
 
-      Assert.Equal(typeof(TestApplicationInitializationActionDiscovererTest).AssemblyQualifiedName, result.ElementAt(2).Id);
+      Assert.Equal(typeof(SampleInitializationHandler).AssemblyQualifiedName, result.ElementAt(2).Id);
       Assert.IsType<InitializationHandler>(result.ElementAt(2).State);
-      Assert.Equal(typeof(TestApplicationInitializationActionDiscovererTest), ((InitializationHandler)result.ElementAt(2).State).Type);
+      Assert.Equal(typeof(SampleInitializationHandler), ((InitializationHandler)result.ElementAt(2).State).Type);
       Assert.Empty(((InitializationHandler)result.ElementAt(2).State).Arguments);
       Assert.Equal(context, result.ElementAt(2).Context);
+    }
+
+    /// <summary>
+    /// The sample initialization handler.
+    /// </summary>
+    public class SampleInitializationHandler
+    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="SampleInitializationHandler"/> class.
+      /// </summary>
+      /// <param name="arguments">The arguments.</param>
+      public SampleInitializationHandler(object[] arguments)
+      {
+      }
     }
   }
 }

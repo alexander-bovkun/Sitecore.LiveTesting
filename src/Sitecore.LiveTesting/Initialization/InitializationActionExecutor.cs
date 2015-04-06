@@ -39,10 +39,12 @@
       {
         constructor = initializationHandler.Type.GetConstructor(new[] { typeof(object[]) });
 
-        if (constructor != null)
+        if (constructor == null)
         {
-          action.State = constructor.Invoke(new object[] { initializationHandler.Arguments });
+          throw new InvalidOperationException(string.Format("Failed to create an instance of '{0}' type. No constructor found that matches the list of parameters.", initializationHandler.Type.AssemblyQualifiedName));
         }
+        
+        action.State = constructor.Invoke(new object[] { initializationHandler.Arguments });
       }
       else
       {
