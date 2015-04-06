@@ -34,6 +34,16 @@
     private readonly RequestInitializationContext context;
 
     /// <summary>
+    /// The end of send callback.
+    /// </summary>
+    private EndOfSendNotification endOfSendCallback;
+
+    /// <summary>
+    /// The end of send callback data.
+    /// </summary>
+    private object endOfSendCallbackData;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="WorkerRequest"/> class.
     /// </summary>
     /// <param name="initializationManager">The initialization Manager.</param>
@@ -332,6 +342,9 @@
     {
       base.SetEndOfSendNotification(callback, extraData);
 
+      this.endOfSendCallback = callback;
+      this.endOfSendCallbackData = extraData;
+
       HttpContext httpContext = extraData as HttpContext;
       this.context.HttpContext = httpContext;
 
@@ -344,6 +357,14 @@
     public override void EndOfRequest()
     {
       base.EndOfRequest();
+
+      if (this.endOfSendCallback != null)
+      {
+        this.endOfSendCallback(this, this.endOfSendCallbackData);
+        
+        this.endOfSendCallback = null;
+        this.endOfSendCallbackData = null;
+      }
 
       this.Termination();
     }
