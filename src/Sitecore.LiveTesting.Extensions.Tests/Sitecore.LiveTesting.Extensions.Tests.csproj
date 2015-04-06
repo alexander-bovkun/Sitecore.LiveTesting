@@ -43,6 +43,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Initialization\Diagnostics\FirstChanceExceptionTest.cs" />
     <Compile Include="Initialization\HookAdapterTest.cs" />
     <Compile Include="Initialization\Requests\HttpContextProviderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
