@@ -69,7 +69,7 @@
     public void ShouldCallInitializationManagerOnConstruction()
     {
       InitializationManager initializationManager = Substitute.For<InitializationManager>(new TestInitializationActionDiscoverer(), new InitializationActionExecutor());
-      TestApplication application = new TestApplication(initializationManager);
+      TestApplication application = new CustomTestApplication(initializationManager);
 
       initializationManager.Received().Initialize(0, Arg.Is<TestApplicationInitializationContext>(context => context.Application == application));
     }
@@ -81,11 +81,25 @@
     public void ShouldCallInitializationManagerOnStop()
     {
       InitializationManager initializationManager = Substitute.For<InitializationManager>(new TestInitializationActionDiscoverer(), new InitializationActionExecutor());
-      TestApplication application = new TestApplication(initializationManager);
+      TestApplication application = new CustomTestApplication(initializationManager);
 
       ((IRegisteredObject)application).Stop(false);
 
       initializationManager.Received().Cleanup(0, Arg.Is<TestApplicationInitializationContext>(context => context.Application == application));
+    }
+
+    /// <summary>
+    /// Defines the sample test application.
+    /// </summary>
+    private class CustomTestApplication : TestApplication
+    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="CustomTestApplication"/> class.
+      /// </summary>
+      /// <param name="initializationManager">The initialization manager.</param>
+      public CustomTestApplication(InitializationManager initializationManager) : base(initializationManager)
+      {
+      }
     }
   }
 }

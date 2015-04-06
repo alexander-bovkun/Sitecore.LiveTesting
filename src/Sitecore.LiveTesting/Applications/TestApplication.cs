@@ -27,7 +27,7 @@
     /// Initializes a new instance of the <see cref="TestApplication"/> class.
     /// </summary>
     /// <param name="initializationManager">The initialization manager.</param>
-    public TestApplication(InitializationManager initializationManager)
+    protected TestApplication(InitializationManager initializationManager)
     {
       if (initializationManager == null)
       {

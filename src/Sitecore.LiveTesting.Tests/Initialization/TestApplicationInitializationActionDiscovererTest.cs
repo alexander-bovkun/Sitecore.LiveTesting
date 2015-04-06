@@ -39,7 +39,7 @@ namespace Sitecore.LiveTesting.Tests.Initialization
     [Fact]
     public void ShouldDiscoverInitializationActionsMatchingToAssemblyDefinedInitializationHandlerAttributes()
     {
-      TestApplicationInitializationContext context = new TestApplicationInitializationContext(new TestApplication(Substitute.For<InitializationManager>(new TestInitializationActionDiscoverer(), new InitializationActionExecutor())));
+      TestApplicationInitializationContext context = new TestApplicationInitializationContext(Substitute.For<TestApplication>(Substitute.For<InitializationManager>(new TestInitializationActionDiscoverer(), new InitializationActionExecutor())));
       TestApplicationInitializationActionDiscoverer discoverer = new TestApplicationInitializationActionDiscoverer();
 
       IEnumerable<InitializationAction> result = discoverer.GetInitializationActions(context).ToArray();
