@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.Application
+﻿namespace Sitecore.LiveTesting.Applications
 {
   using System;
   using System.Collections.Generic;

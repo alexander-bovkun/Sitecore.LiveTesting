@@ -1,8 +1,8 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Tests.Request
+﻿namespace Sitecore.LiveTesting.Extensions.Tests.Requests
 {
   using System.Linq;
-  using Sitecore.LiveTesting.Extensions.InitializationHandlers.Request;
-  using Sitecore.LiveTesting.Extensions.Request;
+  using Sitecore.LiveTesting.Extensions.Initialization.Requests;
+  using Sitecore.LiveTesting.Extensions.Requests;
   using Sitecore.Security.Accounts;
   using Xunit;
 

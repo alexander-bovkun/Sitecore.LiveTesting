@@ -4,7 +4,7 @@
   using System.CodeDom;
   using System.Linq;
   using System.Web.Hosting;
-  using Sitecore.LiveTesting.Application;
+  using Sitecore.LiveTesting.Applications;
   using TechTalk.SpecFlow.Generator.UnitTestConverter;
   using TechTalk.SpecFlow.Parser.SyntaxElements;
 

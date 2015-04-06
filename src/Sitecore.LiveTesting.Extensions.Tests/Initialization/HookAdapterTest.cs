@@ -1,8 +1,8 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Tests.InitializationHandlers
+﻿namespace Sitecore.LiveTesting.Extensions.Tests.Initialization
 {
   using System;
   using Sitecore.Events.Hooks;
-  using Sitecore.LiveTesting.Extensions.InitializationHandlers;
+  using Sitecore.LiveTesting.Extensions.Initialization;
   using Xunit;
 
   /// <summary>

@@ -9,7 +9,7 @@
   /// <summary>
   /// Defines the test class for <see cref="InitializationManager"/>
   /// </summary>  
-  public class TestInitializationManagerTest
+  public class InitializationManagerTest
   {
     /// <summary>
     /// The action discoverer.
@@ -27,9 +27,9 @@
     private InitializationManager manager;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestInitializationManagerTest"/> class.
+    /// Initializes a new instance of the <see cref="InitializationManagerTest"/> class.
     /// </summary>
-    public TestInitializationManagerTest()
+    public InitializationManagerTest()
     {
       this.actionDiscoverer = Substitute.For<TestInitializationActionDiscoverer>();
       this.actionExecutor = Substitute.For<InitializationActionExecutor>();

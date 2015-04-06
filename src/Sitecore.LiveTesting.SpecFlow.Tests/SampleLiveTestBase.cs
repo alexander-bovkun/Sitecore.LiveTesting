@@ -1,7 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.SpecFlow.Tests
 {
   using System;
-  using Sitecore.LiveTesting.Application;
+  using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.Initialization;
 
   /// <summary>

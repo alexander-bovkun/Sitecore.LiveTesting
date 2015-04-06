@@ -1,10 +1,10 @@
-﻿namespace Sitecore.LiveTesting.Tests
+﻿namespace Sitecore.LiveTesting.Tests.Applications
 {
   using System;
   using System.Collections.Generic;
   using System.Web.Hosting;
   using NSubstitute;
-  using Sitecore.LiveTesting.Application;
+  using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.Initialization;
   using Xunit;
 

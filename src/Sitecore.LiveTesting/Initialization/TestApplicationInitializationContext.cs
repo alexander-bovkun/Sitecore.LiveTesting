@@ -1,7 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.Initialization
 {
   using System;
-  using Sitecore.LiveTesting.Application;
+  using Sitecore.LiveTesting.Applications;
 
   /// <summary>
   /// Defines the initialization context that provides basic information about the application being instantiated.

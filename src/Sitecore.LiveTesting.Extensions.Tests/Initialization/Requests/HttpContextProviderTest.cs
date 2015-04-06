@@ -1,11 +1,11 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Tests.InitializationHandlers.Request
+﻿namespace Sitecore.LiveTesting.Extensions.Tests.Initialization.Requests
 {
   using System;
   using System.IO;
   using System.Web;
-  using Sitecore.LiveTesting.Extensions.InitializationHandlers.Request;
+  using Sitecore.LiveTesting.Extensions.Initialization.Requests;
   using Sitecore.LiveTesting.Initialization;
-  using Sitecore.LiveTesting.Request;
+  using Sitecore.LiveTesting.Requests;
   using Xunit;
 
   /// <summary>

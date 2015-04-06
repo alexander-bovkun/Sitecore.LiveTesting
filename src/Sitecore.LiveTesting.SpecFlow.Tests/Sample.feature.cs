@@ -13,7 +13,7 @@
 #pragma warning disable
 namespace Sitecore.LiveTesting.SpecFlow.Tests
 {
-  using Sitecore.LiveTesting.Application;
+  using Sitecore.LiveTesting.Applications;
   using TechTalk.SpecFlow;
     
     

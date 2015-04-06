@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.Extensions.InitializationHandlers.Request
+﻿namespace Sitecore.LiveTesting.Extensions.Initialization.Requests
 {
   using System;
   using System.Web;

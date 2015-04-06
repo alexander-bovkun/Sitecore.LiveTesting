@@ -2,7 +2,7 @@
 {
   using System;
   using System.Web;
-  using Sitecore.LiveTesting.Request;
+  using Sitecore.LiveTesting.Requests;
 
   /// <summary>
   /// Defines the initialization context that provides additional information about the request being executed.

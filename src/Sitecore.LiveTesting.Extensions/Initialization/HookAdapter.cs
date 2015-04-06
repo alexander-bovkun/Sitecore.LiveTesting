@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.Extensions.InitializationHandlers
+﻿namespace Sitecore.LiveTesting.Extensions.Initialization
 {
   using Sitecore.Events.Hooks;
 

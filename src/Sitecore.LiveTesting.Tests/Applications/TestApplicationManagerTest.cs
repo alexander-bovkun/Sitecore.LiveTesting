@@ -1,11 +1,11 @@
-﻿namespace Sitecore.LiveTesting.Tests
+﻿namespace Sitecore.LiveTesting.Tests.Applications
 {
   using System;
   using System.IO;
   using System.Linq;
   using System.Runtime.Remoting;
   using System.Web.Hosting;
-  using Sitecore.LiveTesting.Application;
+  using Sitecore.LiveTesting.Applications;
   using Xunit;
 
   /// <summary>

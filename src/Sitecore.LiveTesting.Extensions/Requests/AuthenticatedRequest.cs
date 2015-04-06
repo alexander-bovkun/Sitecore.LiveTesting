@@ -1,10 +1,10 @@
-﻿namespace Sitecore.LiveTesting.Extensions.Request
+﻿namespace Sitecore.LiveTesting.Extensions.Requests
 {
   using System;
   using Sitecore.Diagnostics;
-  using Sitecore.LiveTesting.Extensions.InitializationHandlers.Request;
+  using Sitecore.LiveTesting.Extensions.Initialization.Requests;
   using Sitecore.LiveTesting.Initialization;
-  using Sitecore.LiveTesting.Request;
+  using Sitecore.LiveTesting.Requests;
   using Sitecore.Security.Accounts;
 
   /// <summary>

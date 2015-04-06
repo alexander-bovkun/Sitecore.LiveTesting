@@ -43,9 +43,9 @@
   <ItemGroup>
     <Compile Include="Configuration\SitecoreConfigurationSwitcher.cs" />
     <Compile Include="Configuration\XPathNodeIteratorExtensions.cs" />
-    <Compile Include="InitializationHandlers\HookAdapter.cs" />
-    <Compile Include="InitializationHandlers\DatabaseCleanup.cs" />
-    <Compile Include="InitializationHandlers\Request\HttpContextProvider.cs" />
+    <Compile Include="Initialization\HookAdapter.cs" />
+    <Compile Include="Initialization\DatabaseCleanup.cs" />
+    <Compile Include="Initialization\Requests\HttpContextProvider.cs" />
     <Compile Include="Pipelines\PipelineDefinition.cs" />
     <Compile Include="Pipelines\PipelineManager.cs" />
     <Compile Include="Pipelines\PipelineManagerExtensions.cs" />
@@ -55,7 +55,7 @@
     <Compile Include="Pipelines\RuntimePipelineCall.cs" />
     <Compile Include="Pipelines\RuntimeProcessorCallEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Request\AuthenticatedRequest.cs" />
+    <Compile Include="Requests\AuthenticatedRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Sitecore.Kernel">
