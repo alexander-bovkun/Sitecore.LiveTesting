@@ -13,8 +13,7 @@
 #pragma warning disable
 namespace Sitecore.LiveTesting.SpecFlow.Tests
 {
-  using Sitecore.LiveTesting.Applications;
-  using TechTalk.SpecFlow;
+    using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.9.0.77")]
@@ -35,10 +34,13 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
         
         public static void FeatureSetup()
         {
-            TestApplicationHost defaultApplicationHost;
+            Sitecore.LiveTesting.Applications.TestApplicationManager defaultApplicationManager;
+            Sitecore.LiveTesting.Applications.TestApplicationHost defaultApplicationHost;
+            defaultApplicationManager = Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.GetDefaultTestApplicationManager(typeof(InitializationHandlersFeature));
             defaultApplicationHost = Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.GetDefaultApplicationHost(typeof(InitializationHandlersFeature));
             if ((System.Web.Hosting.HostingEnvironment.IsHosted 
-                        || (defaultApplicationHost == null)))
+                        || ((defaultApplicationManager == null) 
+                        || (defaultApplicationHost == null))))
             {
                 testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
                 TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Initialization handlers", "", ProgrammingLanguage.CSharp, new string[] {
@@ -48,25 +50,30 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
             }
             else
             {
-                Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.Instantiate(typeof(InitializationHandlersFeature));
-                System.Web.Hosting.ApplicationManager.GetApplicationManager().GetAppDomain(defaultApplicationHost.ApplicationId).DoCallBack(InitializationHandlersFeature.FeatureSetup);
+                Sitecore.LiveTesting.Applications.TestApplication application;
+                application = defaultApplicationManager.StartApplication(defaultApplicationHost);
+                application.ExecuteAction(typeof(InitializationHandlersFeature).GetMethod("FeatureSetup", new System.Type[0]));
             }
         }
         
         public static void FeatureTearDown()
         {
-            TestApplicationHost defaultApplicationHost;
+            Sitecore.LiveTesting.Applications.TestApplicationManager defaultApplicationManager;
+            Sitecore.LiveTesting.Applications.TestApplicationHost defaultApplicationHost;
+            defaultApplicationManager = Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.GetDefaultTestApplicationManager(typeof(InitializationHandlersFeature));
             defaultApplicationHost = Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.GetDefaultApplicationHost(typeof(InitializationHandlersFeature));
             if ((System.Web.Hosting.HostingEnvironment.IsHosted 
-                        || (defaultApplicationHost == null)))
+                        || ((defaultApplicationManager == null) 
+                        || (defaultApplicationHost == null))))
             {
                 testRunner.OnFeatureEnd();
                 testRunner = null;
             }
             else
             {
-                Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase.Instantiate(typeof(InitializationHandlersFeature));
-                System.Web.Hosting.ApplicationManager.GetApplicationManager().GetAppDomain(defaultApplicationHost.ApplicationId).DoCallBack(InitializationHandlersFeature.FeatureTearDown);
+                Sitecore.LiveTesting.Applications.TestApplication application;
+                application = defaultApplicationManager.StartApplication(defaultApplicationHost);
+                application.ExecuteAction(typeof(InitializationHandlersFeature).GetMethod("FeatureTearDown", new System.Type[0]));
             }
         }
         

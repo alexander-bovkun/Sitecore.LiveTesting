@@ -71,12 +71,12 @@
       const string InstantiateMethodName = "Instantiate";
       const string GetDefaultTestApplicationManagerMethodName = "GetDefaultTestApplicationManager";
       const string GetDefaultApplicationHostMethodName = "GetDefaultApplicationHost";
-      const string DoCallbackMethodName = "DoCallBack";
-      const string GetAppDomainMethodName = "GetAppDomain";
-      const string GetApplicationManagerMethodName = "GetApplicationManager";
-      const string ApplicationIdPropertyName = "ApplicationId";
       const string IsHostedPropertyName = "IsHosted";
+      const string DefaultApplicationManagerVariableName = "defaultApplicationManager";
       const string DefaultApplicationHostVariableName = "defaultApplicationHost";
+      const string ApplicationVariableName = "application";
+      const string StartApplicationMethodName = "StartApplication";
+      const string ExecuteActionMethodName = "ExecuteAction";
 
       CodeTypeDeclaration type = output.Types.Cast<CodeTypeDeclaration>().Single();
 
@@ -84,17 +84,28 @@
       {
         CodeStatement[] originalCodeStatements = method.Statements.Cast<CodeStatement>().ToArray<CodeStatement>();
 
+        CodeVariableReferenceExpression defaultApplicationManagerReferenceExpression = new CodeVariableReferenceExpression(DefaultApplicationManagerVariableName);
+        CodeStatement defaultApplicationManagerDeclarationStatement = new CodeVariableDeclarationStatement(typeof(TestApplicationManager), DefaultApplicationManagerVariableName);
+        CodeStatement defaultApplicationManagerAssignStatement = new CodeAssignStatement(defaultApplicationManagerReferenceExpression, new CodeMethodInvokeExpression(this.GetStaticMethodReference(type, GetDefaultTestApplicationManagerMethodName), new CodeTypeOfExpression(type.Name)));
+
         CodeVariableReferenceExpression defaultApplicationHostReferenceExpression = new CodeVariableReferenceExpression(DefaultApplicationHostVariableName);
         CodeStatement defaultApplicationHostDeclarationStatement = new CodeVariableDeclarationStatement(typeof(TestApplicationHost), DefaultApplicationHostVariableName);
         CodeStatement defaultApplicationHostAssignStatement = new CodeAssignStatement(defaultApplicationHostReferenceExpression, new CodeMethodInvokeExpression(this.GetStaticMethodReference(type, GetDefaultApplicationHostMethodName), new CodeTypeOfExpression(type.Name)));
-        
-        CodeStatement domainInitializationStatement = new CodeExpressionStatement(new CodeMethodInvokeExpression(this.GetStaticMethodReference(type, InstantiateMethodName), new CodeTypeOfExpression(type.Name)));
-        CodeStatement domainCallbackStatement = new CodeExpressionStatement(new CodeMethodInvokeExpression(new CodeMethodInvokeExpression(new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(ApplicationManager)), GetApplicationManagerMethodName), GetAppDomainMethodName, new CodePropertyReferenceExpression(defaultApplicationHostReferenceExpression, ApplicationIdPropertyName)), DoCallbackMethodName, new CodeMethodReferenceExpression(new CodeTypeReferenceExpression(type.Name), method.Name)));
+
+        CodeVariableReferenceExpression applicationReferenceExpression = new CodeVariableReferenceExpression(ApplicationVariableName);
+        CodeStatement applicationDeclarationStatement = new CodeVariableDeclarationStatement(typeof(TestApplication), ApplicationVariableName);
+        CodeStatement applicationAssignStatement = new CodeAssignStatement(applicationReferenceExpression, new CodeMethodInvokeExpression(new CodeMethodReferenceExpression(defaultApplicationManagerReferenceExpression, StartApplicationMethodName), defaultApplicationHostReferenceExpression));
+
+        const string GetMethodMethodName = "GetMethod";
+
+        CodeStatement staticMethodInvocationStatement = new CodeExpressionStatement(new CodeMethodInvokeExpression(applicationReferenceExpression, ExecuteActionMethodName, new CodeExpression[] { new CodeMethodInvokeExpression(new CodeTypeOfExpression(type.Name), GetMethodMethodName, new CodePrimitiveExpression(method.Name), new CodeArrayCreateExpression(typeof(Type), method.Parameters.Cast<CodeParameterDeclarationExpression>().Select(p => new CodeTypeOfExpression(p.Type)).Cast<CodeExpression>().ToArray())) }.Concat(method.Parameters.Cast<CodeParameterDeclarationExpression>().Select(p => new CodeVariableReferenceExpression(p.Name)).Cast<CodeExpression>()).ToArray()));
 
         method.Statements.Clear();
+        method.Statements.Add(defaultApplicationManagerDeclarationStatement);
         method.Statements.Add(defaultApplicationHostDeclarationStatement);
+        method.Statements.Add(defaultApplicationManagerAssignStatement);
         method.Statements.Add(defaultApplicationHostAssignStatement);
-        method.Statements.Add(new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeTypeReferenceExpression(typeof(HostingEnvironment)), IsHostedPropertyName), CodeBinaryOperatorType.BooleanOr, new CodeBinaryOperatorExpression(defaultApplicationHostReferenceExpression, CodeBinaryOperatorType.IdentityEquality, new CodePrimitiveExpression(null))), originalCodeStatements, new[] { domainInitializationStatement, domainCallbackStatement }));
+        method.Statements.Add(new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeTypeReferenceExpression(typeof(HostingEnvironment)), IsHostedPropertyName), CodeBinaryOperatorType.BooleanOr, new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(defaultApplicationManagerReferenceExpression, CodeBinaryOperatorType.IdentityEquality, new CodePrimitiveExpression(null)), CodeBinaryOperatorType.BooleanOr, new CodeBinaryOperatorExpression(defaultApplicationHostReferenceExpression, CodeBinaryOperatorType.IdentityEquality, new CodePrimitiveExpression(null)))), originalCodeStatements, new[] { applicationDeclarationStatement, applicationAssignStatement, staticMethodInvocationStatement }));
       }
     }
 
