@@ -1,8 +1,10 @@
 ﻿namespace Sitecore.LiveTesting.Extensions.Tests.Initialization.Diagnostics
 {
   using System;
+  using System.Linq;
   using System.Reflection;
   using System.Runtime.ExceptionServices;
+  using NSubstitute;
   using Sitecore.LiveTesting.Extensions.Initialization.Diagnostics;
   using Xunit;
 
@@ -20,33 +22,29 @@
     }
 
     /// <summary>
-    /// Should subscribe to first chance exception on construction and unsubscribe on disposal.
+    /// Should subscribe to first chance exception on construction, call abstract method on event and unsubscribe on disposal.
     /// </summary>
     [Fact]
-    public void ShouldSubscribeToFirstChanceExceptionOnConstructionAndUnsubscribeOnDisposal()
+    public void ShouldSubscribeToFirstChanceExceptionOnConstructionCallAbstractMethodOnEventAndUnsubscribeOnDisposal()
     {
-      FirstChanceException initializationHandler = new TestFirstChanceException();
+      FirstChanceException initializationHandler = Substitute.ForPartsOf<FirstChanceException>();
 
       using (initializationHandler)
       {
         Assert.Equal(initializationHandler, FirstChanceExceptionSubscribers.Target);
+
+        Exception exception = new Exception();
+
+        FirstChanceExceptionSubscribers(AppDomain.CurrentDomain, new FirstChanceExceptionEventArgs(exception));
+
+        Assert.Equal(1, initializationHandler.ReceivedCalls().Count());
+        Assert.Equal(initializationHandler, initializationHandler.ReceivedCalls().Single().Target());
+        Assert.Equal(1, initializationHandler.ReceivedCalls().Single().GetArguments().Length);
+        Assert.IsType<FirstChanceExceptionEventArgs>(initializationHandler.ReceivedCalls().Single().GetArguments()[0]);
+        Assert.Equal(exception, ((FirstChanceExceptionEventArgs)initializationHandler.ReceivedCalls().Single().GetArguments()[0]).Exception);
       }
 
       Assert.Null(FirstChanceExceptionSubscribers);
-    }
-
-    /// <summary>
-    /// The test first chance exception.
-    /// </summary>
-    private class TestFirstChanceException : FirstChanceException
-    {
-      /// <summary>
-      /// On first chance exception event handler.
-      /// </summary>
-      /// <param name="firstChanceExceptionEventArgs">The first chance exception event args.</param>
-      protected override void OnFirstChanceException(FirstChanceExceptionEventArgs firstChanceExceptionEventArgs)
-      {
-      }
     }
   }
 }
