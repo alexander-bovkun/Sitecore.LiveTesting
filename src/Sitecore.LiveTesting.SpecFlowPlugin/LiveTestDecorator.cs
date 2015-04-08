@@ -219,8 +219,9 @@
           case '}':
             {
               --openedBracesCount;
-              string parameterName = codeSnippet.Substring(parameterNameStart, parameterExpressionStart - parameterNameStart - 1);
-              string parameterExpression = codeSnippet.Substring(parameterExpressionStart, index - parameterExpressionStart);
+              
+              string parameterName = codeSnippet.Substring(parameterNameStart, parameterExpressionStart - parameterNameStart - 1).Trim();
+              string parameterExpression = codeSnippet.Substring(parameterExpressionStart, index - parameterExpressionStart).Trim();
 
               arguments.Add(new CodeAttributeArgument(parameterName, new CodeSnippetExpression(parameterExpression)));
 
@@ -250,7 +251,9 @@
               {
                 if (attributeTypeNameStart != -1)
                 {
-                  result.Add(new CodeAttributeDeclaration(codeSnippet.Substring(attributeTypeNameStart, attributeTypeNameEnd - attributeTypeNameStart + 1), arguments.ToArray()));
+                  string parameterName = codeSnippet.Substring(attributeTypeNameStart, attributeTypeNameEnd - attributeTypeNameStart + 1).Trim();
+
+                  result.Add(new CodeAttributeDeclaration(parameterName, arguments.ToArray()));
                   arguments.Clear();
                 }
 
@@ -271,7 +274,9 @@
 
       if (attributeTypeNameStart != -1)
       {
-        result.Add(new CodeAttributeDeclaration(codeSnippet.Substring(attributeTypeNameStart, attributeTypeNameEnd - attributeTypeNameStart + 1), arguments.ToArray()));
+        string parameterName = codeSnippet.Substring(attributeTypeNameStart, attributeTypeNameEnd - attributeTypeNameStart + 1).Trim();
+
+        result.Add(new CodeAttributeDeclaration(parameterName, arguments.ToArray()));
       }
 
       return result;
