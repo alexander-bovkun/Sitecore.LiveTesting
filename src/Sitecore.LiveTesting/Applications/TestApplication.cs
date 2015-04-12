@@ -34,9 +34,11 @@
         throw new ArgumentNullException("initializationManager");
       }
 
-      // INFO: workaround to avoid AppDomainUnloadedException because of Sitecore agents
       if (HostingEnvironment.IsHosted)
       {
+        HostingEnvironment.RegisterObject(this);
+
+        // INFO: workaround to avoid AppDomainUnloadedException because of Sitecore agents
         var hostingEnvironment = typeof(HostingEnvironment).GetField("_theHostingEnvironment", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         var eventHandler = (EventHandler)typeof(HostingEnvironment).GetField("_onAppDomainUnload", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(hostingEnvironment);
 
