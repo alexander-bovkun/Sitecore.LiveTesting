@@ -6,7 +6,7 @@
   /// Defines the attribute that points to initialization handler types.
   /// </summary>
   [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-  public class InitializationHandlerAttribute : Attribute
+  public sealed class InitializationHandlerAttribute : Attribute
   {
     /// <summary>
     /// The initialization handler.

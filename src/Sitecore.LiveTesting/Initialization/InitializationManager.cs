@@ -73,7 +73,7 @@
       {
         if (this.actions.ContainsKey(id))
         {
-          throw new InvalidOperationException("Concurrency problem occured. Initialize method has been called twice or more for the same method call id.");
+          throw new InvalidOperationException("Concurrency problem occurred. Initialize method has been called twice or more for the same method call id.");
         }
 
         this.actions.Add(id, Utility.ToList(actionsToExecute));
@@ -98,7 +98,7 @@
       {
         if (!this.actions.ContainsKey(id))
         {
-          throw new InvalidOperationException("Possible concurrency problem occured. Seems that Initialize method was not called before clean up.");
+          throw new InvalidOperationException("Possible concurrency problem occurred. Seems that Initialize method was not called before clean up.");
         }
 
         actionsInOriginalOrder = this.actions[id];

@@ -84,6 +84,11 @@
     /// <returns>The result of action execution.</returns>
     public virtual object ExecuteAction(MethodBase targetAction, params object[] arguments)
     {
+      if (targetAction == null)
+      {
+        throw new ArgumentNullException("targetAction");
+      }
+
       if (!targetAction.IsStatic)
       {
         throw new NotSupportedException("Instance methods are not supported");

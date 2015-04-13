@@ -1,5 +1,6 @@
 ﻿namespace Sitecore.LiveTesting.Initialization
 {
+  using System;
   using System.Collections.Generic;
 
   /// <summary>
@@ -28,6 +29,16 @@
     /// <returns><value>1</value> if x goes after y, <value>-1</value> if x goes before y, otherwise <value>0</value>.</returns>
     public int Compare(InitializationHandlerAttribute x, InitializationHandlerAttribute y)
     {
+      if (x == null)
+      {
+        throw new ArgumentNullException("x");
+      }
+
+      if (y == null)
+      {
+        throw new ArgumentNullException("y");
+      }
+
       if (x.Priority > y.Priority)
       {
         return 1;

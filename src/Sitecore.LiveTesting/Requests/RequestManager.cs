@@ -1,6 +1,8 @@
 ﻿namespace Sitecore.LiveTesting.Requests
 {
   using System;
+  using System.IO;
+  using System.Globalization;
   using System.Web;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;
@@ -73,7 +75,7 @@
     /// <returns> The <see cref="HttpWorkerRequest"/>.</returns>
     protected virtual HttpWorkerRequest GetWorkerRequest(Request request)
     {
-      return new WorkerRequest(this.InitializationManager, new RequestInitializationContext(request, new Response()));
+      return new WorkerRequest(this.InitializationManager, new RequestInitializationContext(request, new Response()), TextWriter.Null);
     }
 
     /// <summary>
@@ -92,7 +94,7 @@
 
       if (workerRequestCandidate == null)
       {
-        throw new ArgumentException(string.Format("workerRequest is of improper type. It should be based on {0}", typeof(WorkerRequest).FullName));
+        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "workerRequest is of improper type. It should be based on {0}", typeof(WorkerRequest).FullName));
       }
 
       return workerRequestCandidate.Response;

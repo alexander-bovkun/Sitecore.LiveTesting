@@ -56,6 +56,11 @@
     /// <param name="context">The serialization context.</param>
     protected MethodCallEventArgs(SerializationInfo info, StreamingContext context)
     {
+      if (info == null)
+      {
+        throw new ArgumentNullException("info");
+      }
+
       this.methodCallId = info.GetInt32("MethodCallId");
       this.method = (MethodBase)info.GetValue("Method", typeof(MethodBase));
       
@@ -104,6 +109,11 @@
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
+      if (info == null)
+      {
+        throw new ArgumentNullException("info");
+      }
+
       info.AddValue("MethodCallId", this.MethodCallId);
       info.AddValue("Method", this.Method);
       info.AddValue("Arguments", this.Arguments);

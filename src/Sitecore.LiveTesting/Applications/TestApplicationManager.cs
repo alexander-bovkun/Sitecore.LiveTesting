@@ -3,6 +3,7 @@
   using System;
   using System.Collections.Generic;
   using System.IO;
+  using System.Globalization;
   using System.Reflection;
   using System.Threading;
   using System.Web.Hosting;
@@ -63,7 +64,7 @@
 
       if (!typeof(TestApplication).IsAssignableFrom(testApplicationType))
       {
-        throw new NotSupportedException(string.Format("Only applications derived from '{0}' are supported.", typeof(TestApplication).FullName));
+        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Only applications derived from '{0}' are supported.", typeof(TestApplication).FullName));
       }
 
       this.applicationManager = applicationManager;
@@ -170,7 +171,7 @@
             {
               if (globalInitializationHandlerType != null)
               {
-                throw new InvalidOperationException(string.Format("Only one global initialization handler with the name '{0}' if permitted per application domain.", GlobalInitializationHandlerTypeName));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Only one global initialization handler with the name '{0}' is permitted per application domain.", GlobalInitializationHandlerTypeName));
               }
 
               globalInitializationHandlerType = type;
