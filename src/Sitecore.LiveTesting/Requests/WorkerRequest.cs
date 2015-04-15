@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.Requests
 {
   using System;
+  using System.Collections.Generic;
   using System.IO;
   using System.Text;
   using System.Threading;
@@ -203,6 +204,23 @@
       }
 
       return null;      
+    }
+
+    /// <summary>
+    /// Returns unknown request headers.
+    /// </summary>
+    /// <returns>The unknown request headers.</returns>
+    public override string[][] GetUnknownRequestHeaders()
+    {
+      string[][] result = new string[this.context.Request.Headers.Count][];
+      int index = 0;
+
+      foreach (KeyValuePair<string, string> header in this.context.Request.Headers)
+      {
+        result[index++] = new[] { header.Key, header.Value };
+      }
+
+      return result;
     }
 
     /// <summary>

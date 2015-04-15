@@ -40,6 +40,20 @@
     }
 
     /// <summary>
+    /// Should set custom headers.
+    /// </summary>
+    [Fact]
+    public void ShouldSetCustomHeaders()
+    {
+      RequestManager manager = new RequestManager();
+      Request request = new Request { Path = "TestPage.aspx", QueryString = "header=MyCustomHeader", Headers = { { "MyCustomHeader", "custom-header-value" } } };
+
+      Response response = manager.ExecuteRequest(request);
+
+      Assert.Equal("custom-header-value", response.Content);
+    }
+
+    /// <summary>
     /// The sample request initialization handler.
     /// </summary>
     private class SampleRequestInitializationHandler : IInitializationContextAware, IDisposable
