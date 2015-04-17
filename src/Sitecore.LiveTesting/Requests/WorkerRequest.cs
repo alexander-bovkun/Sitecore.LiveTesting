@@ -212,12 +212,24 @@
     /// <returns>The unknown request headers.</returns>
     public override string[][] GetUnknownRequestHeaders()
     {
-      string[][] result = new string[this.context.Request.Headers.Count][];
       int index = 0;
 
       foreach (KeyValuePair<string, string> header in this.context.Request.Headers)
       {
-        result[index++] = new[] { header.Key, header.Value };
+        if (HttpWorkerRequest.GetKnownRequestHeaderIndex(header.Key) == -1)
+        {
+          ++index;
+        }
+      }
+
+      string[][] result = new string[index][];
+
+      foreach (KeyValuePair<string, string> header in this.context.Request.Headers)
+      {
+        if (HttpWorkerRequest.GetKnownRequestHeaderIndex(header.Key) == -1)
+        {
+          result[--index] = new[] { header.Key, header.Value };
+        }
       }
 
       return result;
