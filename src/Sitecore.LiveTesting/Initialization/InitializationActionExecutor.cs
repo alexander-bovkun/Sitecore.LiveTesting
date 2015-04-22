@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.Initialization
 {
   using System;
+  using System.Globalization;
   using System.Reflection;
 
   /// <summary>
@@ -23,7 +24,7 @@
 
       if (initializationHandler == null)
       {
-        throw new ArgumentException(string.Format("Action in not in a proper state. It's 'State' property should be of type '{0}' and should not be null.", typeof(InitializationHandler)));
+        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Action in not in a proper state. It's 'State' property should be of type '{0}' and should not be null.", typeof(InitializationHandler)));
       }
 
       Type[] argumentTypes = new Type[initializationHandler.Arguments.Length];
@@ -41,7 +42,7 @@
 
         if (constructor == null)
         {
-          throw new InvalidOperationException(string.Format("Failed to create an instance of '{0}' type. No constructor found that matches the list of parameters.", initializationHandler.Type.AssemblyQualifiedName));
+          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to create an instance of '{0}' type. No constructor found that matches the list of parameters.", initializationHandler.Type.AssemblyQualifiedName));
         }
         
         action.State = constructor.Invoke(new object[] { initializationHandler.Arguments });

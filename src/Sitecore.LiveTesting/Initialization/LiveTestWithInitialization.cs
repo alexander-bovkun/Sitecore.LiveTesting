@@ -80,6 +80,11 @@
     /// <param name="args">The arguments.</param>
     protected virtual void OnAfterMethodCall(object sender, MethodCallEventArgs args)
     {
+      if (args == null)
+      {
+        throw new ArgumentNullException("args");
+      }
+
       if (this.InitializationManager != null)
       {
         this.InitializationManager.Cleanup(args.MethodCallId, new TestInitializationContext(this, args.Method, args.Arguments));        
@@ -93,6 +98,11 @@
     /// <param name="args">The arguments.</param>
     protected virtual void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
     {
+      if (args == null)
+      {
+        throw new ArgumentNullException("args");
+      }
+
       if (this.InitializationManager != null)
       {
         this.InitializationManager.Initialize(args.MethodCallId, new TestInitializationContext(this, args.Method, args.Arguments));

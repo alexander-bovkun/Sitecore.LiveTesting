@@ -3,6 +3,7 @@
   using System;
   using System.Configuration;
   using System.IO;
+  using System.Globalization;
   using System.Reflection;
   using Sitecore.LiveTesting.Applications;
 
@@ -69,12 +70,12 @@
 
       if (getDefaultTestApplicationManagerMethod == null)
       {
-        throw new InvalidOperationException(string.Format("Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultTestApplicationManagerName, typeof(LiveTest).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultTestApplicationManagerName, typeof(LiveTest).FullName));
       }
 
       if (getDefaultApplicationHostMethod == null)
       {
-        throw new InvalidOperationException(string.Format("Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultApplicationHostName, typeof(LiveTest).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultApplicationHostName, typeof(LiveTest).FullName));
       }
 
       object[] typeArguments = { testType };
@@ -83,14 +84,14 @@
 
       if (testApplicationManager == null)
       {
-        throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(TestApplicationManager).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationManager).FullName));
       }
 
       TestApplicationHost host = (TestApplicationHost)getDefaultApplicationHostMethod.Invoke(null, typeArguments);
 
       if (host == null)
       {
-        throw new InvalidOperationException(string.Format("Failed to get an instance of '{0}'.", typeof(TestApplicationHost).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationHost).FullName));
       }
 
       TestApplication testApplication = testApplicationManager.StartApplication(host);

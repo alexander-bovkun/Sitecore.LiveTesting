@@ -49,17 +49,8 @@
     /// </summary>
     /// <param name="initializationManager">The initialization Manager.</param>
     /// <param name="context">The request initialization context.</param>
-    internal WorkerRequest(InitializationManager initializationManager, RequestInitializationContext context) : this(initializationManager, context, new StringWriter())
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WorkerRequest"/> class.
-    /// </summary>
-    /// <param name="initializationManager">The initialization Manager.</param>
-    /// <param name="context">The request initialization context.</param>
     /// <param name="writer">The writer.</param>
-    internal WorkerRequest(InitializationManager initializationManager, RequestInitializationContext context, StringWriter writer) : base(context.Request.Path, context.Request.QueryString, writer)
+    internal WorkerRequest(InitializationManager initializationManager, RequestInitializationContext context, TextWriter writer) : base(context.Request.Path, context.Request.QueryString, writer)
     {
       if (initializationManager == null)
       {
