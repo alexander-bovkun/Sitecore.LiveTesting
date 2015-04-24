@@ -2,6 +2,7 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.IO;
   using System.Xml.XPath;
   using Sitecore.Diagnostics;
   using Sitecore.LiveTesting.Extensions.Configuration;
@@ -60,8 +61,16 @@
     /// <param name="xpath">The XPath of the element to merge configuration to.</param>
     public MergeConfiguration(SitecoreConfigurationSwitcher sitecoreConfigurationSwitcher, string fileName, string xpath) : this(sitecoreConfigurationSwitcher)
     {
+      const string FileNameDoesNotRepresentAFileMessage = "File name does not represent a file.";
+
       Assert.ArgumentNotNullOrEmpty(fileName, "fileName");
       Assert.ArgumentNotNullOrEmpty(xpath, "xpath");
+
+      string fileDirectory = Path.GetDirectoryName(fileName);
+      string filePattern = Path.GetFileName(fileName);
+
+      Assert.ArgumentCondition(fileDirectory != null, "fileName", FileNameDoesNotRepresentAFileMessage);
+      Assert.ArgumentCondition(!string.IsNullOrEmpty(filePattern), "fileName", FileNameDoesNotRepresentAFileMessage);
 
       XPathNodeIterator iterator = this.SitecoreConfigurationSwitcher.GetNodeIterator(xpath);
       LinkedList<XPathNodeIterator> elements = new LinkedList<XPathNodeIterator>();
@@ -71,9 +80,14 @@
         elements.AddLast(iterator.Clone());
       }
 
-      foreach (XPathNodeIterator element in elements)
+      fileDirectory = string.IsNullOrEmpty(fileDirectory) ? "." : fileDirectory;
+
+      foreach (string file in Directory.GetFiles(fileDirectory, filePattern))
       {
-        element.MergeContent(fileName);
+        foreach (XPathNodeIterator element in elements)
+        {
+          element.MergeContent(file);
+        }
       }
     }
 
