@@ -43,6 +43,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="FakeConfigurationSwitcher.cs" />
+    <Compile Include="Initialization\Configuration\MergeConfigurationTest.cs" />
     <Compile Include="Initialization\Diagnostics\FirstChanceExceptionTest.cs" />
     <Compile Include="Initialization\HookAdapterTest.cs" />
     <Compile Include="Initialization\Requests\HttpContextProviderTest.cs" />
@@ -60,6 +62,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
