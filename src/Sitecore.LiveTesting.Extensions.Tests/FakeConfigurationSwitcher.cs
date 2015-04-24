@@ -40,6 +40,7 @@
     /// Disposes the object.
     /// </summary>
     /// <param name="disposing">The disposing.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly", Justification = "It is required so that it will be not overriden by NSubstitute.")]
     protected sealed override void Dispose(bool disposing)
     {
       base.Dispose(disposing);
