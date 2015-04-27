@@ -48,8 +48,9 @@
     /// Creates an instance of corresponding class.
     /// </summary>
     /// <param name="testType">Type of the test to instantiate.</param>
-    /// <returns>Instance of the class.</returns>    
-    public static new LiveTestWithInitialization Instantiate(Type testType)
+    /// <param name="arguments">The arguments.</param>
+    /// <returns>Instance of the class.</returns>
+    public static new LiveTestWithInitialization Instantiate(Type testType, params object[] arguments)
     {
       LiveTestWithInitialization test = (LiveTestWithInitialization)LiveTest.Instantiate(testType);
 

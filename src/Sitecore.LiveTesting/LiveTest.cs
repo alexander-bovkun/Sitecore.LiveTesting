@@ -42,8 +42,9 @@
     /// Gets default test application manager for the specified test type.
     /// </summary>
     /// <param name="testType">The test type.</param>
+    /// <param name="arguments">The arguments.</param>
     /// <returns>An instance of <see cref="DefaultTestApplicationManager"/>.</returns>
-    public static TestApplicationManager GetDefaultTestApplicationManager(Type testType)
+    public static TestApplicationManager GetDefaultTestApplicationManager(Type testType, params object[] arguments)
     {
       return DefaultTestApplicationManager;
     }
@@ -52,8 +53,9 @@
     /// Gets default application host for the specified test type.
     /// </summary>
     /// <param name="testType">Type of the test.</param>
+    /// <param name="arguments">The arguments.</param>
     /// <returns>The default application host.</returns>
-    public static TestApplicationHost GetDefaultApplicationHost(Type testType)
+    public static TestApplicationHost GetDefaultApplicationHost(Type testType, params object[] arguments)
     {
       return new TestApplicationHost(DefaultApplicationId, "/", ConfigurationManager.AppSettings.Get(WebsitePathSettingName) ?? Directory.GetParent(Environment.CurrentDirectory).FullName);
     }
@@ -62,11 +64,12 @@
     /// Creates an instance of corresponding class.
     /// </summary>
     /// <param name="testType">Type of the test to instantiate.</param>
+    /// <param name="arguments">The arguments.</param>
     /// <returns>Instance of the class.</returns>
-    public static LiveTest Instantiate(Type testType)
+    public static LiveTest Instantiate(Type testType, params object[] arguments)
     {
-      MethodInfo getDefaultTestApplicationManagerMethod = Utility.GetInheritedMethod(testType, GetDefaultTestApplicationManagerName, new[] { typeof(Type) });
-      MethodInfo getDefaultApplicationHostMethod = Utility.GetInheritedMethod(testType, GetDefaultApplicationHostName, new[] { typeof(Type) });
+      MethodInfo getDefaultTestApplicationManagerMethod = Utility.GetInheritedMethod(testType, GetDefaultTestApplicationManagerName, new[] { typeof(Type), typeof(object[]) });
+      MethodInfo getDefaultApplicationHostMethod = Utility.GetInheritedMethod(testType, GetDefaultApplicationHostName, new[] { typeof(Type), typeof(object[]) });
 
       if (getDefaultTestApplicationManagerMethod == null)
       {
@@ -78,16 +81,16 @@
         throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultApplicationHostName, typeof(LiveTest).FullName));
       }
 
-      object[] typeArguments = { testType };
+      object[] allArguments = { testType, arguments };
 
-      TestApplicationManager testApplicationManager = (TestApplicationManager)getDefaultTestApplicationManagerMethod.Invoke(null, typeArguments);
+      TestApplicationManager testApplicationManager = (TestApplicationManager)getDefaultTestApplicationManagerMethod.Invoke(null, allArguments);
 
       if (testApplicationManager == null)
       {
         throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationManager).FullName));
       }
 
-      TestApplicationHost host = (TestApplicationHost)getDefaultApplicationHostMethod.Invoke(null, typeArguments);
+      TestApplicationHost host = (TestApplicationHost)getDefaultApplicationHostMethod.Invoke(null, allArguments);
 
       if (host == null)
       {
@@ -101,7 +104,7 @@
         throw new InvalidOperationException("Failed to get application to execute tests in.");
       }
 
-      return (LiveTest)testApplication.CreateObject(testType);
+      return (LiveTest)testApplication.CreateObject(testType, arguments);
     }
   }
 }

@@ -20,18 +20,20 @@
     /// Instantiates the test class.
     /// </summary>
     /// <param name="testType">Type of the test class.</param>
+    /// <param name="arguments">The arguments.</param>
     /// <returns>Instance of the test class.</returns>
-    public static new LiveTestWithInitialization Instantiate(Type testType)
+    public static new LiveTestWithInitialization Instantiate(Type testType, params object[] arguments)
     {
-      return LiveTestWithInitialization.Intercept((LiveTestWithInitialization)Activator.CreateInstance(testType), testType);
+      return LiveTestWithInitialization.Intercept((LiveTestWithInitialization)Activator.CreateInstance(testType, arguments), testType);
     }
 
     /// <summary>
     /// The get default application host.
     /// </summary>
     /// <param name="type">The type.</param>
+    /// <param name="arguments">The arguments.</param>
     /// <returns>The <see cref="TestApplicationHost"/>.</returns>
-    public static new TestApplicationHost GetDefaultApplicationHost(Type type)
+    public static new TestApplicationHost GetDefaultApplicationHost(Type type, params object[] arguments)
     {
       return null;
     }

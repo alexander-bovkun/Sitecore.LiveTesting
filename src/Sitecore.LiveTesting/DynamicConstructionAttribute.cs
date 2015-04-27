@@ -38,7 +38,7 @@
 
       if (!instantiating)
       {
-        MethodInfo factoryMethodInfo = Utility.GetInheritedMethod(serverType, InstantiateMethodName, new[] { typeof(Type) });
+        MethodInfo factoryMethodInfo = Utility.GetInheritedMethod(serverType, InstantiateMethodName, new[] { typeof(Type), typeof(object[]) });
         
         if (factoryMethodInfo != null)
         {
@@ -47,7 +47,7 @@
             ActiveThreads.Add(Thread.CurrentThread.ManagedThreadId, true);
           }
 
-          MarshalByRefObject result = (MarshalByRefObject)factoryMethodInfo.Invoke(null, new object[] { serverType });
+          MarshalByRefObject result = (MarshalByRefObject)factoryMethodInfo.Invoke(null, new object[] { serverType, null });
           
           lock (ActiveThreads)
           {

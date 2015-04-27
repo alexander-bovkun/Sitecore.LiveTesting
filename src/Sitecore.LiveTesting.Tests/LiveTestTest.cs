@@ -73,8 +73,9 @@
       /// Gets the default test application manager.
       /// </summary>
       /// <param name="type">Test type.</param>
+      /// <param name="arguments">The arguments.</param>
       /// <returns>Instance of the test application manager.</returns>
-      public static new TestApplicationManager GetDefaultTestApplicationManager(Type type)
+      public static new TestApplicationManager GetDefaultTestApplicationManager(Type type, params object[] arguments)
       {
         return TestApplicationManager;
       }
@@ -89,8 +90,9 @@
       /// Creates an instance of the test class.
       /// </summary>
       /// <param name="type">Type of the test to instantiate.</param>
+      /// <param name="arguments">The arguments.</param>
       /// <returns>An instance of test class.</returns>
-      public static new LiveTest Instantiate(Type type)
+      public static new LiveTest Instantiate(Type type, params object[] arguments)
       {
         return new LiveTestBase();
       }
