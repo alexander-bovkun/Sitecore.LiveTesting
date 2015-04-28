@@ -1,6 +1,8 @@
 ﻿namespace Sitecore.LiveTesting.Initialization
 {
   using System;
+  using System.Globalization;
+  using System.Reflection;
   using System.Runtime.Remoting;
   using System.Runtime.Remoting.Activation;
   using System.Runtime.Remoting.Messaging;
@@ -52,14 +54,28 @@
     /// <returns>Instance of the class.</returns>
     public static new LiveTestWithInitialization Instantiate(Type testType, params object[] arguments)
     {
-      LiveTestWithInitialization test = (LiveTestWithInitialization)LiveTest.Instantiate(testType);
-
-      if (!HostingEnvironment.IsHosted)
+      if (HostingEnvironment.IsHosted)
       {
-        test = Intercept(test, testType);        
+        return (LiveTestWithInitialization)Activator.CreateInstance(testType, arguments);
       }
 
-      return test;
+      if (InstantiatedByProxy(testType, arguments))
+      {
+        return Intercept(null, testType);
+      }
+
+      return (LiveTestWithInitialization)LiveTest.Instantiate(testType, arguments);
+    }
+
+    /// <summary>
+    /// Determines if instance of the class is going to be instantiated by construction proxy or by other routines.
+    /// </summary>
+    /// <param name="testType">The test type.</param>
+    /// <param name="arguments">The arguments.</param>
+    /// <returns>The value determining whether instance of the class is going to be instantiated by construction proxy or by other routines.</returns>
+    protected static bool InstantiatedByProxy(Type testType, params object[] arguments)
+    {
+      return object.ReferenceEquals(DynamicConstructionAttribute.ArgumentsMarker, arguments);
     }
 
     /// <summary>
@@ -123,7 +139,7 @@
       /// <summary>
       /// The target test instance.
       /// </summary>
-      private readonly LiveTestWithInitialization target;
+      private LiveTestWithInitialization target;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="MethodCallInterceptor"/> class.
@@ -133,11 +149,6 @@
       [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
       public MethodCallInterceptor(LiveTestWithInitialization target, Type testType) : base(testType)
       {
-        if (target == null)
-        {
-          throw new ArgumentNullException("target");
-        }
-
         this.target = target;
       }
 
@@ -152,6 +163,18 @@
 
         if (constructorCall != null)
         {
+          if (this.target == null)
+          {
+            MethodInfo factoryMethodInfo = Utility.GetInheritedMethod(constructorCall.ActivationType, DynamicConstructionAttribute.InstantiateMethodName, new[] { typeof(Type), typeof(object[]) });
+
+            if (factoryMethodInfo == null)
+            {
+              throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", constructorCall.ActivationType.FullName, DynamicConstructionAttribute.InstantiateMethodName, typeof(LiveTest).FullName));
+            }
+
+            this.target = (LiveTestWithInitialization)factoryMethodInfo.Invoke(null, new object[] { constructorCall.ActivationType, constructorCall.Args });
+          }
+
           return EnterpriseServicesHelper.CreateConstructionReturnMessage(constructorCall, (MarshalByRefObject)this.GetTransparentProxy());
         }
 

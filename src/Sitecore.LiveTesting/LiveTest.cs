@@ -2,8 +2,8 @@
 {
   using System;
   using System.Configuration;
-  using System.IO;
   using System.Globalization;
+  using System.IO;
   using System.Reflection;
   using Sitecore.LiveTesting.Applications;
 

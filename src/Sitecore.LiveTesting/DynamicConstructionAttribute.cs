@@ -15,7 +15,12 @@
     /// <summary>
     /// The name of instantiation method.
     /// </summary>
-    private const string InstantiateMethodName = "Instantiate";
+    internal const string InstantiateMethodName = "Instantiate";
+
+    /// <summary>
+    /// The arguments marker.
+    /// </summary>
+    internal static readonly object[] ArgumentsMarker = new object[0];
 
     /// <summary>
     /// The set of active threads.
@@ -47,7 +52,7 @@
             ActiveThreads.Add(Thread.CurrentThread.ManagedThreadId, true);
           }
 
-          MarshalByRefObject result = (MarshalByRefObject)factoryMethodInfo.Invoke(null, new object[] { serverType, null });
+          MarshalByRefObject result = (MarshalByRefObject)factoryMethodInfo.Invoke(null, new object[] { serverType, ArgumentsMarker });
           
           lock (ActiveThreads)
           {

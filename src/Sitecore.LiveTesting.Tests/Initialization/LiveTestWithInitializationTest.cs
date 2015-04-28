@@ -5,6 +5,7 @@
   using System.Reflection;
   using System.Runtime.Remoting;
   using NSubstitute;
+  using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.Initialization;
   using Xunit;
 
@@ -14,11 +15,34 @@
   public class LiveTestWithInitializationTest
   {
     /// <summary>
+    /// The initialization manager.
+    /// </summary>
+    private readonly InitializationManager initializationManager;
+
+    /// <summary>
+    /// The real test.
+    /// </summary>
+    private readonly RealTest realTest;
+    
+    /// <summary>
+    /// The test.
+    /// </summary>
+    private readonly Test test;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="LiveTestWithInitializationTest"/> class.
     /// </summary>
     public LiveTestWithInitializationTest()
     {
-      Test.Manager = Substitute.For<InitializationManager>(Substitute.For<TestInitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>());
+      TestApplication testApplication = Substitute.For<TestApplication>();
+      this.initializationManager = Substitute.For<InitializationManager>(Substitute.For<InitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>());
+
+      Test.TestApplicationManager.StartApplication(Arg.Any<TestApplicationHost>()).Returns(testApplication);
+
+      this.realTest = new RealTest(this.initializationManager);
+      testApplication.CreateObject(typeof(Test), Arg.Is<object[]>(arguments => (arguments != null) && (arguments.Length == 1))).Returns(this.realTest);
+
+      this.test = new Test(this.initializationManager);
     }
 
     /// <summary>
@@ -28,14 +52,12 @@
     [Fact]
     public void ShouldInitialzeAndCleanupBeforeAndAfterMethodIsCalled()
     {
-      Test test = new Test();
-      
-      test.TestSomething();
+      this.test.TestSomething();
 
-      Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
-      int methodCallId = (int)Test.Manager.ReceivedCalls().First().GetArguments()[0];
-      Test.Manager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
-      Test.Manager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      Assert.Equal(this.realTest, RemotingServices.GetRealProxy(this.test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(this.test)));
+      int methodCallId = (int)this.initializationManager.ReceivedCalls().First().GetArguments()[0];
+      this.initializationManager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == this.realTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
+      this.initializationManager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == this.realTest) && (c.Method == typeof(Test).GetMethod("TestSomething") && (c.Arguments.Length == 0))));
     }
 
     /// <summary>
@@ -45,15 +67,13 @@
     [Fact]
     public void ShouldPerformCleanupEvenAfterException()
     {
-      Test test = new Test();
-
-      Assert.ThrowsDelegate action = test.FailingTest;
+      Assert.ThrowsDelegate action = this.test.FailingTest;
 
       Assert.Throws<Exception>(action);
-      Assert.Equal(Test.RealTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
-      int methodCallId = (int)Test.Manager.ReceivedCalls().First().GetArguments()[0];
-      Test.Manager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
-      Test.Manager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == Test.RealTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      Assert.Equal(this.realTest, RemotingServices.GetRealProxy(this.test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(this.test)));
+      int methodCallId = (int)this.initializationManager.ReceivedCalls().First().GetArguments()[0];
+      this.initializationManager.Received().Initialize(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == this.realTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
+      this.initializationManager.Received().Cleanup(methodCallId, Arg.Is<TestInitializationContext>(c => (c.Instance == this.realTest) && (c.Method == typeof(Test).GetMethod("FailingTest")) && (c.Arguments.Length == 0)));
     }
 
     /// <summary>
@@ -62,10 +82,9 @@
     [Fact]
     public void ShouldCrashIfTestInitializationCrashes()
     {
-      Test.Manager.WhenForAnyArgs(manager => manager.Initialize(0, null)).Throw<Exception>();
-      Test test = new Test();
+      this.initializationManager.WhenForAnyArgs(manager => manager.Initialize(0, null)).Throw<Exception>();
 
-      Assert.ThrowsDelegate action = test.TestSomething;
+      Assert.ThrowsDelegate action = this.test.TestSomething;
 
       Assert.Throws<Exception>(action);
     }
@@ -76,10 +95,9 @@
     [Fact]
     public void ShouldCrashIfTestCleanupCrashes()
     {
-      Test.Manager.WhenForAnyArgs(manager => manager.Cleanup(0, null)).Throw<Exception>();
-      Test test = new Test();
+      this.initializationManager.WhenForAnyArgs(manager => manager.Cleanup(0, null)).Throw<Exception>();
 
-      Assert.ThrowsDelegate action = test.TestSomething;
+      Assert.ThrowsDelegate action = this.test.TestSomething;
 
       Assert.Throws<Exception>(action);
     }
@@ -90,33 +108,35 @@
     public class Test : LiveTestWithInitialization
     {
       /// <summary>
+      /// Initializes static members of the <see cref="LiveTestWithInitializationTest.Test"/> class.
+      /// </summary>
+      static Test()
+      {
+        TestApplicationManager = Substitute.For<TestApplicationManager>();
+      }
+
+      /// <summary>
       /// Initializes a new instance of the <see cref="Test"/> class.
       /// </summary>
-      public Test() : base(Manager)
+      /// <param name="initializationManager">The initialization manager.</param>
+      public Test(InitializationManager initializationManager) : base(initializationManager)
       {
       }
 
       /// <summary>
-      /// Gets or sets test initialization manager.
+      /// Gets the test application manager.
       /// </summary>
-      public static InitializationManager Manager { get; set; }
+      public static TestApplicationManager TestApplicationManager { get; private set; }
 
       /// <summary>
-      /// Gets or sets real test.
+      /// Gets the default test application manager.
       /// </summary>
-      public static LiveTestWithInitialization RealTest { get; set; }
-
-      /// <summary>
-      /// Creates an instance of corresponding class.
-      /// </summary>
-      /// <param name="testType">Type of the test to instantiate.</param>
+      /// <param name="type">Test type.</param>
       /// <param name="arguments">The arguments.</param>
-      /// <returns>Instance of the class.</returns>
-      public static new LiveTestWithInitialization Instantiate(Type testType, params object[] arguments)
+      /// <returns>Instance of the test application manager.</returns>
+      public static new TestApplicationManager GetDefaultTestApplicationManager(Type type, params object[] arguments)
       {
-        LiveTestWithInitialization test = (LiveTestWithInitialization)Activator.CreateInstance(testType, arguments);
-        RealTest = test;
-        return LiveTestWithInitialization.Intercept(test, testType);
+        return TestApplicationManager;
       }
 
       /// <summary>
@@ -132,6 +152,38 @@
       public void FailingTest()
       {
         throw new Exception();
+      }
+    }
+
+    /// <summary>
+    /// Defines the real test.
+    /// </summary>
+    public class RealTest : Test
+    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="RealTest"/> class.
+      /// </summary>
+      public RealTest() : this(Substitute.For<InitializationManager>(Substitute.For<InitializationActionDiscoverer>(), Substitute.For<InitializationActionExecutor>()))
+      {
+      }
+      
+      /// <summary>
+      /// Initializes a new instance of the <see cref="RealTest"/> class.
+      /// </summary>
+      /// <param name="initializationManager">The initialization manager.</param>
+      public RealTest(InitializationManager initializationManager) : base(initializationManager)
+      {
+      }
+
+      /// <summary>
+      /// Creates an instance of corresponding class.
+      /// </summary>
+      /// <param name="testType">Type of the test to instantiate.</param>
+      /// <param name="arguments">The arguments.</param>
+      /// <returns>Instance of the class.</returns>
+      public static new LiveTest Instantiate(Type testType, params object[] arguments)
+      {
+        return (LiveTest)Activator.CreateInstance(testType, arguments);
       }
     }
   }
