@@ -11,14 +11,21 @@
   public class LiveTestTest
   {
     /// <summary>
+    /// The real test.
+    /// </summary>
+    private readonly LiveTest realTest;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="LiveTestTest"/> class.
     /// </summary>
     public LiveTestTest()
     {
       TestApplication testApplication = Substitute.For<TestApplication>();
-      
-      testApplication.CreateObject(null, null).ReturnsForAnyArgs(callInfo => Activator.CreateInstance(callInfo.Arg<Type>(), callInfo.Arg<object[]>()));
-      LiveTestBase.TestApplicationManager.StartApplication(Arg.Any<TestApplicationHost>()).Returns(testApplication);
+
+      LiveTestBase.TestApplicationManager.StartApplication(Arg.Is<TestApplicationHost>(host => (host.ApplicationId == "Sitecore.LiveTesting.Default") && (host.VirtualPath == "/") && (host.PhysicalPath == "..\\Website"))).Returns(testApplication);
+
+      this.realTest = new TestWithCustomInstantiation();
+      testApplication.CreateObject(null, null).ReturnsForAnyArgs(callInfo => this.realTest);
     }
 
     /// <summary>
@@ -27,7 +34,7 @@
     [Fact]
     public void ShouldCreateTestClass()
     {
-      Assert.IsType<LiveTestBase>(new LiveTestBase());
+      Assert.Equal(this.realTest, new LiveTestBase());
     }
 
     /// <summary>
@@ -38,6 +45,7 @@
     {
       LiveTestBase test = new TestWithCustomInstantiation();
 
+      Assert.NotEqual(this.realTest, test);
       Assert.IsType<LiveTestBase>(test);
       Assert.IsNotType<TestWithCustomInstantiation>(test);
     }
@@ -48,7 +56,7 @@
     [Fact]
     public void ShouldUseInstantiationFromTheBaseClass()
     {
-      Assert.IsType<Test>(new Test());
+      Assert.Equal(this.realTest, new Test());
     }
 
     /// <summary>
