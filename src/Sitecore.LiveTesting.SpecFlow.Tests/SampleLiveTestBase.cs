@@ -7,7 +7,7 @@
   /// <summary>
   /// Defines the sample base class for all live tests.
   /// </summary>
-  public class SampleLiveTestBase : LiveTestWithInitialization
+  public class SampleLiveTestBase : LiveTest
   {
     /// <summary>
     /// Initializes a new instance of the <see cref="SampleLiveTestBase"/> class.
@@ -22,9 +22,9 @@
     /// <param name="testType">Type of the test class.</param>
     /// <param name="arguments">The arguments.</param>
     /// <returns>Instance of the test class.</returns>
-    public static new LiveTestWithInitialization Instantiate(Type testType, params object[] arguments)
+    public static new LiveTest Instantiate(Type testType, params object[] arguments)
     {
-      return LiveTestWithInitialization.Intercept((LiveTestWithInitialization)Activator.CreateInstance(testType, arguments), testType);
+      return LiveTest.Intercept((LiveTest)Activator.CreateInstance(testType, arguments), testType);
     }
 
     /// <summary>

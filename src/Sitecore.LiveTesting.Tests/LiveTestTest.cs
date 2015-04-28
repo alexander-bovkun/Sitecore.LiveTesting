@@ -1,6 +1,8 @@
 ﻿namespace Sitecore.LiveTesting.Tests
 {
   using System;
+  using System.Reflection;
+  using System.Runtime.Remoting;
   using NSubstitute;
   using Sitecore.LiveTesting.Applications;
   using Xunit;
@@ -40,7 +42,9 @@
     {
       this.testApplication.CreateObject(typeof(LiveTestBase), Arg.Any<object[]>()).Returns(this.realTest);
 
-      Assert.Equal(this.realTest, new LiveTestBase());
+      LiveTestBase test = new LiveTestBase();
+
+      Assert.Equal(this.realTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
     }
 
     /// <summary>
@@ -64,7 +68,9 @@
     {
       this.testApplication.CreateObject(typeof(Test), Arg.Any<object[]>()).Returns(this.realTest);
 
-      Assert.Equal(this.realTest, new Test());
+      Test test = new Test();
+
+      Assert.Equal(this.realTest, RemotingServices.GetRealProxy(test).GetType().GetField("target", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RemotingServices.GetRealProxy(test)));
     }
 
     /// <summary>
@@ -81,9 +87,23 @@
       }
 
       /// <summary>
+      /// Initializes a new instance of the <see cref="LiveTestBase"/> class.
+      /// </summary>
+      /// <param name="arguments">The arguments.</param>
+      public LiveTestBase(params object[] arguments)
+      {
+        this.Arguments = arguments;
+      }
+
+      /// <summary>
       /// Gets the test application manager.
       /// </summary>
       public static TestApplicationManager TestApplicationManager { get; private set; }
+
+      /// <summary>
+      /// Gets the arguments.
+      /// </summary>
+      public object[] Arguments { get; private set; }
 
       /// <summary>
       /// Gets the default test application manager.

@@ -132,7 +132,7 @@
         }
       }
 
-      return typeof(LiveTestWithInitialization).FullName;
+      return typeof(LiveTest).FullName;
     }
 
     /// <summary>
