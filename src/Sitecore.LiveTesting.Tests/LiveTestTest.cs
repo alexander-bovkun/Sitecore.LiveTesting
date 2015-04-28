@@ -11,6 +11,11 @@
   public class LiveTestTest
   {
     /// <summary>
+    /// The test application.
+    /// </summary>
+    private readonly TestApplication testApplication;
+
+    /// <summary>
     /// The real test.
     /// </summary>
     private readonly LiveTest realTest;
@@ -20,12 +25,11 @@
     /// </summary>
     public LiveTestTest()
     {
-      TestApplication testApplication = Substitute.For<TestApplication>();
+      this.testApplication = Substitute.For<TestApplication>();
 
-      LiveTestBase.TestApplicationManager.StartApplication(Arg.Is<TestApplicationHost>(host => (host.ApplicationId == "Sitecore.LiveTesting.Default") && (host.VirtualPath == "/") && (host.PhysicalPath == "..\\Website"))).Returns(testApplication);
+      LiveTestBase.TestApplicationManager.StartApplication(Arg.Is<TestApplicationHost>(host => (host.ApplicationId == "Sitecore.LiveTesting.Default") && (host.VirtualPath == "/") && (host.PhysicalPath == "..\\Website"))).Returns(this.testApplication);
 
       this.realTest = new TestWithCustomInstantiation();
-      testApplication.CreateObject(null, null).ReturnsForAnyArgs(callInfo => this.realTest);
     }
 
     /// <summary>
@@ -34,6 +38,8 @@
     [Fact]
     public void ShouldCreateTestClass()
     {
+      this.testApplication.CreateObject(typeof(LiveTestBase), Arg.Any<object[]>()).Returns(this.realTest);
+
       Assert.Equal(this.realTest, new LiveTestBase());
     }
 
@@ -56,6 +62,8 @@
     [Fact]
     public void ShouldUseInstantiationFromTheBaseClass()
     {
+      this.testApplication.CreateObject(typeof(Test), Arg.Any<object[]>()).Returns(this.realTest);
+
       Assert.Equal(this.realTest, new Test());
     }
 
