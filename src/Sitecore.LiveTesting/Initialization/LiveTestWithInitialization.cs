@@ -1,11 +1,12 @@
 ﻿namespace Sitecore.LiveTesting.Initialization
 {
+  using System;
   using System.Web.Hosting;
 
   /// <summary>
   /// Defines the base class for attribute-aware tests.
   /// </summary>
-  // [Obsolete("Use 'Sitecore.LiveTesting.LiveTest, Sitecore.LiveTesting' instead.")]
+  [Obsolete("Use 'Sitecore.LiveTesting.LiveTest, Sitecore.LiveTesting' instead.")]
   public class LiveTestWithInitialization : LiveTest
   {
     /// <summary>

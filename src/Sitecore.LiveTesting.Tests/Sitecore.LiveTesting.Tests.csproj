@@ -67,9 +67,6 @@
     <Compile Include="Initialization\InitializationActionExecutorTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Initialization\LiveTestWithInitializationTest.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="LiveTestTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Initialization\InitializationManagerTest.cs">
