@@ -157,6 +157,19 @@
     }
 
     /// <summary>
+    /// Constructor should be called only once by infrastructure.
+    /// </summary>
+    [Fact]
+    public void ConstructorShouldBeCalledOnlyOnceByInfrastructure()
+    {
+      LiveTestWithConstructorCallCount.ResetCounter();
+
+      LiveTestWithConstructorCallCount test = new LiveTestWithConstructorCallCount();
+
+      Assert.Equal(1, test.ConstructorCallCount);
+    }
+
+    /// <summary>
     /// Defines the fake live test version.
     /// </summary>
     public class LiveTestBase : LiveTest
@@ -245,6 +258,41 @@
       public void FailingTest()
       {
         throw new Exception();
+      }
+    }
+
+    /// <summary>
+    /// Defines live test with constructor call count.
+    /// </summary>
+    public class LiveTestWithConstructorCallCount : LiveTest
+    {
+      /// <summary>
+      /// The counter.
+      /// </summary>
+      private static int counter = 0;
+
+      /// <summary>
+      /// Initializes a new instance of the <see cref="LiveTestWithConstructorCallCount"/> class.
+      /// </summary>
+      public LiveTestWithConstructorCallCount()
+      {
+        ++counter;
+      }
+
+      /// <summary>
+      /// Sets the counter to its initial value of 0.
+      /// </summary>
+      public static void ResetCounter()
+      {
+        counter = 0;
+      }
+
+      /// <summary>
+      /// Gets the number of constructor calls.
+      /// </summary>
+      public int ConstructorCallCount
+      {
+        get { return counter; }
       }
     }
   }

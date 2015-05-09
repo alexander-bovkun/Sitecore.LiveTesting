@@ -59,7 +59,10 @@
             ActiveThreads.Remove(Thread.CurrentThread.ManagedThreadId);            
           }
 
-          return result;
+          if (result != null)
+          {
+            return result;
+          }
         }
       }
 

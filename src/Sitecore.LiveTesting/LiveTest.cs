@@ -108,7 +108,7 @@
     {
       if (HostingEnvironment.IsHosted)
       {
-        return (LiveTest)Activator.CreateInstance(testType, arguments);
+        return null;
       }
 
       if (InstantiatedByProxy(testType, arguments))
