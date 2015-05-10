@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting
 {
   using System;
+  using System.Collections.Generic;
   using System.Configuration;
   using System.Globalization;
   using System.IO;
@@ -108,12 +109,12 @@
     {
       if (HostingEnvironment.IsHosted)
       {
-        return null;
+        return CreateUninitializedInstance(testType);
       }
 
       if (InstantiatedByProxy(testType, arguments))
       {
-        return Intercept(null, testType);
+        return Intercept(testType, null);
       }
 
       MethodInfo getDefaultTestApplicationManagerMethod = Utility.GetInheritedMethod(testType, GetDefaultTestApplicationManagerName, new[] { typeof(Type), typeof(object[]) });
@@ -167,15 +168,37 @@
     }
 
     /// <summary>
-    /// Intercepts calls on the specified test.
+    /// Creates uninitialized test class instance.
     /// </summary>
-    /// <param name="test">The test.</param>
+    /// <param name="testType">The type of the test.</param>
+    /// <returns>The test class instance.</returns>
+    protected static LiveTest CreateUninitializedInstance(Type testType)
+    {
+      if (testType == null)
+      {
+        throw new ArgumentNullException("testType");
+      }
+
+      if (!typeof(LiveTest).IsAssignableFrom(testType))
+      {
+        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Only types derived from '{0}' are supported", typeof(LiveTest).FullName));
+      }
+
+      DynamicConstructionAttribute dynamicConstructionAttribute = (DynamicConstructionAttribute)testType.GetCustomAttributes(typeof(DynamicConstructionAttribute), true)[0];
+
+      return (LiveTest)dynamicConstructionAttribute.CreateUninitializedInstance(testType);
+    }
+
+    /// <summary>
+    /// Returns interceptor for the provided test type, and optionally, instance.
+    /// </summary>
     /// <param name="testType">Type of the test.</param>
-    /// <returns>The test proxy.</returns>
-    protected static LiveTest Intercept(LiveTest test, Type testType)
+    /// <param name="test">The test instance.</param>
+    /// <returns>The interceptor.</returns>
+    protected static LiveTest Intercept(Type testType, LiveTest test)
     {
       (new SecurityPermission(SecurityPermissionFlag.UnmanagedCode)).Demand();
-      return (LiveTest)(new MethodCallInterceptor(test, testType)).GetTransparentProxy();
+      return (LiveTest)(new MethodCallInterceptor(testType, test)).GetTransparentProxy();
     }
 
     /// <summary>
@@ -215,9 +238,115 @@
     }
 
     /// <summary>
+    /// The attribute that enforces live execution of the test.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    private sealed class DynamicConstructionAttribute : ProxyAttribute
+    {
+      /// <summary>
+      /// The name of instantiation method.
+      /// </summary>
+      internal const string InstantiateMethodName = "Instantiate";
+
+      /// <summary>
+      /// The arguments marker.
+      /// </summary>
+      internal static readonly object[] ArgumentsMarker = new object[0];
+
+      /// <summary>
+      /// The set of active threads.
+      /// </summary>
+      private static readonly IDictionary<int, bool> ActiveThreads = new Dictionary<int, bool>();
+
+      /// <summary>
+      /// Creates proxy instance.
+      /// </summary>
+      /// <param name="serverType">The type.</param>
+      /// <returns>The proxy.</returns>
+      public override MarshalByRefObject CreateInstance(Type serverType)
+      {
+        if (serverType == null)
+        {
+          throw new ArgumentNullException("serverType");
+        }
+
+        MethodInfo factoryMethodInfo = Utility.GetInheritedMethod(serverType, InstantiateMethodName, new[] { typeof(Type), typeof(object[]) });
+
+        if (factoryMethodInfo == null)
+        {
+          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because no static method '{1}' can be found in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", serverType.FullName, InstantiateMethodName, typeof(LiveTest).FullName));
+        }
+
+        if (!EnterInstantiationPhase())
+        {
+          return this.CreateUninitializedInstance(serverType);
+        }
+        
+        MarshalByRefObject result;
+        
+        try
+        {
+          result = (MarshalByRefObject)factoryMethodInfo.Invoke(null, new object[] { serverType, ArgumentsMarker });
+        }
+        finally
+        {
+          LeaveInstantiationPhase();
+        }
+
+        if (result == null)
+        {
+          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The result of execution of factory method '{0}' from '{1}' must not be null", factoryMethodInfo.Name, factoryMethodInfo.DeclaringType.FullName));
+        }
+
+        return result;
+      }
+
+      /// <summary>
+      /// Enters active instantiation phase.
+      /// </summary>
+      /// <returns>The value indicating whether it was succcessful attempt to enter initialization phase or not.</returns>
+      internal static bool EnterInstantiationPhase()
+      {
+        lock (ActiveThreads)
+        {
+          if (ActiveThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
+          {
+            return false;
+          }
+
+          ActiveThreads.Add(Thread.CurrentThread.ManagedThreadId, true);
+          
+          return true;
+        }
+      }
+
+      /// <summary>
+      /// Leaves active instantiation phase.
+      /// </summary>
+      internal static void LeaveInstantiationPhase()
+      {
+        lock (ActiveThreads)
+        {
+          ActiveThreads.Remove(Thread.CurrentThread.ManagedThreadId);
+        }
+      }
+
+      /// <summary>
+      /// Creates uninitialized proxy instance.
+      /// </summary>
+      /// <param name="serverType">The type.</param>
+      /// <returns>The uninitialized proxy.</returns>      
+      internal MarshalByRefObject CreateUninitializedInstance(Type serverType)
+      {
+        (new SecurityPermission(SecurityPermissionFlag.UnmanagedCode)).Demand();
+        return base.CreateInstance(serverType);
+      }
+    }
+
+    /// <summary>
     /// Defines the proxy class which intercepts all method calls.
     /// </summary>
-    private class MethodCallInterceptor : RealProxy
+    private sealed class MethodCallInterceptor : RealProxy
     {
       /// <summary>
       /// The method call id.
@@ -232,10 +361,10 @@
       /// <summary>
       /// Initializes a new instance of the <see cref="MethodCallInterceptor"/> class.
       /// </summary>
-      /// <param name="target">The target object to intercept calls to.</param>
       /// <param name="testType">Type of the test.</param>
+      /// <param name="target">Target test instance.</param>
       [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-      public MethodCallInterceptor(LiveTest target, Type testType) : base(testType)
+      internal MethodCallInterceptor(Type testType, LiveTest target) : base(testType)
       {
         this.target = target;
       }
@@ -260,7 +389,19 @@
               throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", constructorCall.ActivationType.FullName, DynamicConstructionAttribute.InstantiateMethodName, typeof(LiveTest).FullName));
             }
 
-            this.target = (LiveTest)factoryMethodInfo.Invoke(null, new object[] { constructorCall.ActivationType, constructorCall.Args });
+            if (!DynamicConstructionAttribute.EnterInstantiationPhase())
+            {
+              throw new InvalidOperationException("Error in instantiation workflow. Object is already in the middle of instantiation when another instance of the object is created.");
+            }
+
+            try
+            {
+              this.target = (LiveTest)factoryMethodInfo.Invoke(null, new object[] { constructorCall.ActivationType, constructorCall.Args });
+            }
+            finally
+            {
+              DynamicConstructionAttribute.LeaveInstantiationPhase();
+            }
           }
 
           return EnterpriseServicesHelper.CreateConstructionReturnMessage(constructorCall, (MarshalByRefObject)this.GetTransparentProxy());

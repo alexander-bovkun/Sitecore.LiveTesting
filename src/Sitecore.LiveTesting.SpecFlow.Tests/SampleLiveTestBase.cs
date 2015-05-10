@@ -24,7 +24,7 @@
     /// <returns>Instance of the test class.</returns>
     public static new LiveTest Instantiate(Type testType, params object[] arguments)
     {
-      return LiveTest.Intercept((LiveTest)Activator.CreateInstance(testType), testType);
+      return LiveTest.Intercept(testType, (LiveTest)Activator.CreateInstance(testType));
     }
 
     /// <summary>
