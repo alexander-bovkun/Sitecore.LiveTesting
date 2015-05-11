@@ -170,6 +170,30 @@
     }
 
     /// <summary>
+    /// Should be able to create uninitialized test instance.
+    /// </summary>
+    [Fact]
+    public void ShouldBeAbleToCreateUninitializedTestInstance()
+    {
+      Test uninitializedTest = (Test)Test.CreateUninitializedTestInstance(typeof(Test));
+      Assert.ThrowsDelegate action = uninitializedTest.TestSomething; 
+
+      Assert.NotNull(uninitializedTest);
+      Assert.Throws<RemotingException>(action);
+    }
+
+    /// <summary>
+    /// Should create uninitialized test instances only for classes derived from <see cref="LiveTest"/>.
+    /// </summary>
+    [Fact]
+    public void ShouldCreateUninitializedTestInstancesOnlyForClassesDerivedFromLiveTest()
+    {
+      Assert.ThrowsDelegate action = () => Test.CreateUninitializedTestInstance(typeof(string));
+
+      Assert.Throws<ArgumentException>(action);
+    }
+
+    /// <summary>
     /// Defines the fake live test version.
     /// </summary>
     public class LiveTestBase : LiveTest
@@ -246,6 +270,16 @@
       }
 
       /// <summary>
+      /// Creates uninitialized test class instance.
+      /// </summary>
+      /// <param name="testType">The type of the test.</param>
+      /// <returns>The test class instance.</returns>
+      public static LiveTest CreateUninitializedTestInstance(Type testType)
+      {
+        return LiveTest.CreateUninitializedInstance(testType);
+      }
+
+      /// <summary>
       /// Typical test method example.
       /// </summary>
       public void TestSomething()
@@ -280,19 +314,19 @@
       }
 
       /// <summary>
-      /// Sets the counter to its initial value of 0.
-      /// </summary>
-      public static void ResetCounter()
-      {
-        counter = 0;
-      }
-
-      /// <summary>
       /// Gets the number of constructor calls.
       /// </summary>
       public int ConstructorCallCount
       {
         get { return counter; }
+      }
+
+      /// <summary>
+      /// Sets the counter to its initial value of 0.
+      /// </summary>
+      public static void ResetCounter()
+      {
+        counter = 0;
       }
     }
   }
