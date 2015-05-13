@@ -3,7 +3,6 @@
   using System.CodeDom;
   using System.Collections.Generic;
   using System.Linq;
-  using Sitecore.LiveTesting.Initialization;
   using TechTalk.SpecFlow.Generator;
   using TechTalk.SpecFlow.Generator.UnitTestConverter;
   using TechTalk.SpecFlow.Parser.SyntaxElements;
@@ -132,7 +131,7 @@
         }
       }
 
-      return typeof(LiveTestWithInitialization).FullName;
+      return typeof(LiveTest).FullName;
     }
 
     /// <summary>
