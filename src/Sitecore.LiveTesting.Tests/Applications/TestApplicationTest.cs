@@ -37,19 +37,6 @@
     }
 
     /// <summary>
-    /// Should throw not supported exception if method is not static.
-    /// </summary>
-    [Fact]
-    public void ShouldThrowNotSupportedExceptionIfMethodIsNotStatic()
-    {
-      TestApplication application = new TestApplication();
-
-      Assert.ThrowsDelegate action = () => application.ExecuteAction(this.GetType().GetMethod("ShouldExecuteAction"));
-
-      Assert.Throws<NotSupportedException>(action);
-    }
-
-    /// <summary>
     /// Should execute action.
     /// </summary>
     [Fact]
@@ -57,7 +44,7 @@
     {
       TestApplication application = new TestApplication();
 
-      object result = application.ExecuteAction(this.GetType().GetMethod("Action"), "parameter");
+      object result = application.ExecuteAction(new Func<string, string>(Action), "parameter");
 
       Assert.Equal("Parameter: parameter", result);
     }

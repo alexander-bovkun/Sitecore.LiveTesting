@@ -82,6 +82,7 @@
     /// <param name="targetAction">The target action.</param>
     /// <param name="arguments">The arguments.</param>
     /// <returns>The result of action execution.</returns>
+    [Obsolete("Use another overload with delegate parameter instead.")]
     public virtual object ExecuteAction(MethodBase targetAction, params object[] arguments)
     {
       if (targetAction == null)
@@ -95,6 +96,22 @@
       }
 
       return targetAction.Invoke(null, arguments);
+    }
+
+    /// <summary>
+    /// Execute action in the application context for the specified application host.
+    /// </summary>
+    /// <param name="targetAction">The target action.</param>
+    /// <param name="arguments">The arguments.</param>
+    /// <returns>The result of action execution.</returns>
+    public virtual object ExecuteAction(Delegate targetAction, params object[] arguments) 
+    {
+      if (targetAction == null)
+      {
+        throw new ArgumentNullException("targetAction");
+      }
+
+      return targetAction.DynamicInvoke(arguments);
     }
 
     /// <summary>
