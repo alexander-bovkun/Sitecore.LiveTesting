@@ -39,6 +39,7 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Config\BaseClass.cs" />
     <Compile Include="Config\PluginSection.cs" />
     <Compile Include="Config\TagAttribute.cs" />
     <Compile Include="Config\TagAttributeArgument.cs" />

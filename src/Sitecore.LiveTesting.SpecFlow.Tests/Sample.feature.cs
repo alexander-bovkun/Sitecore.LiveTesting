@@ -44,8 +44,7 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
             {
                 testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
                 TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Initialization handlers", "", ProgrammingLanguage.CSharp, new string[] {
-                            "live",
-                            ":Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase"});
+                            "live"});
                 testRunner.OnFeatureStart(featureInfo);
             }
             else

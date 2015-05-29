@@ -122,11 +122,11 @@
     {
       if (feature.Tags != null)
       {
-        IEnumerable<Tag> inheritenceTags = feature.Tags.Where(tag => tag.Name.StartsWith(":")).ToArray();
+        PluginSection pluginSection = this.GetConfiguration(Path.GetDirectoryName(feature.SourceFile));
 
-        if (inheritenceTags.Count() == 1)
+        if ((pluginSection != null) && (pluginSection.BaseClass != null) && (!string.IsNullOrEmpty(pluginSection.BaseClass.Type)))
         {
-          return inheritenceTags.Single().Name.Substring(1);
+          return pluginSection.BaseClass.Type;
         }
       }
 

@@ -1,4 +1,4 @@
-﻿@live @:Sitecore.LiveTesting.SpecFlow.Tests.SampleLiveTestBase
+﻿@live
 Feature: Initialization handlers
 
 # See to what initialization handler each tag corresponds in 'TagMapping.txt'
