@@ -51,7 +51,7 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
             {
                 Sitecore.LiveTesting.Applications.TestApplication application;
                 application = defaultApplicationManager.StartApplication(defaultApplicationHost);
-                application.ExecuteAction(typeof(InitializationHandlersFeature).GetMethod("FeatureSetup", new System.Type[0]));
+                application.ExecuteAction(new System.Action(InitializationHandlersFeature.FeatureSetup));
             }
         }
         
@@ -72,7 +72,7 @@ namespace Sitecore.LiveTesting.SpecFlow.Tests
             {
                 Sitecore.LiveTesting.Applications.TestApplication application;
                 application = defaultApplicationManager.StartApplication(defaultApplicationHost);
-                application.ExecuteAction(typeof(InitializationHandlersFeature).GetMethod("FeatureTearDown", new System.Type[0]));
+                application.ExecuteAction(new System.Action(InitializationHandlersFeature.FeatureTearDown));
             }
         }
         
