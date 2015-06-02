@@ -1,8 +1,15 @@
 ﻿namespace Sitecore.LiveTesting.SpecFlowPlugin
 {
+  using System;
   using System.CodeDom;
   using System.Collections.Generic;
+  using System.Configuration;
+  using System.IO;
   using System.Linq;
+  using System.Reflection;
+  using System.Security;
+  using System.Web.Configuration;
+  using Sitecore.LiveTesting.SpecFlowPlugin.Config;
   using TechTalk.SpecFlow.Generator;
   using TechTalk.SpecFlow.Generator.UnitTestConverter;
   using TechTalk.SpecFlow.Parser.SyntaxElements;
@@ -13,23 +20,19 @@
   public class LiveTestDecorator : ITestClassTagDecorator, ITestMethodTagDecorator
   {
     /// <summary>
+    /// The configuration file name.
+    /// </summary>
+    private const string ConfigurationFileName = "Sitecore.LiveTesting.SpecFlowPlugin.config";
+
+    /// <summary>
+    /// The section name.
+    /// </summary>
+    private const string SectionName = "sitecore.livetesting.specflowplugin";
+
+    /// <summary>
     /// The integration tag.
     /// </summary>
     private const string LiveTestTag = "live";
-
-    /// <summary>
-    /// The discoverer.
-    /// </summary>
-    private readonly TagMappingDiscoverer discoverer;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LiveTestDecorator"/> class.
-    /// </summary>
-    /// <param name="discoverer">The discoverer.</param>
-    public LiveTestDecorator(TagMappingDiscoverer discoverer)
-    {
-      this.discoverer = discoverer;
-    }
 
     /// <summary>
     /// Gets the priority.
@@ -56,14 +59,6 @@
     }
 
     /// <summary>
-    /// Gets the discoverer.
-    /// </summary>
-    protected TagMappingDiscoverer Discoverer
-    {
-      get { return this.discoverer; }
-    }
-
-    /// <summary>
     /// The can decorate from.
     /// </summary>
     /// <param name="tagName">The tag name.</param>
@@ -71,7 +66,9 @@
     /// <returns>The <see cref="bool"/>.</returns>
     public bool CanDecorateFrom(string tagName, TestClassGenerationContext generationContext)
     {
-      return (tagName == LiveTestTag) || (!string.IsNullOrEmpty(this.Discoverer.GetTagMapping(generationContext.Feature.SourceFile, tagName)));
+      PluginSection pluginSection = this.GetConfiguration(Path.GetDirectoryName(generationContext.Feature.SourceFile));
+      
+      return (tagName == LiveTestTag) || ((pluginSection != null) && pluginSection.TagMappings.Cast<TagMapping>().Any(tagMapping => tagMapping.Tag == tagName));
     }
 
     /// <summary>
@@ -100,7 +97,9 @@
     /// <returns>The <see cref="bool"/>.</returns>
     public bool CanDecorateFrom(string tagName, TestClassGenerationContext generationContext, CodeMemberMethod testMethod)
     {
-      return !string.IsNullOrEmpty(this.Discoverer.GetTagMapping(generationContext.Feature.SourceFile, tagName));
+      PluginSection pluginSection = this.GetConfiguration(Path.GetDirectoryName(generationContext.Feature.SourceFile));
+
+      return (pluginSection != null) && pluginSection.TagMappings.Cast<TagMapping>().Any(tagMapping => tagMapping.Tag == tagName);
     }
 
     /// <summary>
@@ -123,11 +122,11 @@
     {
       if (feature.Tags != null)
       {
-        IEnumerable<Tag> inheritenceTags = feature.Tags.Where(tag => tag.Name.StartsWith(":")).ToArray();
+        PluginSection pluginSection = this.GetConfiguration(Path.GetDirectoryName(feature.SourceFile));
 
-        if (inheritenceTags.Count() == 1)
+        if ((pluginSection != null) && (pluginSection.BaseClass != null) && (!string.IsNullOrEmpty(pluginSection.BaseClass.Type)))
         {
-          return inheritenceTags.Single().Name.Substring(1);
+          return pluginSection.BaseClass.Type;
         }
       }
 
@@ -152,11 +151,17 @@
     /// <param name="type">The type.</param>
     protected virtual void DecorateWithDiscoveredTagMappings(string featureFile, string tagName, CodeTypeDeclaration type)
     {
-      string codeSnippet = this.discoverer.GetTagMapping(featureFile, tagName);
+      PluginSection pluginSection = this.GetConfiguration(Path.GetDirectoryName(featureFile));
+      TagMapping tagMapping = null;
 
-      if (!string.IsNullOrEmpty(codeSnippet))
+      if (pluginSection != null)
       {
-        CodeAttributeDeclarationCollection attributeDeclarations = DeserializeAttributeDeclarations(codeSnippet);
+        tagMapping = pluginSection.TagMappings.Cast<TagMapping>().SingleOrDefault(t => t.Tag == tagName);
+      }
+
+      if (tagMapping != null)
+      {
+        CodeAttributeDeclarationCollection attributeDeclarations = GetAttributeDeclarationsFromTagMapping(tagMapping);
 
         if (attributeDeclarations != null)
         {
@@ -173,11 +178,17 @@
     /// <param name="method">The method.</param>
     protected virtual void DecorateWithDiscoveredTagMappings(string featureFile, string tagName, CodeMemberMethod method)
     {
-      string codeSnippet = this.discoverer.GetTagMapping(featureFile, tagName);
+      PluginSection pluginSection = this.GetConfiguration(Path.GetDirectoryName(featureFile));
+      TagMapping tagMapping = null;
 
-      if (!string.IsNullOrEmpty(codeSnippet))
+      if (pluginSection != null)
       {
-        CodeAttributeDeclarationCollection attributeDeclarations = DeserializeAttributeDeclarations(codeSnippet);
+        tagMapping = pluginSection.TagMappings.Cast<TagMapping>().SingleOrDefault(t => t.Tag == tagName);
+      }
+
+      if (tagMapping != null)
+      {
+        CodeAttributeDeclarationCollection attributeDeclarations = GetAttributeDeclarationsFromTagMapping(tagMapping);
 
         if (attributeDeclarations != null)
         {
@@ -187,95 +198,91 @@
     }
 
     /// <summary>
-    /// The deserialize attribute declarations.
+    /// Gets the configuration for the specified feature file directory.
     /// </summary>
-    /// <param name="codeSnippet">The code snippet.</param>
-    /// <returns>The <see cref="CodeAttributeDeclaration"/>.</returns>
-    private static CodeAttributeDeclarationCollection DeserializeAttributeDeclarations(string codeSnippet)
+    /// <param name="path">The path of the directory which contains the feature file.</param>
+    /// <returns>The <see cref="Configuration"/>.</returns>
+    protected virtual PluginSection GetConfiguration(string path)
     {
-      CodeAttributeDeclarationCollection result = new CodeAttributeDeclarationCollection();
-      List<CodeAttributeArgument> arguments = new List<CodeAttributeArgument>();
+      WebConfigurationFileMap fileMap = new WebConfigurationFileMap();
+      string rootPath = Path.GetFullPath(path);
+      DirectoryInfo directory;
 
-      int attributeTypeNameStart = -1;
-      int attributeTypeNameEnd = -1;
-      bool attributeTypeNameSpecified = false;
-      int parameterNameStart = -1;
-      int parameterExpressionStart = -1;
-      int openedBracesCount = 0;
-
-      for (int index = 0; index < codeSnippet.Length; ++index)
+      try
       {
-        switch (codeSnippet[index])
+        directory = new DirectoryInfo(path);
+      }
+      catch (SecurityException)
+      {
+        return null;
+      }
+
+      path = rootPath;
+
+      while (directory != null)
+      {
+        try
         {
-          case '{':
-            {
-              ++openedBracesCount;
-              parameterNameStart = index + 1;
+          if (directory.GetFiles(ConfigurationFileName).Length > 0)
+          {
+            rootPath = directory.FullName;
+          }
 
-              break;
-            }
-
-          case '}':
-            {
-              --openedBracesCount;
-              
-              string parameterName = codeSnippet.Substring(parameterNameStart, parameterExpressionStart - parameterNameStart - 1).Trim();
-              string parameterExpression = codeSnippet.Substring(parameterExpressionStart, index - parameterExpressionStart).Trim();
-
-              arguments.Add(new CodeAttributeArgument(parameterName, new CodeSnippetExpression(parameterExpression)));
-
-              break;
-            }
-
-          case ',':
-            {
-              if (openedBracesCount == 1)
-              {
-                parameterExpressionStart = index + 1;
-              }
-
-              break;
-            }
-
-          case ' ':
-            {
-              attributeTypeNameSpecified = false;
-
-              break;
-            }
-
-          default:
-            {
-              if ((openedBracesCount == 0) && (!attributeTypeNameSpecified))
-              {
-                if (attributeTypeNameStart != -1)
-                {
-                  string parameterName = codeSnippet.Substring(attributeTypeNameStart, attributeTypeNameEnd - attributeTypeNameStart + 1).Trim();
-
-                  result.Add(new CodeAttributeDeclaration(parameterName, arguments.ToArray()));
-                  arguments.Clear();
-                }
-
-                attributeTypeNameStart = index;
-              }
-
-              attributeTypeNameSpecified = openedBracesCount == 0;
-
-              if (attributeTypeNameSpecified)
-              {
-                attributeTypeNameEnd = index;                
-              }
-
-              break;
-            }
+          directory = directory.Parent;
+        }
+        catch (SecurityException)
+        {
+          directory = null;
         }
       }
 
-      if (attributeTypeNameStart != -1)
-      {
-        string parameterName = codeSnippet.Substring(attributeTypeNameStart, attributeTypeNameEnd - attributeTypeNameStart + 1).Trim();
+      path = path.Remove(0, rootPath.Length);
 
-        result.Add(new CodeAttributeDeclaration(parameterName, arguments.ToArray()));
+      if ((path.Length == 0) || (path[0] != Path.DirectorySeparatorChar))
+      {
+        path = Path.DirectorySeparatorChar + path;
+      }
+
+      fileMap.VirtualDirectories.Add("/", new VirtualDirectoryMapping(rootPath, true, ConfigurationFileName));
+
+      PluginSection result;
+
+      AppDomain.CurrentDomain.AssemblyResolve += ExecutingAssemblyResolver;
+      try
+      {
+        result = (PluginSection)WebConfigurationManager.OpenMappedWebConfiguration(fileMap, path).GetSection(SectionName);
+      }
+      finally
+      {
+        AppDomain.CurrentDomain.AssemblyResolve -= ExecutingAssemblyResolver;
+      }
+      
+      return result;
+    }
+
+    /// <summary>
+    /// Gets the executing assembly when an assembly with the same name is requested.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="args">The arguments.</param>
+    /// <returns>The current assembly when appropriate or <value>null</value> otherwise.</returns>
+    private static Assembly ExecutingAssemblyResolver(object sender, ResolveEventArgs args)
+    {
+      return (args.Name == Assembly.GetExecutingAssembly().GetName().Name) ? Assembly.GetExecutingAssembly() : null;
+    }
+
+    /// <summary>
+    /// Gets attribute declarations from tag mapping.
+    /// </summary>
+    /// <param name="tagMapping">The tag mapping.</param>
+    /// <returns>The <see cref="CodeAttributeDeclaration"/>.</returns>
+    private static CodeAttributeDeclarationCollection GetAttributeDeclarationsFromTagMapping(TagMapping tagMapping)
+    {
+      CodeAttributeDeclarationCollection result = new CodeAttributeDeclarationCollection();
+
+      foreach (TagAttribute attribute in tagMapping.Attributes)
+      {
+        result.Add(new CodeAttributeDeclaration(attribute.Type, attribute.Arguments.Cast<TagAttributeArgument>().Select(arg => new CodeAttributeArgument(arg.Name, new CodeSnippetExpression(arg.CodeSnippet))).ToArray()));
       }
 
       return result;

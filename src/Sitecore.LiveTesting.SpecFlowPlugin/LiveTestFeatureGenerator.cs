@@ -96,9 +96,7 @@
         CodeStatement applicationDeclarationStatement = new CodeVariableDeclarationStatement(typeof(TestApplication), ApplicationVariableName);
         CodeStatement applicationAssignStatement = new CodeAssignStatement(applicationReferenceExpression, new CodeMethodInvokeExpression(new CodeMethodReferenceExpression(defaultApplicationManagerReferenceExpression, StartApplicationMethodName), defaultApplicationHostReferenceExpression));
 
-        const string GetMethodMethodName = "GetMethod";
-
-        CodeStatement staticMethodInvocationStatement = new CodeExpressionStatement(new CodeMethodInvokeExpression(applicationReferenceExpression, ExecuteActionMethodName, new CodeExpression[] { new CodeMethodInvokeExpression(new CodeTypeOfExpression(type.Name), GetMethodMethodName, new CodePrimitiveExpression(method.Name), new CodeArrayCreateExpression(typeof(Type), method.Parameters.Cast<CodeParameterDeclarationExpression>().Select(p => new CodeTypeOfExpression(p.Type)).Cast<CodeExpression>().ToArray())) }.Concat(method.Parameters.Cast<CodeParameterDeclarationExpression>().Select(p => new CodeVariableReferenceExpression(p.Name)).Cast<CodeExpression>()).ToArray()));
+        CodeStatement staticMethodInvocationStatement = new CodeExpressionStatement(new CodeMethodInvokeExpression(applicationReferenceExpression, ExecuteActionMethodName, new CodeDelegateCreateExpression(new CodeTypeReference(typeof(Action)), new CodeTypeReferenceExpression(type.Name), method.Name)));
 
         method.Statements.Clear();
         method.Statements.Add(defaultApplicationManagerDeclarationStatement);

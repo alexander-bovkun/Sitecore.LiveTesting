@@ -39,12 +39,19 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Config\BaseClass.cs" />
+    <Compile Include="Config\PluginSection.cs" />
+    <Compile Include="Config\TagAttribute.cs" />
+    <Compile Include="Config\TagAttributeArgument.cs" />
+    <Compile Include="Config\TagAttributeArgumentCollection.cs" />
+    <Compile Include="Config\TagAttributeCollection.cs" />
+    <Compile Include="Config\TagMapping.cs" />
+    <Compile Include="Config\TagMappingCollection.cs" />
     <Compile Include="LiveTestDecorator.cs" />
     <Compile Include="LiveTestFeatureGenerator.cs" />
     <Compile Include="LiveTestFeatureGeneratorProvider.cs" />
     <Compile Include="LiveTestGeneratorPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TagMappingDiscoverer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sitecore.LiveTesting\Sitecore.LiveTesting.csproj">
