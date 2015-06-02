@@ -186,7 +186,7 @@
 
       DynamicConstructionAttribute dynamicConstructionAttribute = (DynamicConstructionAttribute)testType.GetCustomAttributes(typeof(DynamicConstructionAttribute), true)[0];
 
-      return (LiveTest)dynamicConstructionAttribute.CreateUninitializedInstance(testType);
+      return (LiveTest)dynamicConstructionAttribute.CreateUninitializedObjectInstance(testType);
     }
 
     /// <summary>
@@ -279,7 +279,7 @@
 
         if (!EnterInstantiationPhase())
         {
-          return this.CreateUninitializedInstance(serverType);
+          return this.CreateUninitializedObjectInstance(serverType);
         }
         
         MarshalByRefObject result;
@@ -304,7 +304,7 @@
       /// <summary>
       /// Enters active instantiation phase.
       /// </summary>
-      /// <returns>The value indicating whether it was succcessful attempt to enter initialization phase or not.</returns>
+      /// <returns>The value indicating whether it was successful attempt to enter initialization phase or not.</returns>
       internal static bool EnterInstantiationPhase()
       {
         lock (ActiveThreads)
@@ -332,11 +332,11 @@
       }
 
       /// <summary>
-      /// Creates uninitialized proxy instance.
+      /// Creates uninitialized object instance.
       /// </summary>
       /// <param name="serverType">The type.</param>
-      /// <returns>The uninitialized proxy.</returns>      
-      internal MarshalByRefObject CreateUninitializedInstance(Type serverType)
+      /// <returns>The uninitialized object instance.</returns>      
+      internal MarshalByRefObject CreateUninitializedObjectInstance(Type serverType)
       {
         (new SecurityPermission(SecurityPermissionFlag.UnmanagedCode)).Demand();
         return base.CreateInstance(serverType);
@@ -411,6 +411,8 @@
 
         if (methodCall != null)
         {
+          methodCall = new MethodCall(methodCall);
+
           MethodCallEventArgs eventArgs = typeof(LiveTest).IsAssignableFrom(methodCall.MethodBase.DeclaringType) ? new MethodCallEventArgs(Interlocked.Increment(ref methodCallId), methodCall.MethodBase, methodCall.Args) : null;
 
           if (eventArgs != null)
@@ -418,7 +420,7 @@
             this.target.OnBeforeMethodCall(this.target, eventArgs);
           }
 
-          IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(msg);
+          IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(methodCall);
 
           if (eventArgs != null)
           {
