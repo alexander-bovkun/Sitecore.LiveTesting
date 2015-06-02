@@ -10,12 +10,12 @@
     /// <summary>
     /// The base class elementName.
     /// </summary>
-    private const string BaseClassElementName = "baseclass";
+    private const string BaseClassElementName = "baseClass";
 
     /// <summary>
     /// The tag mappings element name.
     /// </summary>
-    private const string TagMappingsElementName = "tagmappings";
+    private const string TagMappingsElementName = "tagMappings";
 
     /// <summary>
     /// Gets the base class.

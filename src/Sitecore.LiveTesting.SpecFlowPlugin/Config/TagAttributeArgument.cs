@@ -20,7 +20,7 @@
     /// <summary>
     /// The code snippet attribute name.
     /// </summary>
-    private const string CodeSnippetAttributeName = "codesnippet";
+    private const string CodeSnippetAttributeName = "codeSnippet";
 
     /// <summary>
     /// Gets the identifier.
