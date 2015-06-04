@@ -25,7 +25,7 @@
 
       if (initializationContext == null)
       {
-        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Only contexts derived from '{0}' are supported.", typeof(TestInitializationContext).FullName));
+        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Only contexts derived from '{0}' are supported.", typeof(TestInitializationContext).AssemblyQualifiedName));
       }
 
       return this.GetInitializationActions(initializationContext);

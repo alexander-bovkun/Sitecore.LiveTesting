@@ -18,7 +18,7 @@
 
       if (testInitializationContextCandidate == null)
       {
-        throw new NotSupportedException(string.Format("Only contexts derived from '{0}' are supported.", typeof(TestInitializationContext).FullName));
+        throw new NotSupportedException(string.Format("Only contexts derived from '{0}' are supported.", typeof(TestInitializationContext).AssemblyQualifiedName));
       }
 
       ParameterInfo[] parameters = testInitializationContextCandidate.Method.GetParameters();
