@@ -24,6 +24,20 @@
     }
 
     /// <summary>
+    /// Gets the priority.
+    /// </summary>
+    /// <value>
+    /// The priority.
+    /// </value>
+    public int Priority
+    {
+      get
+      {
+        return int.MaxValue;
+      }
+    }
+
+    /// <summary>
     /// Determines whether this instance can generate the specified feature.
     /// </summary>
     /// <param name="feature">The feature.</param>
@@ -43,20 +57,6 @@
     public IFeatureGenerator CreateGenerator(Feature feature)
     {
       return new LiveTestFeatureGenerator(this.baseFeatureGenerator);
-    }
-
-    /// <summary>
-    /// Gets the priority.
-    /// </summary>
-    /// <value>
-    /// The priority.
-    /// </value>
-    public int Priority 
-    {
-      get
-      {
-        return int.MaxValue;
-      }
     }
   }
 }

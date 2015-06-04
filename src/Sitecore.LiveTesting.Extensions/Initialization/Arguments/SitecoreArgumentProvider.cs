@@ -1,6 +1,5 @@
 ﻿namespace Sitecore.LiveTesting.Extensions.Initialization.Arguments
 {
-  using System;
   using System.Linq;
   using System.Reflection;
   using Sitecore.Configuration;
