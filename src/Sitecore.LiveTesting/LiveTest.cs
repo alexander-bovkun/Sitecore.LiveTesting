@@ -122,12 +122,12 @@
 
       if (getDefaultTestApplicationManagerMethod == null)
       {
-        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultTestApplicationManagerName, typeof(LiveTest).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.AssemblyQualifiedName, GetDefaultTestApplicationManagerName, typeof(LiveTest).AssemblyQualifiedName));
       }
 
       if (getDefaultApplicationHostMethod == null)
       {
-        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.FullName, GetDefaultApplicationHostName, typeof(LiveTest).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", testType.AssemblyQualifiedName, GetDefaultApplicationHostName, typeof(LiveTest).AssemblyQualifiedName));
       }
 
       object[] allArguments = { testType, arguments };
@@ -136,14 +136,14 @@
 
       if (testApplicationManager == null)
       {
-        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationManager).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationManager).AssemblyQualifiedName));
       }
 
       TestApplicationHost host = (TestApplicationHost)getDefaultApplicationHostMethod.Invoke(null, allArguments);
 
       if (host == null)
       {
-        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationHost).FullName));
+        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to get an instance of '{0}'.", typeof(TestApplicationHost).AssemblyQualifiedName));
       }
 
       TestApplication testApplication = testApplicationManager.StartApplication(host);
@@ -181,12 +181,12 @@
 
       if (!typeof(LiveTest).IsAssignableFrom(testType))
       {
-        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Only types derived from '{0}' are supported", typeof(LiveTest).FullName));
+        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Only types derived from '{0}' are supported", typeof(LiveTest).AssemblyQualifiedName));
       }
 
       DynamicConstructionAttribute dynamicConstructionAttribute = (DynamicConstructionAttribute)testType.GetCustomAttributes(typeof(DynamicConstructionAttribute), true)[0];
 
-      return (LiveTest)dynamicConstructionAttribute.CreateUninitializedInstance(testType);
+      return (LiveTest)dynamicConstructionAttribute.CreateUninitializedObjectInstance(testType);
     }
 
     /// <summary>
@@ -274,12 +274,12 @@
 
         if (factoryMethodInfo == null)
         {
-          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because no static method '{1}' can be found in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", serverType.FullName, InstantiateMethodName, typeof(LiveTest).FullName));
+          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because no static method '{1}' can be found in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", serverType.AssemblyQualifiedName, InstantiateMethodName, typeof(LiveTest).AssemblyQualifiedName));
         }
 
         if (!EnterInstantiationPhase())
         {
-          return this.CreateUninitializedInstance(serverType);
+          return this.CreateUninitializedObjectInstance(serverType);
         }
         
         MarshalByRefObject result;
@@ -295,7 +295,7 @@
 
         if (result == null)
         {
-          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The result of execution of factory method '{0}' from '{1}' must not be null", factoryMethodInfo.Name, factoryMethodInfo.DeclaringType.FullName));
+          throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The result of execution of factory method '{0}' from '{1}' must not be null", factoryMethodInfo.Name, factoryMethodInfo.DeclaringType.AssemblyQualifiedName));
         }
 
         return result;
@@ -304,7 +304,7 @@
       /// <summary>
       /// Enters active instantiation phase.
       /// </summary>
-      /// <returns>The value indicating whether it was succcessful attempt to enter initialization phase or not.</returns>
+      /// <returns>The value indicating whether it was successful attempt to enter initialization phase or not.</returns>
       internal static bool EnterInstantiationPhase()
       {
         lock (ActiveThreads)
@@ -332,11 +332,11 @@
       }
 
       /// <summary>
-      /// Creates uninitialized proxy instance.
+      /// Creates uninitialized object instance.
       /// </summary>
       /// <param name="serverType">The type.</param>
-      /// <returns>The uninitialized proxy.</returns>      
-      internal MarshalByRefObject CreateUninitializedInstance(Type serverType)
+      /// <returns>The uninitialized object instance.</returns>      
+      internal MarshalByRefObject CreateUninitializedObjectInstance(Type serverType)
       {
         (new SecurityPermission(SecurityPermissionFlag.UnmanagedCode)).Demand();
         return base.CreateInstance(serverType);
@@ -386,7 +386,7 @@
 
             if (factoryMethodInfo == null)
             {
-              throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", constructorCall.ActivationType.FullName, DynamicConstructionAttribute.InstantiateMethodName, typeof(LiveTest).FullName));
+              throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot create an instance of type '{0}' because there is no '{1}' static method defined in its inheritance hierarchy. See '{2}' methods for an example of corresponding method signature.", constructorCall.ActivationType.AssemblyQualifiedName, DynamicConstructionAttribute.InstantiateMethodName, typeof(LiveTest).AssemblyQualifiedName));
             }
 
             if (!DynamicConstructionAttribute.EnterInstantiationPhase())
@@ -411,6 +411,8 @@
 
         if (methodCall != null)
         {
+          methodCall = new MethodCall(methodCall);
+
           MethodCallEventArgs eventArgs = typeof(LiveTest).IsAssignableFrom(methodCall.MethodBase.DeclaringType) ? new MethodCallEventArgs(Interlocked.Increment(ref methodCallId), methodCall.MethodBase, methodCall.Args) : null;
 
           if (eventArgs != null)
@@ -418,7 +420,7 @@
             this.target.OnBeforeMethodCall(this.target, eventArgs);
           }
 
-          IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(msg);
+          IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(methodCall);
 
           if (eventArgs != null)
           {

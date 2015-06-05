@@ -2,12 +2,12 @@
 {
   using System;
   using System.CodeDom;
-  using System.Collections.Generic;
   using System.Configuration;
   using System.IO;
   using System.Linq;
   using System.Reflection;
   using System.Security;
+  using System.Security.Permissions;
   using System.Web.Configuration;
   using Sitecore.LiveTesting.SpecFlowPlugin.Config;
   using TechTalk.SpecFlow.Generator;
@@ -247,6 +247,7 @@
 
       PluginSection result;
 
+      (new SecurityPermission(SecurityPermissionFlag.UnmanagedCode)).Demand();
       AppDomain.CurrentDomain.AssemblyResolve += ExecutingAssemblyResolver;
       try
       {

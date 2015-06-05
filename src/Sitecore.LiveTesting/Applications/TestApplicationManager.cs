@@ -64,7 +64,7 @@
 
       if (!typeof(TestApplication).IsAssignableFrom(testApplicationType))
       {
-        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Only applications derived from '{0}' are supported.", typeof(TestApplication).FullName));
+        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Only applications derived from '{0}' are supported.", typeof(TestApplication).AssemblyQualifiedName));
       }
 
       this.applicationManager = applicationManager;

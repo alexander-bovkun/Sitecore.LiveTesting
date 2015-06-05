@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Applications\TestApplicationHost.cs" />
+    <Compile Include="Initialization\Arguments\ArgumentProvider.cs" />
     <Compile Include="Initialization\TestApplicationInitializationActionDiscoverer.cs" />
     <Compile Include="Initialization\InitializationHandlerAttributePriorityComparer.cs" />
     <Compile Include="Initialization\TestApplicationInitializationContext.cs" />

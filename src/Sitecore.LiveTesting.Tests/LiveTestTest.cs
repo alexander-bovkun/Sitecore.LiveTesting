@@ -194,6 +194,17 @@
     }
 
     /// <summary>
+    /// Should support argument substitution.
+    /// </summary>
+    [Fact]
+    public void ShouldSupportArgumentSubstitution()
+    {
+      LiveTestWithArgumentSubstitution test = new LiveTestWithArgumentSubstitution();
+
+      test.TestMethod("arg");
+    }
+
+    /// <summary>
     /// Defines the fake live test version.
     /// </summary>
     public class LiveTestBase : LiveTest
@@ -303,7 +314,7 @@
       /// <summary>
       /// The counter.
       /// </summary>
-      private static int counter = 0;
+      private static int counter;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="LiveTestWithConstructorCallCount"/> class.
@@ -327,6 +338,42 @@
       public static void ResetCounter()
       {
         counter = 0;
+      }
+    }
+
+    /// <summary>
+    /// Defines sample test class that substitutes its test method arguments.
+    /// </summary>
+    public class LiveTestWithArgumentSubstitution : LiveTest
+    {
+      /// <summary>
+      /// Creates an instance of the test class.
+      /// </summary>
+      /// <param name="type">Type of the test to instantiate.</param>
+      /// <param name="arguments">The arguments.</param>
+      /// <returns>An instance of test class.</returns>
+      public static new LiveTest Instantiate(Type type, params object[] arguments)
+      {
+        return LiveTest.Intercept(type, new LiveTestWithArgumentSubstitution());
+      }
+
+      /// <summary>
+      /// The test method.
+      /// </summary>
+      /// <param name="argument">The argument.</param>
+      public void TestMethod(string argument)
+      {
+        Assert.Equal("arg*", argument);
+      }
+
+      /// <summary>
+      /// The routine called before test method call.
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="args">The arguments.</param>
+      protected override void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
+      {
+        args.Arguments[0] = args.Arguments[0].ToString() + '*';
       }
     }
   }

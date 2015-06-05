@@ -94,7 +94,7 @@
 
       if (workerRequestCandidate == null)
       {
-        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "workerRequest is of improper type. It should be based on {0}", typeof(WorkerRequest).FullName));
+        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "workerRequest is of improper type. It should be based on {0}", typeof(WorkerRequest).AssemblyQualifiedName));
       }
 
       return workerRequestCandidate.Response;
