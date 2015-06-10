@@ -1,7 +1,10 @@
 ﻿namespace Sitecore.LiveTesting.Extensions.Initialization.Arguments
 {
+  using System;
+  using System.Collections.Generic;
   using System.Linq;
   using System.Reflection;
+  using System.Xml;
   using Sitecore.Configuration;
   using Sitecore.LiveTesting.Initialization.Arguments;
 
@@ -18,29 +21,33 @@
     /// <returns>The new value.</returns>
     protected override object ResolveValue(object value, ParameterInfo parameter)
     {
-      SitecoreConfigurationMapAttribute mapping = parameter.GetCustomAttributes(typeof(SitecoreConfigurationMapAttribute)).Cast<SitecoreConfigurationMapAttribute>().SingleOrDefault(map => map.ArgumentType == parameter.ParameterType);
+      IEnumerable<string> configurationNodes = parameter.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode);
 
-      if (mapping == null)
+      configurationNodes = configurationNodes.Union(parameter.Member.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode));
+      configurationNodes = configurationNodes.Union(parameter.Member.ReflectedType.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode));
+      if (parameter.Member.ReflectedType != null)
       {
-        mapping = parameter.Member.GetCustomAttributes(typeof(SitecoreConfigurationMapAttribute)).Cast<SitecoreConfigurationMapAttribute>().SingleOrDefault(map => map.ArgumentType == parameter.ParameterType);
+        configurationNodes = configurationNodes.Union(parameter.Member.ReflectedType.Assembly.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode)).ToArray();
       }
 
-      if (mapping == null)
+      XmlNode targetNode = null;
+
+      foreach (var configurationNode in configurationNodes)
       {
-        mapping = parameter.Member.ReflectedType.GetCustomAttributes(typeof(SitecoreConfigurationMapAttribute)).Cast<SitecoreConfigurationMapAttribute>().SingleOrDefault(map => map.ArgumentType == parameter.ParameterType);
+        XmlNode nodeCandidate = Factory.GetConfigNode(configurationNode, true);
+
+        if (parameter.ParameterType.IsAssignableFrom(Factory.CreateType(nodeCandidate, true)))
+        {
+          if (targetNode != null)
+          {
+            throw new InvalidOperationException(string.Format("Cannot resolve value for argument '{0}'. There are several configuration nodes applicable to this argument.", parameter.Name));
+          }
+
+          targetNode = nodeCandidate;
+        }
       }
 
-      if (mapping == null)
-      {
-        mapping = parameter.Member.ReflectedType.Assembly.GetCustomAttributes(typeof(SitecoreConfigurationMapAttribute)).Cast<SitecoreConfigurationMapAttribute>().SingleOrDefault(map => map.ArgumentType == parameter.ParameterType);
-      }
-
-      if (mapping == null)
-      {
-        return null;
-      }
-
-      return Factory.CreateObject(mapping.ConfigurationNode, true);
+      return Factory.CreateObject(targetNode, true);
     }
   }
 }
