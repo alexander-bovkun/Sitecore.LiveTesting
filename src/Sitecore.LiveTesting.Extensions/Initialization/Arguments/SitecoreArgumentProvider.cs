@@ -26,10 +26,10 @@
       if (!configurationNodes.Any())
       {
         configurationNodes = parameter.Member.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode);
-        configurationNodes = configurationNodes.Union(parameter.Member.ReflectedType.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode));
         
         if (parameter.Member.ReflectedType != null)
         {
+          configurationNodes = configurationNodes.Union(parameter.Member.ReflectedType.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode));
           configurationNodes = configurationNodes.Union(parameter.Member.ReflectedType.Assembly.GetCustomAttributes(typeof(SitecoreConfigurationReferenceAttribute)).Cast<SitecoreConfigurationReferenceAttribute>().Select(attribute => attribute.ConfigurationNode));
         }
       }
