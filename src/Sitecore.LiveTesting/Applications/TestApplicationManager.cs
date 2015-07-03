@@ -165,18 +165,28 @@
 
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-          foreach (Type type in assembly.GetTypes())
-          {
-            if (type.Name == GlobalInitializationHandlerTypeName)
+            try
             {
-              if (globalInitializationHandlerType != null)
-              {
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Only one global initialization handler with the name '{0}' is permitted per application domain.", GlobalInitializationHandlerTypeName));
-              }
+                foreach (Type type in assembly.GetTypes())
+                {
+                    if (type.Name == GlobalInitializationHandlerTypeName)
+                    {
+                        if (globalInitializationHandlerType != null)
+                        {
+                            throw new InvalidOperationException(
+                                string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "Only one global initialization handler with the name '{0}' is permitted per application domain.",
+                                    GlobalInitializationHandlerTypeName));
+                        }
 
-              globalInitializationHandlerType = type;
+                        globalInitializationHandlerType = type;
+                    }
+                }
             }
-          }
+            catch (ReflectionTypeLoadException)
+            {
+            }
         }
 
         if (globalInitializationHandlerType != null)
