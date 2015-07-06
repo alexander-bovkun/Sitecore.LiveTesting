@@ -79,7 +79,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release nuget pack $(ProjectPath) -OutputDirectory $(SolutionDir) -Prop Configuration=$(ConfigurationName) -sym</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Release nuget pack $(ProjectPath) -OutputDirectory $(SolutionDir) -Prop Configuration=$(ConfigurationName) -sym
+xcopy /i /s /e /y /r $(ProjectDir)bin\$(ConfigurationName) $(SolutionDir)Sitecore.LiveTesting.SpecFlow.Tests\plugin
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
