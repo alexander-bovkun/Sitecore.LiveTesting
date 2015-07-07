@@ -64,6 +64,7 @@
     [When(@"test is about to be executed")]
     public void WhenTestIsAboutToBeExecuted()
     {
+      new InitializationHandlersFeature().DisposableInitializationHandlerInvocation();
     }
 
     /// <summary>
@@ -80,7 +81,7 @@
     [Then(@"initialization handler for the test is created")]
     public void ThenInitializationHandlerForTheTestIsCreated()
     {
-      Assert.Equal(1, InitializationHandler.InitializedCount);
+      Assert.Equal(3, InitializationHandler.InitializedCount);
     }
 
     /// <summary>
@@ -110,7 +111,7 @@
       /// The counters.
       /// </summary>
       private static readonly IDictionary<int, int> Counters = new ConcurrentDictionary<int, int>();
-      
+
       /// <summary>
       /// Initializes a new instance of the <see cref="InitializationHandler"/> class.
       /// </summary>
@@ -132,10 +133,10 @@
           }
 
           Trace.WriteLine(Thread.CurrentThread.ManagedThreadId);
-          
+
           return Counters[Thread.CurrentThread.ManagedThreadId];
         }
-        
+
         set
         {
           if (!Counters.ContainsKey(Thread.CurrentThread.ManagedThreadId))
@@ -146,7 +147,7 @@
           {
             Counters[Thread.CurrentThread.ManagedThreadId] = value;
           }
-        } 
+        }
       }
     }
 
@@ -158,12 +159,12 @@
       /// <summary>
       /// The disposed counters.
       /// </summary>
-      private static readonly IDictionary<int, int> DisposedCounters = new ConcurrentDictionary<int, int>();      
+      private static readonly IDictionary<int, int> DisposedCounters = new ConcurrentDictionary<int, int>();
 
       /// <summary>
       /// Gets or sets number of initialized instances.
       /// </summary>
-      public static int DisposedCount 
+      public static int DisposedCount
       {
         get
         {
@@ -185,7 +186,7 @@
           {
             DisposedCounters[Thread.CurrentThread.ManagedThreadId] = value;
           }
-        } 
+        }
       }
 
       /// <summary>
