@@ -1,13 +1,10 @@
 ﻿namespace Sitecore.LiveTesting.Tests
 {
   using System;
-  using System.IO;
   using System.Linq;
   using System.Reflection;
   using System.Runtime.Remoting;
   using System.Runtime.Remoting.Messaging;
-  using System.Web;
-
   using NSubstitute;
   using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.Initialization;

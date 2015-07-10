@@ -50,6 +50,7 @@
     <Compile Include="Initialization\Configuration\MergeConfiguration.cs" />
     <Compile Include="Initialization\Diagnostics\FirstChanceException.cs" />
     <Compile Include="Initialization\Diagnostics\MemoryDumpOnException.cs" />
+    <Compile Include="Initialization\FakeHttpContext.cs" />
     <Compile Include="Initialization\HookAdapter.cs" />
     <Compile Include="Initialization\DatabaseCleanup.cs" />
     <Compile Include="Initialization\Requests\HttpContextProvider.cs" />
