@@ -392,7 +392,8 @@
       [Fact]
       public void ShouldShareCallContextInformationBetweenCalls()
       {
-        Assert.Equal("testValue", CallContext.LogicalGetData("test"));
+        Assert.Equal("testValue", CallContext.LogicalGetData("test1"));
+        CallContext.LogicalSetData("test2", "testValue");
       }
 
       /// <summary>
@@ -402,7 +403,7 @@
       /// <param name="args">The arguments.</param>
       protected override void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
       {
-        CallContext.LogicalSetData("test", "testValue");
+        CallContext.LogicalSetData("test1", "testValue");
       }
 
       /// <summary>
@@ -412,6 +413,8 @@
       /// <param name="args">The arguments.</param>
       protected override void OnAfterMethodCall(object sender, MethodCallEventArgs args)
       {
+        Assert.Equal("testValue", CallContext.LogicalGetData("test1"));
+        Assert.Equal("testValue", CallContext.LogicalGetData("test2"));
       }
     }
   }
