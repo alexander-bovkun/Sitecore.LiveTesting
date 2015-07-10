@@ -12,6 +12,7 @@
   using System.Runtime.Remoting.Messaging;
   using System.Runtime.Remoting.Proxies;
   using System.Runtime.Remoting.Services;
+  using System.Runtime.Serialization;
   using System.Security.Permissions;
   using System.Threading;
   using System.Web.Hosting;
@@ -412,92 +413,63 @@
 
         if (methodCall != null)
         {
-          const string MethodNameHeader = "__MethodName";
-          const string MethodSignatureHeader = "__MethodSignature";
-          const string MethodArgsHeader = "__Args";
-          const string CallContextHeader = "__CallContext";
-
           methodCall = new MethodCall(methodCall);
 
           MethodCallEventArgs eventArgs = typeof(LiveTest).IsAssignableFrom(methodCall.MethodBase.DeclaringType) ? new MethodCallEventArgs(Interlocked.Increment(ref methodCallId), methodCall.MethodBase, methodCall.Args) : null;
-          List<Header> headers = new List<Header>();
-          List<Header> initializationHeaders = new List<Header>();
-
-          foreach (DictionaryEntry property in methodCall.Properties)
-          {
-            string name = property.Key.ToString();
-
-            headers.Add(new Header(name, property.Value));
-
-            switch (name)
-            {
-              case MethodNameHeader:
-              {
-                break;
-              }
-
-              case MethodSignatureHeader:
-              {
-                initializationHeaders.Add(new Header(name, new[] { typeof(object), typeof(MethodCallEventArgs) }));
-                break;
-              }
-              
-              case MethodArgsHeader:
-              {
-                initializationHeaders.Add(new Header(name, new object[] { this.target, eventArgs }));
-                break;
-              }
-
-              default:
-              {
-                initializationHeaders.Add(new Header(name, property.Value));
-                break;
-              }
-            }
-          }
-
-          initializationHeaders.Add(new Header(MethodNameHeader, null));
 
           if (eventArgs != null)
           {
-            initializationHeaders[initializationHeaders.Count - 1].Value = "OnBeforeMethodCall";
-
-            IMethodReturnMessage initializationResult = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(new MethodCall(initializationHeaders.ToArray()));
-
-            if (initializationResult.Exception != null)
-            {
-              return initializationResult;
-            }
-
-            foreach (Header header in headers)
-            {
-              if (header.Name == CallContextHeader)
-              {
-                header.Value = initializationResult.LogicalCallContext;
-              }
-            }
-
-            methodCall = new MethodCall(headers.ToArray());
+            this.target.OnBeforeMethodCall(this.target, eventArgs);
+            
+            methodCall = RecreateMessageWithCurrentLogicalCallContext(methodCall);
           }
 
           IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(methodCall);
 
           if (eventArgs != null)
           {
-            initializationHeaders[initializationHeaders.Count - 1].Value = "OnAfterMethodCall";
-
-            IMethodReturnMessage initializationResult = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(new MethodCall(initializationHeaders.ToArray()));
-
-            if (initializationResult.Exception != null)
-            {
-              return initializationResult;
-            }
+            this.target.OnAfterMethodCall(this.target, eventArgs);
           }
 
           return result;
         }
 
         throw new NotSupportedException("Operations other than constructor and method calls are not supported.");
+      }
+
+      /// <summary>
+      /// Recreates message with current logical call context.
+      /// </summary>
+      /// <param name="message">The message.</param>
+      /// <returns>The newly created message with proper logical call context.</returns>
+      private static IMethodCallMessage RecreateMessageWithCurrentLogicalCallContext(IMethodCallMessage message)
+      {
+        List<Header> headers = new List<Header>();
+
+        foreach (DictionaryEntry property in message.Properties)
+        {
+          const string CallContextHeader = "__CallContext";
+          string name = property.Key.ToString();
+
+          if (name == CallContextHeader)
+          {
+            const string LogicalCallContextSerializationKey = "LogicalCallContext";
+            SerializationInfo serializationInfo = new SerializationInfo(typeof(ExecutionContext), new FormatterConverter());
+
+            if (Thread.CurrentThread.ExecutionContext != null)
+            {
+              Thread.CurrentThread.ExecutionContext.GetObjectData(serializationInfo, new StreamingContext(StreamingContextStates.Clone));
+            }
+
+            headers.Add(new Header(name, serializationInfo.GetValue(LogicalCallContextSerializationKey, typeof(LogicalCallContext))));
+          }
+          else
+          {
+            headers.Add(new Header(name, property.Value));
+          }
+        }
+
+        return new MethodCall(headers.ToArray());
       }
     }
   }
