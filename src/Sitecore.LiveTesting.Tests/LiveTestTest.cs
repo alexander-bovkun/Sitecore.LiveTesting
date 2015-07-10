@@ -1,9 +1,13 @@
 ﻿namespace Sitecore.LiveTesting.Tests
 {
   using System;
+  using System.IO;
   using System.Linq;
   using System.Reflection;
   using System.Runtime.Remoting;
+  using System.Runtime.Remoting.Messaging;
+  using System.Web;
+
   using NSubstitute;
   using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.Initialization;
@@ -374,6 +378,40 @@
       protected override void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
       {
         args.Arguments[0] = args.Arguments[0].ToString() + '*';
+      }
+    }
+
+    /// <summary>
+    /// Defines the test class with scenarios related to CallContext.
+    /// </summary>
+    public class CallContextTest : LiveTest
+    {
+      /// <summary>
+      /// Should share call context information between calls
+      /// </summary>
+      [Fact]
+      public void ShouldShareCallContextInformationBetweenCalls()
+      {
+        Assert.Equal("testValue", CallContext.LogicalGetData("test"));
+      }
+
+      /// <summary>
+      /// The routine called before test method call.
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="args">The arguments.</param>
+      protected override void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
+      {
+        CallContext.LogicalSetData("test", "testValue");
+      }
+
+      /// <summary>
+      /// The routine called after test method call.
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="args">The arguments.</param>
+      protected override void OnAfterMethodCall(object sender, MethodCallEventArgs args)
+      {
       }
     }
   }

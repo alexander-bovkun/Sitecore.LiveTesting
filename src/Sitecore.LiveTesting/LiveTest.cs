@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting
 {
   using System;
+  using System.Collections;
   using System.Collections.Generic;
   using System.Configuration;
   using System.Globalization;
@@ -411,20 +412,86 @@
 
         if (methodCall != null)
         {
+          const string MethodNameHeader = "__MethodName";
+          const string MethodSignatureHeader = "__MethodSignature";
+          const string MethodArgsHeader = "__Args";
+          const string CallContextHeader = "__CallContext";
+
           methodCall = new MethodCall(methodCall);
 
           MethodCallEventArgs eventArgs = typeof(LiveTest).IsAssignableFrom(methodCall.MethodBase.DeclaringType) ? new MethodCallEventArgs(Interlocked.Increment(ref methodCallId), methodCall.MethodBase, methodCall.Args) : null;
+          List<Header> headers = new List<Header>();
+          List<Header> initializationHeaders = new List<Header>();
+
+          foreach (DictionaryEntry property in methodCall.Properties)
+          {
+            string name = property.Key.ToString();
+
+            headers.Add(new Header(name, property.Value));
+
+            switch (name)
+            {
+              case MethodNameHeader:
+              {
+                break;
+              }
+
+              case MethodSignatureHeader:
+              {
+                initializationHeaders.Add(new Header(name, new[] { typeof(object), typeof(MethodCallEventArgs) }));
+                break;
+              }
+              
+              case MethodArgsHeader:
+              {
+                initializationHeaders.Add(new Header(name, new object[] { this.target, eventArgs }));
+                break;
+              }
+
+              default:
+              {
+                initializationHeaders.Add(new Header(name, property.Value));
+                break;
+              }
+            }
+          }
+
+          initializationHeaders.Add(new Header(MethodNameHeader, null));
 
           if (eventArgs != null)
           {
-            this.target.OnBeforeMethodCall(this.target, eventArgs);
+            initializationHeaders[initializationHeaders.Count - 1].Value = "OnBeforeMethodCall";
+
+            IMethodReturnMessage initializationResult = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(new MethodCall(initializationHeaders.ToArray()));
+
+            if (initializationResult.Exception != null)
+            {
+              return initializationResult;
+            }
+
+            foreach (Header header in headers)
+            {
+              if (header.Name == CallContextHeader)
+              {
+                header.Value = initializationResult.LogicalCallContext;
+              }
+            }
+
+            methodCall = new MethodCall(headers.ToArray());
           }
 
           IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(methodCall);
 
           if (eventArgs != null)
           {
-            this.target.OnAfterMethodCall(this.target, eventArgs);
+            initializationHeaders[initializationHeaders.Count - 1].Value = "OnAfterMethodCall";
+
+            IMethodReturnMessage initializationResult = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(new MethodCall(initializationHeaders.ToArray()));
+
+            if (initializationResult.Exception != null)
+            {
+              return initializationResult;
+            }
           }
 
           return result;
