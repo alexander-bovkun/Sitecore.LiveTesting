@@ -38,19 +38,22 @@
       /// </summary>
       public FakeHttpContextInitializer()
       {
-        HttpContext fakeContext;
-
-        lock (HttpContextMap)
+        if (HostingEnvironment.IsHosted)
         {
-          if (HostingEnvironment.IsHosted && (!HttpContextMap.ContainsKey(Thread.CurrentThread.ManagedThreadId)))
+          HttpContext fakeContext;
+
+          lock (HttpContextMap)
           {
-            HttpContextMap.Add(Thread.CurrentThread.ManagedThreadId, new HttpContext(new SimpleWorkerRequest("Sitecore.LiveTesting.Test.aspx", string.Empty, TextWriter.Null)));
+            if (!HttpContextMap.ContainsKey(Thread.CurrentThread.ManagedThreadId))
+            {
+              HttpContextMap.Add(Thread.CurrentThread.ManagedThreadId, new HttpContext(new SimpleWorkerRequest("Sitecore.LiveTesting.Test.aspx", string.Empty, TextWriter.Null)));
+            }
+
+            fakeContext = HttpContextMap[Thread.CurrentThread.ManagedThreadId];
           }
 
-          fakeContext = HttpContextMap[Thread.CurrentThread.ManagedThreadId];
+          HttpContext.Current = fakeContext;
         }
-
-        HttpContext.Current = fakeContext;
       }
 
       /// <summary>
