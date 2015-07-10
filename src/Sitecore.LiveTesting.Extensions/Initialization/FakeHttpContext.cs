@@ -26,7 +26,7 @@
     /// Defines the class that sets up fake http context on call context transitions.
     /// </summary>
     [Serializable]
-    public sealed class FakeHttpContextInitializer : ISerializable
+    public sealed class FakeHttpContextInitializer : ISerializable, ILogicalThreadAffinative
     {
       /// <summary>
       /// The http context map.
