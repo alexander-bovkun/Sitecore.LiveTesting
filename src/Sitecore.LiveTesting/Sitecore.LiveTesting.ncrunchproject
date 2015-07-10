@@ -24,4 +24,5 @@
       <RegularExpression>.*</RegularExpression>
     </RegexTestSelector>
   </IgnoredTests>
+  <HiddenWarnings>PostBuildEventDisabled</HiddenWarnings>
 </ProjectConfiguration>
