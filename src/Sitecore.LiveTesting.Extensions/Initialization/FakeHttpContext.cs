@@ -12,7 +12,7 @@
   /// <summary>
   /// Initialization handler that sets up fake http context as a current http context.
   /// </summary>
-  public class FakeHttpContext
+  public sealed class FakeHttpContext
   {
     /// <summary>
     /// Initializes a new instance of the <see cref="FakeHttpContext"/> class.
@@ -26,7 +26,7 @@
     /// Defines the class that sets up fake http context on call context transitions.
     /// </summary>
     [Serializable]
-    public class FakeHttpContextInitializer : ISerializable
+    public sealed class FakeHttpContextInitializer : ISerializable
     {
       /// <summary>
       /// The http context map.
@@ -58,7 +58,7 @@
       /// </summary>
       /// <param name="info">The info.</param>
       /// <param name="context">The context.</param>
-      public FakeHttpContextInitializer(SerializationInfo info, StreamingContext context) : this()
+      private FakeHttpContextInitializer(SerializationInfo info, StreamingContext context) : this()
       {
       }
 
