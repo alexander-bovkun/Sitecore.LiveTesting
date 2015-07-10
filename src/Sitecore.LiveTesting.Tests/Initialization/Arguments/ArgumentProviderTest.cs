@@ -4,9 +4,7 @@
   using System.Collections;
   using System.Linq;
   using System.Reflection;
-
   using NSubstitute;
-
   using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.Initialization;
   using Sitecore.LiveTesting.Initialization.Arguments;
