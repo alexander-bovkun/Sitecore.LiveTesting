@@ -36,7 +36,7 @@
 
       XmlNode targetNode = null;
 
-      foreach (var configurationNode in configurationNodes)
+      foreach (string configurationNode in configurationNodes)
       {
         XmlNode nodeCandidate = Factory.GetConfigNode(configurationNode, true);
 

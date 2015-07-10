@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.LiveTesting
 {
   using System;
+  using System.Collections;
   using System.Collections.Generic;
   using System.Configuration;
   using System.Globalization;
@@ -411,26 +412,69 @@
 
         if (methodCall != null)
         {
+          const string MethodNameHeader = "__MethodName";
+          const string MethodSignatureHeader = "__MethodSignature";
+          const string MethodArgsHeader = "__Args";
+          const string CallContextHeader = "__CallContext";
+
           methodCall = new MethodCall(methodCall);
 
           MethodCallEventArgs eventArgs = typeof(LiveTest).IsAssignableFrom(methodCall.MethodBase.DeclaringType) ? new MethodCallEventArgs(Interlocked.Increment(ref methodCallId), methodCall.MethodBase, methodCall.Args) : null;
 
           if (eventArgs != null)
           {
-            this.target.OnBeforeMethodCall(this.target, eventArgs);
+            const string OnAfterMethodCallMethodName = "OnBeforeMethodCall";
+
+            IMethodCallMessage initializationCall = CloneMessageAndSubstituteProperties(methodCall, new Dictionary<string, object> { { MethodNameHeader, OnAfterMethodCallMethodName }, { MethodSignatureHeader, new[] { typeof(object), typeof(MethodCallEventArgs) } }, { MethodArgsHeader, new object[] { this.target, eventArgs } } });
+            IMethodReturnMessage initializationResult = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(initializationCall);
+
+            if (initializationResult.Exception != null)
+            {
+              throw initializationResult.Exception;
+            }
+
+            methodCall = CloneMessageAndSubstituteProperties(methodCall, new Dictionary<string, object> { { CallContextHeader, initializationResult.LogicalCallContext } });
           }
 
-          IMessage result = RemotingServices.GetRealProxy(this.target).Invoke(methodCall);
+          IMethodReturnMessage result = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(methodCall);
 
           if (eventArgs != null)
           {
-            this.target.OnAfterMethodCall(this.target, eventArgs);
+            const string OnAfterMethodCallMethodName = "OnAfterMethodCall";
+
+            IMethodCallMessage initializationCall = CloneMessageAndSubstituteProperties(methodCall, new Dictionary<string, object> { { MethodNameHeader, OnAfterMethodCallMethodName }, { MethodSignatureHeader, new[] { typeof(object), typeof(MethodCallEventArgs) } }, { MethodArgsHeader, new object[] { this.target, eventArgs } }, { CallContextHeader, result.LogicalCallContext } });
+            IMethodReturnMessage initializationResult = (IMethodReturnMessage)RemotingServices.GetRealProxy(this.target).Invoke(initializationCall);
+
+            if (initializationResult.Exception != null)
+            {
+              throw initializationResult.Exception;
+            }
           }
 
           return result;
         }
 
         throw new NotSupportedException("Operations other than constructor and method calls are not supported.");
+      }
+
+      /// <summary>
+      /// Clones message and substitutes properties.
+      /// </summary>
+      /// <param name="message">The message.</param>
+      /// <param name="substitutes">The properties to substitute</param>
+      /// <returns>The newly created message with proper logical call context.</returns>
+      private static IMethodCallMessage CloneMessageAndSubstituteProperties(IMethodCallMessage message, IDictionary substitutes)
+      {
+        List<Header> headers = new List<Header>();
+
+        foreach (DictionaryEntry property in message.Properties)
+        {
+          string name = property.Key.ToString();
+
+          headers.Add(substitutes.Contains(property.Key) ? new Header(name, substitutes[property.Key]) : new Header(name, property.Value));
+        }
+
+        return new MethodCall(headers.ToArray());
       }
     }
   }
