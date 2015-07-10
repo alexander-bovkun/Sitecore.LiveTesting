@@ -46,7 +46,7 @@
     <Compile Include="Diagnostics\DumpType.cs" />
     <Compile Include="Diagnostics\DumpUtility.cs" />
     <Compile Include="Initialization\Arguments\SitecoreArgumentProvider.cs" />
-    <Compile Include="Initialization\Arguments\SitecoreConfigurationMapAttribute.cs" />
+    <Compile Include="Initialization\Arguments\SitecoreConfigurationReferenceAttribute.cs" />
     <Compile Include="Initialization\Configuration\MergeConfiguration.cs" />
     <Compile Include="Initialization\Diagnostics\FirstChanceException.cs" />
     <Compile Include="Initialization\Diagnostics\MemoryDumpOnException.cs" />
