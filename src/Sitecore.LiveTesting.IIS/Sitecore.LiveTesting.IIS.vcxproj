@@ -92,10 +92,6 @@
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="HostedWebCore.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="HostedWebCore.h" />
-    <ClInclude Include="IIS.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
