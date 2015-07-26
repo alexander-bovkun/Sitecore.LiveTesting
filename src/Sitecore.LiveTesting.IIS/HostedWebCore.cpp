@@ -45,16 +45,34 @@ class IISServer {
   public:
     IISServer();
 
-    void Start();
-    void Stop();
-
-    ~IISServer();
+    void Start(PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
+    void Stop(DWORD immediate);
 };
 
 IISServer::IISServer() : m_hostedWebCoreLibrary(GetExpandedPath(L"%windir%\\system32\\inetsrv\\hwebcore.dll").data())
 {
   m_activationFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
   m_shutdownFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_SHUTDOWN>("WebCoreShutdown");
+}
+
+void IISServer::Start(PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
+{
+  HRESULT result = m_activationFunction(hostConfig, rootConfig, instanceName);
+
+  if (result != S_OK)
+  {
+    throw std::runtime_error("Could not activate IIS server core.");
+  }
+}
+
+void IISServer::Stop(DWORD immediate)
+{
+  HRESULT result = m_shutdownFunction(immediate);
+
+  if (result != S_OK)
+  {
+    throw std::runtime_error("Could not shut down IIS server core.");
+  }
 }
 
 Library::Library(LPCWSTR fileName) {
