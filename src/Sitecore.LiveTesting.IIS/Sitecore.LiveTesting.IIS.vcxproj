@@ -62,6 +62,7 @@
       <CompileAsManaged>true</CompileAsManaged>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <EnablePREfast>true</EnablePREfast>
+      <CallingConvention>StdCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -81,6 +82,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <CompileAsManaged>true</CompileAsManaged>
       <EnablePREfast>true</EnablePREfast>
+      <CallingConvention>StdCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
