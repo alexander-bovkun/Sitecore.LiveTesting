@@ -1,0 +1,4 @@
+LIBRARY "Sitecore.LiveTesting.IIS"
+EXPORTS
+    RegisterModule
+
