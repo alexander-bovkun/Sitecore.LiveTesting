@@ -24,9 +24,18 @@
     <ClCompile Include="ModuleRegistration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IISTestApplicationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeHostedWebCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HostedWebCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IISTestApplicationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

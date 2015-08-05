@@ -96,14 +96,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HostedWebCore.cpp" />
+    <ClCompile Include="IISTestApplicationManager.cpp" />
     <ClCompile Include="ModuleRegistration.cpp" />
     <ClCompile Include="NativeHostedWebCore.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HostedWebCore.h" />
+    <ClInclude Include="IISTestApplicationManager.h" />
     <ClInclude Include="NativeHostedWebCore.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sitecore.LiveTesting\Sitecore.LiveTesting.csproj">
+      <Project>{729a3b8e-ffee-44bf-b3f9-08fe99767525}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
