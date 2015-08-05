@@ -1,30 +1,53 @@
 #pragma unmanaged
+
+#include <stdexcept>
+#include <string>
+
+#include <comdef.h>
+
 #include "NativeHostedWebCore.h"
 
-NativeHostedWebCore::NativeHostedWebCore() : m_hostedWebCoreLibrary(GetExpandedPath(L"%windir%\\system32\\inetsrv\\hwebcore.dll").data())
+NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath)
 {
-  m_activationFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
+  PFN_WEB_CORE_ACTIVATE activationFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
   m_shutdownFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_SHUTDOWN>("WebCoreShutdown");
-}
 
-void NativeHostedWebCore::Start(PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
-{
-  HRESULT result = m_activationFunction(hostConfig, rootConfig, instanceName);
+  HRESULT result = activationFunction(hostConfig, rootConfig, instanceName);
 
   if (result != S_OK)
   {
-    throw std::runtime_error("Could not activate IIS server core.");
+    std::string errorMessage(_com_error(result).ErrorMessage());
+    errorMessage.insert(0, "Could not activate IIS server core. ");
+
+    m_shutdownFunction = NULL;
+
+    throw std::runtime_error(errorMessage);
   }
 }
 
 void NativeHostedWebCore::Stop(DWORD immediate)
 {
-  HRESULT result = m_shutdownFunction(immediate);
-
-  if (result != S_OK)
+  if (m_shutdownFunction != NULL)
   {
-    throw std::runtime_error("Could not shut down IIS server core.");
+    HRESULT result = m_shutdownFunction(immediate);
+
+    if (result == S_OK)
+    {
+      m_shutdownFunction = NULL;
+    }
+    else
+    {
+      std::string errorMessage(_com_error(result).ErrorMessage());
+      errorMessage.insert(0, "Could not shut down IIS server core. ");
+
+      throw std::runtime_error(errorMessage);
+    }
   }
+}
+
+NativeHostedWebCore::~NativeHostedWebCore()
+{
+  Stop(true);
 }
 
 Library::Library(LPCWSTR fileName) {
@@ -52,14 +75,4 @@ template<typename TFunctionPointer> TFunctionPointer Library::GetFunction(LPCSTR
   {
     throw std::runtime_error("Could not find the requested function.");
   }
-}
-
-std::wstring GetExpandedPath(const std::wstring& path)
-{
-  DWORD length = ExpandEnvironmentStringsW(path.data(), NULL, 0);
-  std::wstring result(length, 0);
-
-  ExpandEnvironmentStringsW(path.data(), const_cast<LPWSTR>(result.data()), length);
-
-  return result;
 }

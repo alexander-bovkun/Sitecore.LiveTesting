@@ -13,17 +13,14 @@ namespace Sitecore
       public ref class HostedWebCore sealed : System::IDisposable
       {
         private:
-          NativeHostedWebCore* m_pHostedWebCore;
           msclr::interop::marshal_context^ m_marshalContext;
-
-          bool m_disposedUnmanagedResources;
-          bool m_disposedManagedResources;
+          NativeHostedWebCore* m_pHostedWebCore;
         protected:
           !HostedWebCore();
         public:
-          HostedWebCore();
+          HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
+          HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
 
-          void Start(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
           void Stop(System::Boolean immediate);
 
           ~HostedWebCore();
@@ -32,35 +29,32 @@ namespace Sitecore
   }
 }
 
-Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore() : m_pHostedWebCore(new NativeHostedWebCore()), m_marshalContext(gcnew msclr::interop::marshal_context())
+Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) : m_marshalContext(gcnew msclr::interop::marshal_context()), m_pHostedWebCore(new NativeHostedWebCore(m_marshalContext->marshal_as<PCWSTR>(hostedWebCoreLibraryPath), m_marshalContext->marshal_as<PCWSTR>(hostConfig), m_marshalContext->marshal_as<PCWSTR>(rootConfig), m_marshalContext->marshal_as<PCWSTR>(instanceName)))
 {
+  m_marshalContext->~marshal_context();
 }
 
-void Sitecore::LiveTesting::IIS::HostedWebCore::Start(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName)
+Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) : Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::Environment::ExpandEnvironmentVariables("%windir%\\system32\\inetsrv\\hwebcore.dll"), hostConfig, rootConfig, instanceName)
 {
-  m_pHostedWebCore->Start(m_marshalContext->marshal_as<PCWSTR>(hostConfig), m_marshalContext->marshal_as<PCWSTR>(rootConfig), m_marshalContext->marshal_as<PCWSTR>(instanceName));
 }
 
 void Sitecore::LiveTesting::IIS::HostedWebCore::Stop(System::Boolean immediate)
 {
-  m_pHostedWebCore->Stop(immediate);
+  if (m_pHostedWebCore != NULL)
+  {
+    m_pHostedWebCore->Stop(immediate);
+    delete m_pHostedWebCore;
+
+    m_pHostedWebCore = NULL;
+  }
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 {
-  if (!m_disposedManagedResources) {
-    m_marshalContext->~marshal_context();
-    m_disposedManagedResources = true;
-  }
-
   this->!HostedWebCore();
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 {
-  if (!m_disposedUnmanagedResources)
-  {
-    delete m_pHostedWebCore;
-    m_disposedUnmanagedResources = true;
-  }
+  Stop(true);
 }
