@@ -47,7 +47,7 @@ void NativeHostedWebCore::Stop(DWORD immediate)
     {
       m_shutdownFunction = NULL;
 
-      instance.reset();
+      instance.release();
     }
     else
     {
