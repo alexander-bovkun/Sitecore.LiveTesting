@@ -32,10 +32,16 @@ namespace
 
 class NativeHostedWebCore {
   private:
+    static std::unique_ptr<NativeHostedWebCore> instance;
+
     Library m_hostedWebCoreLibrary;
     PFN_WEB_CORE_SHUTDOWN m_shutdownFunction;
-  public:
+
     NativeHostedWebCore(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
+    NativeHostedWebCore(NativeHostedWebCore const&);
+    void operator=(NativeHostedWebCore const&);
+  public:
+    static NativeHostedWebCore& GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
     
     void Stop(DWORD immediate);
 

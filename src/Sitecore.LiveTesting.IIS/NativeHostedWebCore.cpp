@@ -7,6 +7,8 @@
 
 #include "NativeHostedWebCore.h"
 
+std::unique_ptr<NativeHostedWebCore> NativeHostedWebCore::instance;
+
 NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath)
 {
   PFN_WEB_CORE_ACTIVATE activationFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
@@ -25,6 +27,16 @@ NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR
   }
 }
 
+NativeHostedWebCore& NativeHostedWebCore::GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
+{
+  if (instance == NULL)
+  {
+    instance = std::unique_ptr<NativeHostedWebCore>(new NativeHostedWebCore(iisBinFolder, hostConfig, rootConfig, instanceName));
+  }
+
+  return *instance;
+}
+
 void NativeHostedWebCore::Stop(DWORD immediate)
 {
   if (m_shutdownFunction != NULL)
@@ -34,6 +46,8 @@ void NativeHostedWebCore::Stop(DWORD immediate)
     if (result == S_OK)
     {
       m_shutdownFunction = NULL;
+
+      instance.reset();
     }
     else
     {
