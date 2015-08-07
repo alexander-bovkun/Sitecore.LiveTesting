@@ -11,7 +11,7 @@ Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostCon
 
 void Sitecore::LiveTesting::IIS::HostedWebCore::Stop(System::Boolean immediate)
 {
-  if (m_pHostedWebCore != NULL)
+  if (m_pHostedWebCore)
   {
     m_pHostedWebCore->Stop(immediate);
     delete m_pHostedWebCore;
@@ -22,10 +22,10 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::Stop(System::Boolean immediate)
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 {
-  this->!HostedWebCore();
+  Stop(true);
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 {
-  Stop(true);
+  this->~HostedWebCore();
 }

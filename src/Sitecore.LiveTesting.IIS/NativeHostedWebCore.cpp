@@ -29,7 +29,7 @@ NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR
 
 NativeHostedWebCore& NativeHostedWebCore::GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
 {
-  if (instance == NULL)
+  if (!instance)
   {
     instance = std::unique_ptr<NativeHostedWebCore>(new NativeHostedWebCore(iisBinFolder, hostConfig, rootConfig, instanceName));
   }
@@ -39,7 +39,7 @@ NativeHostedWebCore& NativeHostedWebCore::GetInstance(PCWSTR iisBinFolder, PCWST
 
 void NativeHostedWebCore::Stop(DWORD immediate)
 {
-  if (m_shutdownFunction != NULL)
+  if (m_shutdownFunction)
   {
     HRESULT result = m_shutdownFunction(immediate);
 
@@ -67,7 +67,7 @@ NativeHostedWebCore::~NativeHostedWebCore()
 Library::Library(LPCWSTR fileName) {
   HMODULE module = LoadLibraryW(fileName);
 
-  if (module != NULL)
+  if (module)
   {
     m_module = std::unique_ptr<HMODULE, Deleter>(module, Deleter());
   }
@@ -81,7 +81,7 @@ template<typename TFunctionPointer> TFunctionPointer Library::GetFunction(LPCSTR
 {
   FARPROC result = GetProcAddress(m_module.get(), name);
 
-  if (result != NULL)
+  if (result)
   {
     return reinterpret_cast<TFunctionPointer>(result);
   }
