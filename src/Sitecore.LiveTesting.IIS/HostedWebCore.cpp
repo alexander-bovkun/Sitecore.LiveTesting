@@ -1,5 +1,25 @@
 #include "HostedWebCore.h"
 
+System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentIISBinFolder::get()
+{
+  return gcnew System::String(NativeHostedWebCore::GetCurrentIISBinFolder().data());
+}
+
+System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostConfig::get()
+{
+  return gcnew System::String(NativeHostedWebCore::GetCurrentHostConfig().data());
+}
+
+System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentRootConfig::get()
+{
+  return gcnew System::String(NativeHostedWebCore::GetCurrentRootConfig().data());
+}
+
+System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentInstanceName::get()
+{
+  return gcnew System::String(NativeHostedWebCore::GetCurrentInstanceName().data());
+}
+
 Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) : m_marshalContext(gcnew msclr::interop::marshal_context()), m_pHostedWebCore(&NativeHostedWebCore::GetInstance(m_marshalContext->marshal_as<PCWSTR>(hostedWebCoreLibraryPath), m_marshalContext->marshal_as<PCWSTR>(hostConfig), m_marshalContext->marshal_as<PCWSTR>(rootConfig), m_marshalContext->marshal_as<PCWSTR>(instanceName)))
 {
   m_marshalContext->~marshal_context();

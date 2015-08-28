@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <memory>
+#include <string>
 
 #include <windows.h>
 #include <hwebcore.h>
@@ -33,6 +34,10 @@ namespace
 class NativeHostedWebCore {
   private:
     static std::unique_ptr<NativeHostedWebCore> instance;
+    static std::wstring currentIISBinFolder;
+    static std::wstring currentHostConfig;
+    static std::wstring currentRootConfig;
+    static std::wstring currentInstanceName;
 
     Library m_hostedWebCoreLibrary;
     PFN_WEB_CORE_SHUTDOWN m_shutdownFunction;
@@ -42,6 +47,10 @@ class NativeHostedWebCore {
     void operator=(NativeHostedWebCore const&);
   public:
     static NativeHostedWebCore& GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
+    static const std::wstring& GetCurrentIISBinFolder();
+    static const std::wstring& GetCurrentHostConfig();
+    static const std::wstring& GetCurrentRootConfig();
+    static const std::wstring& GetCurrentInstanceName();
     
     void Stop(DWORD immediate);
 

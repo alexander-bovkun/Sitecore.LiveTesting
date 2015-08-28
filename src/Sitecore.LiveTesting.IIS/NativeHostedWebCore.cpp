@@ -8,6 +8,10 @@
 #include "NativeHostedWebCore.h"
 
 std::unique_ptr<NativeHostedWebCore> NativeHostedWebCore::instance;
+std::wstring NativeHostedWebCore::currentIISBinFolder;
+std::wstring NativeHostedWebCore::currentHostConfig;
+std::wstring NativeHostedWebCore::currentRootConfig;
+std::wstring NativeHostedWebCore::currentInstanceName;
 
 NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath)
 {
@@ -19,7 +23,7 @@ NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR
   if (result != S_OK)
   {
     std::string errorMessage(_com_error(result).ErrorMessage());
-    errorMessage.insert(0, "Could not activate IIS server core. ");
+    errorMessage.insert(0, "Could not activate IIS server core.");
 
     m_shutdownFunction = NULL;
 
@@ -29,12 +33,43 @@ NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR
 
 NativeHostedWebCore& NativeHostedWebCore::GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
 {
-  if (!instance)
+  if (instance)
+  {
+    if (!((currentIISBinFolder == iisBinFolder) && (currentHostConfig == hostConfig) && (currentRootConfig == rootConfig) && (currentInstanceName == instanceName)))
+    {
+      throw std::invalid_argument("Cannot create hosted web core with parameters other than ones specified during instantiation of the very first instance. Use GetCurrentIISBinFolder, GetCurrentHostConfig, GetCurrentRootConfig, GetCurrentInstanceName methods to get corresponding parameter values for the first instantiation.");
+    }
+  }
+  else
   {
     instance = std::unique_ptr<NativeHostedWebCore>(new NativeHostedWebCore(iisBinFolder, hostConfig, rootConfig, instanceName));
+    currentIISBinFolder = iisBinFolder;
+    currentHostConfig = hostConfig;
+    currentRootConfig = rootConfig;
+    currentInstanceName = instanceName;
   }
 
   return *instance;
+}
+
+const std::wstring& NativeHostedWebCore::GetCurrentIISBinFolder()
+{
+  return currentIISBinFolder;
+}
+
+const std::wstring& NativeHostedWebCore::GetCurrentHostConfig()
+{
+  return currentHostConfig;
+}
+
+const std::wstring& NativeHostedWebCore::GetCurrentRootConfig()
+{
+  return currentRootConfig;
+}
+
+const std::wstring& NativeHostedWebCore::GetCurrentInstanceName()
+{
+  return currentInstanceName;
 }
 
 void NativeHostedWebCore::Stop(DWORD immediate)

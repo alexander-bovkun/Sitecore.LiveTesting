@@ -18,6 +18,26 @@ namespace Sitecore
         protected:
           !HostedWebCore();
         public:
+          static property System::String^ CurrentIISBinFolder
+          {
+            System::String^ get();
+          }
+
+          static property System::String^ CurrentHostConfig
+          {
+            System::String^ get();
+          }
+
+          static property System::String^ CurrentRootConfig
+          {
+            System::String^ get();
+          }
+
+          static property System::String^ CurrentInstanceName
+          {
+            System::String^ get();
+          }
+
           HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
           HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
 
