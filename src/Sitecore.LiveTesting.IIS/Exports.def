@@ -1,4 +1,4 @@
-LIBRARY "Sitecore.LiveTesting.IIS"
+LIBRARY "Sitecore.LiveTesting.IIS.dll"
 EXPORTS
     RegisterModule
 
