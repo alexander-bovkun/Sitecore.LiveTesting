@@ -14,11 +14,19 @@ namespace Sitecore
         {
           private:
             initonly IIS::HostedWebCore^ m_hostedWebCore;
-          public:
-            IISTestApplicationManager(IIS::HostedWebCore^ hostedWebCore, System::Web::Hosting::ApplicationManager^ applicationManager, System::Type^ testApplicationType);
+          protected:
+            property IIS::HostedWebCore^ HostedWebCore
+            {
+              IIS::HostedWebCore^ get();
+            }
 
-            Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
-            void StopApplication(Sitecore::LiveTesting::Applications::TestApplication^ application) override;
+            void CreateSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application);
+            void RemoveSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application);
+          public:
+            IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType);
+
+            Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
+            void StopApplication(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application) override;
         };
       }
     }
