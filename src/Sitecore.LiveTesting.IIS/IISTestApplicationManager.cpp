@@ -5,6 +5,16 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
   return m_hostedWebCore;
 }
 
+Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetAdjustedApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
+{
+  if (applicationHost == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("applicationHost");
+  }
+
+  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(applicationHost->ApplicationId, applicationHost->VirtualPath, applicationHost->PhysicalPath);
+}
+
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application)
 {
   application;
@@ -30,15 +40,22 @@ Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS
     throw gcnew System::ArgumentNullException("applicationHost");
   }
 
-  Sitecore::LiveTesting::Applications::TestApplication^ result = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(applicationHost);
+  applicationHost = GetAdjustedApplicationHost(applicationHost);
 
-  CreateSiteForApplication(result);
+  Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(applicationHost);
 
-  return result;
+  CreateSiteForApplication(application);
+
+  return application;
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::StopApplication(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
 {
+  if (application == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("application");
+  }
+
   RemoveSiteForApplication(application);
   Sitecore::LiveTesting::Applications::TestApplicationManager::StopApplication(application);
 }
