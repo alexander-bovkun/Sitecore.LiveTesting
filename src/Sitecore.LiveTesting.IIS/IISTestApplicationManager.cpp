@@ -39,15 +39,14 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::Create
   }
 
   System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
-  System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, "/configuration/system.applicationHost/sites");
-  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(sites, System::String::Format("site[@name='{0}']", applicationHost->ApplicationId));
+  System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
+  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(sites, System::String::Format(SITE_SEARCH_TEMPLATE, applicationHost->ApplicationId));
 
   if (site == nullptr)
   {
-    System::String^ siteTemplate = "<site name='{1}' id='{2}'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:{3}:localhost' />{0}</bindings>{0}<application applicationPool='{4}' path='{5}'>{0}<virtualDirectory path='{5}' physicalPath='{6}' />{0}</application>{0}</site>";
-    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>((System::Collections::IEnumerable^)System::Xml::XPath::Extensions::XPathEvaluate(configuration, "/configuration/system.applicationHost/applicationPools/add[last()]/@name")))->Value;
+    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>((System::Collections::IEnumerable^)System::Xml::XPath::Extensions::XPathEvaluate(configuration, SINGLE_APP_POOL_XPATH)))->Value;
 
-    site = System::Xml::Linq::XElement::Parse(System::String::Format(siteTemplate, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, (++applicationCounter).ToString(), GetFreePort().ToString(), applicationPoolName, applicationHost->VirtualPath, applicationHost->PhysicalPath }));
+    site = System::Xml::Linq::XElement::Parse(System::String::Format(NEW_SITE_TEMPLATE, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, (++applicationCounter).ToString(), GetFreePort().ToString(), applicationPoolName, applicationHost->VirtualPath, applicationHost->PhysicalPath }));
     sites->Add(site);
   }
 
@@ -62,7 +61,7 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::Remove
   }
 
   System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
-  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(configuration, System::String::Format("/configuration/system.applicationHost/sites/site[@name='{0}']", application->Id));
+  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(configuration, System::String::Format("{0}/{1}", SITE_ROOT_XPATH, System::String::Format(SITE_SEARCH_TEMPLATE, application->Id)));
 
   if (site == nullptr)
   {
