@@ -26,7 +26,7 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
     throw gcnew System::ArgumentNullException("applicationHost");
   }
 
-  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(applicationHost->ApplicationId, applicationHost->VirtualPath, applicationHost->PhysicalPath);
+  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, applicationHost->ApplicationId), applicationHost->VirtualPath, applicationHost->PhysicalPath);
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateSiteForApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
