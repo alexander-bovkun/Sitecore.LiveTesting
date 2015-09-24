@@ -1,5 +1,19 @@
 #include "IISTestApplicationManager.h"
 
+int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetFreePort()
+{
+  System::Net::Sockets::TcpListener^ listener = gcnew System::Net::Sockets::TcpListener(System::Net::IPAddress::Loopback, 0);
+  listener->Start();
+  try
+  {
+    return ((System::Net::IPEndPoint^)listener->LocalEndpoint)->Port;
+  }
+  finally
+  {
+    listener->Stop();
+  }
+}
+
 Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::HostedWebCore::get()
 {
   return m_hostedWebCore;
@@ -15,14 +29,49 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
   return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(applicationHost->ApplicationId, applicationHost->VirtualPath, applicationHost->PhysicalPath);
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application)
+void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateSiteForApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
 {
-  application;
+  static int applicationCounter;
+
+  if (applicationHost == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("applicationHost");
+  }
+
+  System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
+  System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, "/configuration/system.applicationHost/sites");
+  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(sites, System::String::Format("site[@name='{0}']", applicationHost->ApplicationId));
+
+  if (site == nullptr)
+  {
+    System::String^ siteTemplate = "<site name='{1}' id='{2}'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:{3}:localhost' />{0}</bindings>{0}<application applicationPool='{4}' path='{5}'>{0}<virtualDirectory path='{5}' physicalPath='{6}' />{0}</application>{0}</site>";
+    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>((System::Collections::IEnumerable^)System::Xml::XPath::Extensions::XPathEvaluate(configuration, "/configuration/system.applicationHost/applicationPools/add[last()]/@name")))->Value;
+
+    site = System::Xml::Linq::XElement::Parse(System::String::Format(siteTemplate, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, (++applicationCounter).ToString(), GetFreePort().ToString(), applicationPoolName, applicationHost->VirtualPath, applicationHost->PhysicalPath }));
+    sites->Add(site);
+  }
+
+  configuration->Save(IIS::HostedWebCore::CurrentHostConfig);
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::RemoveSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application)
 {
-  application;
+  if (application == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("application");
+  }
+
+  System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
+  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(configuration, System::String::Format("/configuration/system.applicationHost/sites/site[@name='{0}']", application->Id));
+
+  if (site == nullptr)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format("Site registration for the '{0}' application has been previously removed. Probably this was due to concurrency issues.", application->Id));
+  }
+
+  site->Remove();
+
+  configuration->Save(IIS::HostedWebCore::CurrentHostConfig);
 }
 
 Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(applicationManager, testApplicationType), m_hostedWebCore(hostedWebCore)
@@ -40,11 +89,9 @@ Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS
     throw gcnew System::ArgumentNullException("applicationHost");
   }
 
-  applicationHost = GetAdjustedApplicationHost(applicationHost);
+  Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(GetAdjustedApplicationHost(applicationHost));
 
-  Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(applicationHost);
-
-  CreateSiteForApplication(application);
+  CreateSiteForApplicationHost(applicationHost);
 
   return application;
 }
