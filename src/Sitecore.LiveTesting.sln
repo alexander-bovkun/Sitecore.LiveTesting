@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{2FCBD0D1-364
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sitecore.LiveTesting.IIS", "Sitecore.LiveTesting.IIS\Sitecore.LiveTesting.IIS.vcxproj", "{09766B7F-4DEE-473F-8629-E30BF12F65F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.LiveTesting.IIS.Tests", "Sitecore.LiveTesting.IIS.Tests\Sitecore.LiveTesting.IIS.Tests.csproj", "{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,16 @@ Global
 		{09766B7F-4DEE-473F-8629-E30BF12F65F9}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{09766B7F-4DEE-473F-8629-E30BF12F65F9}.Release|Win32.ActiveCfg = Release|Win32
 		{09766B7F-4DEE-473F-8629-E30BF12F65F9}.Release|Win32.Build.0 = Release|Win32
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{30EFBA91-9647-4AC2-A064-2C19FCAEF5A6}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
