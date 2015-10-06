@@ -14,7 +14,7 @@ namespace Sitecore
       {
         private:
           msclr::interop::marshal_context^ m_marshalContext;
-          NativeHostedWebCore* m_pHostedWebCore;
+          std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
         protected:
           !HostedWebCore();
         public:
@@ -40,8 +40,6 @@ namespace Sitecore
 
           HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
           HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
-
-          void Stop(System::Boolean immediate);
 
           ~HostedWebCore();
       };

@@ -7,7 +7,7 @@
 
 #include "NativeHostedWebCore.h"
 
-std::unique_ptr<NativeHostedWebCore> NativeHostedWebCore::instance;
+std::weak_ptr<NativeHostedWebCore> NativeHostedWebCore::instance;
 std::wstring NativeHostedWebCore::currentHostedWebCoreLibraryPath;
 std::wstring NativeHostedWebCore::currentHostConfig;
 std::wstring NativeHostedWebCore::currentRootConfig;
@@ -31,9 +31,11 @@ NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR
   }
 }
 
-NativeHostedWebCore& NativeHostedWebCore::GetInstance(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
+std::shared_ptr<NativeHostedWebCore> NativeHostedWebCore::GetInstance(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
 {
-  if (instance)
+  std::shared_ptr<NativeHostedWebCore> result(instance.lock());
+
+  if (result)
   {
     if (!((currentHostedWebCoreLibraryPath == hostedWebCoreLibraryPath) && (currentHostConfig == hostConfig) && (currentRootConfig == rootConfig) && (currentInstanceName == instanceName)))
     {
@@ -42,14 +44,16 @@ NativeHostedWebCore& NativeHostedWebCore::GetInstance(PCWSTR hostedWebCoreLibrar
   }
   else
   {
-    instance = std::unique_ptr<NativeHostedWebCore>(new NativeHostedWebCore(hostedWebCoreLibraryPath, hostConfig, rootConfig, instanceName));
+    result = std::shared_ptr<NativeHostedWebCore>(new NativeHostedWebCore(hostedWebCoreLibraryPath, hostConfig, rootConfig, instanceName));
+    instance = std::weak_ptr<NativeHostedWebCore>(result);
+
     currentHostedWebCoreLibraryPath = hostedWebCoreLibraryPath;
     currentHostConfig = hostConfig;
     currentRootConfig = rootConfig;
     currentInstanceName = instanceName;
   }
 
-  return *instance;
+  return result;
 }
 
 const std::wstring& NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath()
@@ -72,17 +76,15 @@ const std::wstring& NativeHostedWebCore::GetCurrentInstanceName()
   return currentInstanceName;
 }
 
-void NativeHostedWebCore::Stop(DWORD immediate)
+NativeHostedWebCore::~NativeHostedWebCore()
 {
   if (m_pfnShutdown)
   {
-    HRESULT result = m_pfnShutdown(immediate);
+    HRESULT result = m_pfnShutdown(TRUE);
 
     if (result == S_OK)
     {
       m_pfnShutdown = NULL;
-
-      instance.release();
 
       currentHostedWebCoreLibraryPath.clear();
       currentHostConfig.clear();
@@ -97,11 +99,6 @@ void NativeHostedWebCore::Stop(DWORD immediate)
       throw std::runtime_error(errorMessage);
     }
   }
-}
-
-NativeHostedWebCore::~NativeHostedWebCore()
-{
-  Stop(true);
 }
 
 Library::Library(LPCWSTR fileName) {

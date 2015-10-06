@@ -20,7 +20,7 @@ System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentInstanceName::
   return gcnew System::String(NativeHostedWebCore::GetCurrentInstanceName().data());
 }
 
-Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) try : m_marshalContext(gcnew msclr::interop::marshal_context()), m_pHostedWebCore(&NativeHostedWebCore::GetInstance(m_marshalContext->marshal_as<PCWSTR>(hostedWebCoreLibraryPath), m_marshalContext->marshal_as<PCWSTR>(hostConfig), m_marshalContext->marshal_as<PCWSTR>(rootConfig), m_marshalContext->marshal_as<PCWSTR>(instanceName)))
+Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) try : m_marshalContext(gcnew msclr::interop::marshal_context()), m_pHostedWebCore(new std::shared_ptr<NativeHostedWebCore>(NativeHostedWebCore::GetInstance(m_marshalContext->marshal_as<PCWSTR>(hostedWebCoreLibraryPath), m_marshalContext->marshal_as<PCWSTR>(hostConfig), m_marshalContext->marshal_as<PCWSTR>(rootConfig), m_marshalContext->marshal_as<PCWSTR>(instanceName))))
 {
   m_marshalContext->~marshal_context();
 }
@@ -39,20 +39,13 @@ Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostCon
 {
 }
 
-void Sitecore::LiveTesting::IIS::HostedWebCore::Stop(System::Boolean immediate)
+Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 {
   if (m_pHostedWebCore)
   {
-    m_pHostedWebCore->Stop(immediate);
     delete m_pHostedWebCore;
-
     m_pHostedWebCore = NULL;
   }
-}
-
-Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
-{
-  Stop(true);
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()

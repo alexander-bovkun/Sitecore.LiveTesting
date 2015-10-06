@@ -34,7 +34,7 @@ namespace
 class NativeHostedWebCore
 {
   private:
-    static std::unique_ptr<NativeHostedWebCore> instance;
+    static std::weak_ptr<NativeHostedWebCore> instance;
     static std::wstring currentHostedWebCoreLibraryPath;
     static std::wstring currentHostConfig;
     static std::wstring currentRootConfig;
@@ -47,13 +47,11 @@ class NativeHostedWebCore
     NativeHostedWebCore(NativeHostedWebCore const&);
     void operator=(NativeHostedWebCore const&);
   public:
-    static NativeHostedWebCore& GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
+    static std::shared_ptr<NativeHostedWebCore> GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
     static const std::wstring& GetCurrentHostedWebCoreLibraryPath();
     static const std::wstring& GetCurrentHostConfig();
     static const std::wstring& GetCurrentRootConfig();
     static const std::wstring& GetCurrentInstanceName();
-    
-    void Stop(DWORD immediate);
 
     ~NativeHostedWebCore();
 };
