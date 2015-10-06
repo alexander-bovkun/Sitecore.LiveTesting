@@ -1,8 +1,8 @@
 #include "HostedWebCore.h"
 
-System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentIISBinFolder::get()
+System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath::get()
 {
-  return gcnew System::String(NativeHostedWebCore::GetCurrentIISBinFolder().data());
+  return gcnew System::String(NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().data());
 }
 
 System::String^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostConfig::get()

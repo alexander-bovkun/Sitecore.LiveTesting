@@ -18,7 +18,7 @@ namespace Sitecore
         protected:
           !HostedWebCore();
         public:
-          static property System::String^ CurrentIISBinFolder
+          static property System::String^ CurrentHostedWebCoreLibraryPath
           {
             System::String^ get();
           }
