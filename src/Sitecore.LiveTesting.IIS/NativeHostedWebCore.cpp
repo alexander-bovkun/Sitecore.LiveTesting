@@ -15,17 +15,17 @@ std::wstring NativeHostedWebCore::currentInstanceName;
 
 NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath)
 {
-  PFN_WEB_CORE_ACTIVATE activationFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
-  m_shutdownFunction = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_SHUTDOWN>("WebCoreShutdown");
+  PFN_WEB_CORE_ACTIVATE pfnActivation = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
+  m_pfnShutdown = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_SHUTDOWN>("WebCoreShutdown");
 
-  HRESULT result = activationFunction(hostConfig, rootConfig, instanceName);
+  HRESULT result = pfnActivation(hostConfig, rootConfig, instanceName);
 
   if (result != S_OK)
   {
     std::string errorMessage(_com_error(result).ErrorMessage());
     errorMessage.insert(0, "Could not activate IIS server core.");
 
-    m_shutdownFunction = NULL;
+    m_pfnShutdown = NULL;
 
     throw std::runtime_error(errorMessage);
   }
@@ -74,13 +74,13 @@ const std::wstring& NativeHostedWebCore::GetCurrentInstanceName()
 
 void NativeHostedWebCore::Stop(DWORD immediate)
 {
-  if (m_shutdownFunction)
+  if (m_pfnShutdown)
   {
-    HRESULT result = m_shutdownFunction(immediate);
+    HRESULT result = m_pfnShutdown(immediate);
 
     if (result == S_OK)
     {
-      m_shutdownFunction = NULL;
+      m_pfnShutdown = NULL;
 
       instance.release();
     }

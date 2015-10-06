@@ -31,7 +31,8 @@ namespace
   };
 }
 
-class NativeHostedWebCore {
+class NativeHostedWebCore
+{
   private:
     static std::unique_ptr<NativeHostedWebCore> instance;
     static std::wstring currentIISBinFolder;
@@ -40,7 +41,7 @@ class NativeHostedWebCore {
     static std::wstring currentInstanceName;
 
     Library m_hostedWebCoreLibrary;
-    PFN_WEB_CORE_SHUTDOWN m_shutdownFunction;
+    PFN_WEB_CORE_SHUTDOWN m_pfnShutdown;
 
     NativeHostedWebCore(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
     NativeHostedWebCore(NativeHostedWebCore const&);
