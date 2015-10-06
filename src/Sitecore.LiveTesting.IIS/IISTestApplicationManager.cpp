@@ -19,6 +19,25 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
   return m_hostedWebCore;
 }
 
+Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultHostedWebCore()
+{
+  if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath))
+  {
+    System::String^ rootConfig = System::IO::Path::Combine(System::IO::Path::GetDirectoryName(System::Configuration::ConfigurationManager::OpenMachineConfiguration()->FilePath), "web.config");
+    
+    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(System::IO::Path::GetFullPath("applicationHostWithExpandedVariables.config"), rootConfig, "Sitecore.LiveTesting");
+  }
+  else
+  {
+    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath, Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostConfig, Sitecore::LiveTesting::IIS::HostedWebCore::CurrentRootConfig, Sitecore::LiveTesting::IIS::HostedWebCore::CurrentInstanceName);
+  }
+}
+
+System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationManagerFromDefaultAppDomain()
+{
+  return System::Web::Hosting::ApplicationManager::GetApplicationManager();
+}
+
 Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetAdjustedApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
 {
   if (applicationHost == nullptr)
@@ -79,6 +98,14 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
   {
     throw gcnew System::ArgumentNullException("hostedWebCore");
   }
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetDefaultHostedWebCore(), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
+{
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(Sitecore::LiveTesting::Applications::TestApplication::typeid)
+{
 }
 
 Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)

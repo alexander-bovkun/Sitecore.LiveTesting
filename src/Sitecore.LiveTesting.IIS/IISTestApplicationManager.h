@@ -28,12 +28,17 @@ namespace Sitecore
               IIS::HostedWebCore^ get();
             }
 
+            static IIS::HostedWebCore^ GetDefaultHostedWebCore();
+            static System::Web::Hosting::ApplicationManager^ GetApplicationManagerFromDefaultAppDomain();
+
             virtual Sitecore::LiveTesting::Applications::TestApplicationHost^ GetAdjustedApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
 
             virtual void CreateSiteForApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
             virtual void RemoveSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application);
           public:
             IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType);
+            IISTestApplicationManager(_In_ System::Type^ testApplicationType);
+            IISTestApplicationManager();
 
             Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
             void StopApplication(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application) override;

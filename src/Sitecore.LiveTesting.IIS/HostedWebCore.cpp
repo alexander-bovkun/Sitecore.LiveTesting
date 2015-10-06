@@ -35,7 +35,7 @@ catch (const std::invalid_argument& e)
   throw gcnew System::ArgumentException(gcnew System::String(e.what()));
 }
 
-Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) : Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::Environment::ExpandEnvironmentVariables("%windir%\\system32\\inetsrv\\hwebcore.dll"), hostConfig, rootConfig, instanceName)
+Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName) : Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(System::IO::Path::Combine(System::Environment::GetFolderPath(System::Environment::SpecialFolder::System), "inetsrv\\hwebcore.dll"), hostConfig, rootConfig, instanceName)
 {
 }
 
