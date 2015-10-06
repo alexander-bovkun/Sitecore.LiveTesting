@@ -21,12 +21,17 @@
     /// <summary>
     /// The default app pool name.
     /// </summary>
-    private const string DefaultAppPoolName = "IISExpressAppPool";
+    private const string DefaultInstanceName = "DefaultInstance";
 
     /// <summary>
     /// The IIS bin folder.
     /// </summary>
     private readonly string iisBinFolder;
+
+    /// <summary>
+    /// The hosted web core library path.
+    /// </summary>
+    private readonly string hostedWebCoreLibraryPath;
 
     /// <summary>
     /// The host config path.
@@ -48,8 +53,11 @@
       Assert.NotNull(key);
 
       this.iisBinFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "IIS Express");
+      this.hostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "hwebcore.dll");
       this.hostConfigPath = Path.GetFullPath("applicationHostWithExpandedVariables.config");
-      this.rootConfigPath = Path.Combine(key.OpenSubKey(key.GetSubKeyNames().First(n => n.StartsWith("4.0"))).GetValue("Path").ToString(), "Config\\web.config");      
+      this.rootConfigPath = Path.Combine(key.OpenSubKey(key.GetSubKeyNames().First(n => n.StartsWith("4.0"))).GetValue("Path").ToString(), "Config\\web.config");
+
+      File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
     }
 
     /// <summary>
@@ -74,20 +82,16 @@
     [Fact]
     public void ShouldStartAndThenStopHostedWebCore()
     {
-      string hostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "hwebcore.dll");
-
-      File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
-
       Assert.Equal(string.Empty, HostedWebCore.CurrentHostConfig);
       Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreLibraryPath);
       Assert.Equal(string.Empty, HostedWebCore.CurrentInstanceName);
       Assert.Equal(string.Empty, HostedWebCore.CurrentRootConfig);
 
-      using (new HostedWebCore(hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultAppPoolName))
+      using (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName))
       {
         Assert.Equal(this.hostConfigPath, HostedWebCore.CurrentHostConfig);
-        Assert.Equal(hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreLibraryPath);
-        Assert.Equal(DefaultAppPoolName, HostedWebCore.CurrentInstanceName);
+        Assert.Equal(this.hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreLibraryPath);
+        Assert.Equal(DefaultInstanceName, HostedWebCore.CurrentInstanceName);
         Assert.Equal(this.rootConfigPath, HostedWebCore.CurrentRootConfig);
       }
       
@@ -103,17 +107,14 @@
     [Fact]
     public void ShouldRetrieveStartedHostedWebCoreFromAnotherAppDomain()
     {
-      string hostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "hwebcore.dll");
-
-      File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
-
-      using (new HostedWebCore(hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultAppPoolName))
+      using (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName))
       {
         AppDomain appDomain = AppDomain.CreateDomain("HostedWebCoreTestDomain", null, AppDomain.CurrentDomain.SetupInformation);
         
-        appDomain.SetData("hostedWebCoreLibraryPath", hostedWebCoreLibraryPath);
+        appDomain.SetData("hostedWebCoreLibraryPath", this.hostedWebCoreLibraryPath);
         appDomain.SetData("hostConfigPath", this.hostConfigPath);
         appDomain.SetData("rootConfigPath", this.rootConfigPath);
+        appDomain.SetData("instanceName", DefaultInstanceName);
 
         appDomain.DoCallBack(GetAlreadyHostedWebCore);
       }
@@ -125,15 +126,42 @@
     [Fact]
     public void ShouldNotStartTwoOrMoreHostedWebCoresInSameProcess()
     {
-      string hostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "hwebcore.dll");
-
-      File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
-
-      using (new HostedWebCore(hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultAppPoolName))
+      using (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName))
       {
-        Assert.ThrowsDelegate action = () => new HostedWebCore(hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, "NewPoolName");
+        AppDomain appDomain = AppDomain.CreateDomain("HostedWebCoreTestDomain", null, AppDomain.CurrentDomain.SetupInformation);
+
+        appDomain.SetData("hostedWebCoreLibraryPath", this.hostedWebCoreLibraryPath);
+        appDomain.SetData("hostConfigPath", this.hostConfigPath);
+        appDomain.SetData("rootConfigPath", this.rootConfigPath);
+        appDomain.SetData("instanceName", "NewInstance");
+
+        Assert.ThrowsDelegate action = () => appDomain.DoCallBack(GetAlreadyHostedWebCore);
         Assert.Throws<ArgumentException>(action);
       }
+    }
+
+    /// <summary>
+    /// Should throw invalid operation exception if hosted web core library cannot be loaded.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowInvalidOperationExceptionIfHostedWebCoreLibraryCannotBeLoaded()
+    {
+      string invalidHostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "crabcore.dll");
+
+      Assert.ThrowsDelegate action = () => new HostedWebCore(invalidHostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName);
+      
+      Assert.Throws<InvalidOperationException>(action);
+    }
+
+    /// <summary>
+    /// Should throw invalid operation exception if host config is not valid.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowInvalidOperationExceptionIfHostConfigIsNotValid()
+    {
+      Assert.ThrowsDelegate action = () => new HostedWebCore(this.hostedWebCoreLibraryPath, Path.GetFullPath(HostConfigTemplateFileName), this.rootConfigPath, DefaultInstanceName);
+
+      Assert.Throws<InvalidOperationException>(action);      
     }
 
     /// <summary>
@@ -163,7 +191,7 @@
     /// </summary>
     private static void GetAlreadyHostedWebCore()
     {
-      (new HostedWebCore(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), DefaultAppPoolName)).Dispose();
+      (new HostedWebCore(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), AppDomain.CurrentDomain.GetData("instanceName").ToString())).Dispose();
     }
   }
 }
