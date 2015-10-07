@@ -2,8 +2,6 @@
 {
   using System;
   using System.IO;
-  using System.Linq;
-  using Microsoft.Win32;
   using Xunit;
 
   /// <summary>
@@ -46,14 +44,10 @@
     /// </summary>
     public HostedWebCoreTest()
     {
-      RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\ASP.NET");
-
-      Assert.NotNull(key);
-
       this.iisBinFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "IIS Express");
       this.hostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "hwebcore.dll");
       this.hostConfigPath = Path.GetFullPath("applicationHostWithExpandedVariables.config");
-      this.rootConfigPath = Path.Combine(key.OpenSubKey(key.GetSubKeyNames().First(n => n.StartsWith("4.0"))).GetValue("Path").ToString(), "Config\\web.config");
+      this.rootConfigPath = Path.Combine(Path.GetDirectoryName(System.Configuration.ConfigurationManager.OpenMachineConfiguration().FilePath), "web.config");
 
       File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
     }
