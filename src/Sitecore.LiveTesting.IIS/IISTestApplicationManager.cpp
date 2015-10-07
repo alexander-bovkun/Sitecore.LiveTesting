@@ -19,13 +19,28 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
   return m_hostedWebCore;
 }
 
+System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultRootConfigFileName()
+{
+  return System::IO::Path::Combine(System::IO::Path::GetDirectoryName(System::Configuration::ConfigurationManager::OpenMachineConfiguration()->FilePath), "web.config");
+}
+
 Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultHostedWebCore()
 {
   if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath))
   {
-    System::String^ rootConfig = System::IO::Path::Combine(System::IO::Path::GetDirectoryName(System::Configuration::ConfigurationManager::OpenMachineConfiguration()->FilePath), "web.config");
+    System::String^ rootConfigFileName = GetDefaultRootConfigFileName();
+    System::String^ iisBinPath = System::IO::Path::Combine(System::Environment::SystemDirectory, "inetsrv");
+    System::String^ iisConfigPath = System::IO::Path::Combine(iisBinPath, "config\\applicationHost.config");
+    System::String^ rawConfiguration = System::IO::File::ReadAllText(iisConfigPath)->Replace("%IIS_BIN%", iisBinPath)->Replace("%windir%", System::Environment::GetFolderPath(System::Environment::SpecialFolder::Windows))->Replace("%SystemDrive%", System::IO::Path::GetPathRoot(System::Environment::SystemDirectory));
+    System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Parse(rawConfiguration);
+
+    System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH)->RemoveNodes();
+
+    System::String^ hostConfigFileName = System::IO::Path::GetTempFileName();
+
+    configuration->Save(hostConfigFileName);
     
-    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(System::IO::Path::GetFullPath("applicationHostWithExpandedVariables.config"), rootConfig, "Sitecore.LiveTesting");
+    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(hostConfigFileName, rootConfigFileName, DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME);
   }
   else
   {
@@ -38,58 +53,62 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applicatio
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
 }
 
-Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetAdjustedApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
+int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetIncrementedGlobalSiteCounter()
 {
-  if (applicationHost == nullptr)
-  {
-    throw gcnew System::ArgumentNullException("applicationHost");
-  }
-
-  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, applicationHost->ApplicationId), applicationHost->VirtualPath, applicationHost->PhysicalPath);
+  static int globalSiteCounter = 0;
+  
+  return ++globalSiteCounter;
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateSiteForApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
+System::Xml::Linq::XDocument^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::LoadHostConfiguration()
 {
-  static int applicationCounter;
+  return System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
+}
+
+System::Xml::Linq::XElement^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetSiteConfigurationForApplication(_In_ System::Xml::Linq::XDocument^ hostConfiguration, _In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
+{
+  if (hostConfiguration == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("hostConfiguration");
+  }
 
   if (applicationHost == nullptr)
   {
     throw gcnew System::ArgumentNullException("applicationHost");
   }
 
-  System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
-  System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
+  System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(hostConfiguration, SITE_ROOT_XPATH);
   System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(sites, System::String::Format(SITE_SEARCH_TEMPLATE, applicationHost->ApplicationId));
 
   if (site == nullptr)
   {
-    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>((System::Collections::IEnumerable^)System::Xml::XPath::Extensions::XPathEvaluate(configuration, SINGLE_APP_POOL_XPATH)))->Value;
+    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>((System::Collections::IEnumerable^)System::Xml::XPath::Extensions::XPathEvaluate(hostConfiguration, SINGLE_APP_POOL_XPATH)))->Value;
 
-    site = System::Xml::Linq::XElement::Parse(System::String::Format(NEW_SITE_TEMPLATE, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, (++applicationCounter).ToString(), GetFreePort().ToString(), applicationPoolName, applicationHost->VirtualPath, applicationHost->PhysicalPath }));
+    site = System::Xml::Linq::XElement::Parse(System::String::Format(NEW_SITE_TEMPLATE, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, GetIncrementedGlobalSiteCounter().ToString(), GetFreePort().ToString(), applicationPoolName, applicationHost->VirtualPath, applicationHost->PhysicalPath }));
     sites->Add(site);
   }
 
-  configuration->Save(IIS::HostedWebCore::CurrentHostConfig);
+  return site;
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::RemoveSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application)
+Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::AdjustApplicationHostToSiteConfiguration(_In_ System::Xml::Linq::XElement^ siteConfiguration)
 {
-  if (application == nullptr)
+  if (siteConfiguration == nullptr)
   {
-    throw gcnew System::ArgumentNullException("application");
+    throw gcnew System::ArgumentNullException("siteConfiguration");
   }
 
-  System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
-  System::Xml::Linq::XElement^ site = System::Xml::XPath::Extensions::XPathSelectElement(configuration, System::String::Format("{0}/{1}", SITE_ROOT_XPATH, System::String::Format(SITE_SEARCH_TEMPLATE, application->Id)));
+  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(System::Xml::Linq::XName::Get("id"))->Value), siteConfiguration->Element("application")->Element("virtualDirectory")->Attribute("path")->Value, siteConfiguration->Element("application")->Element("virtualDirectory")->Attribute("physicalPath")->Value);
+}
 
-  if (site == nullptr)
+void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration)
+{
+  if (hostConfiguration == nullptr)
   {
-    throw gcnew System::InvalidOperationException(System::String::Format("Site registration for the '{0}' application has been previously removed. Probably this was due to concurrency issues.", application->Id));
+    throw gcnew System::ArgumentNullException("hostConfiguration");
   }
 
-  site->Remove();
-
-  configuration->Save(IIS::HostedWebCore::CurrentHostConfig);
+  hostConfiguration->Save(IIS::HostedWebCore::CurrentHostConfig);
 }
 
 Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(applicationManager, testApplicationType), m_hostedWebCore(hostedWebCore)
@@ -98,6 +117,22 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
   {
     throw gcnew System::ArgumentNullException("hostedWebCore");
   }
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(gcnew IIS::HostedWebCore(hostConfig, rootConfig, DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
+{
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, rootConfig, Sitecore::LiveTesting::Applications::TestApplication::typeid)
+{
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, GetDefaultRootConfigFileName(), testApplicationType)
+{
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, GetDefaultRootConfigFileName())
+{
 }
 
 Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetDefaultHostedWebCore(), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
@@ -115,9 +150,12 @@ Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS
     throw gcnew System::ArgumentNullException("applicationHost");
   }
 
-  Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(GetAdjustedApplicationHost(applicationHost));
+  System::Xml::Linq::XDocument^ hostConfiguration = LoadHostConfiguration();
+  System::Xml::Linq::XElement^ siteConfiguration = GetSiteConfigurationForApplication(hostConfiguration, applicationHost);
 
-  CreateSiteForApplicationHost(applicationHost);
+  Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(AdjustApplicationHostToSiteConfiguration(siteConfiguration));
+
+  SaveHostConfiguration(hostConfiguration);
 
   return application;
 }
@@ -129,6 +167,5 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::StopAp
     throw gcnew System::ArgumentNullException("application");
   }
 
-  RemoveSiteForApplication(application);
   Sitecore::LiveTesting::Applications::TestApplicationManager::StopApplication(application);
 }

@@ -38,8 +38,8 @@ namespace Sitecore
             System::String^ get();
           }
 
-          HostedWebCore(System::String^ hostedWebCoreLibraryPath, System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
-          HostedWebCore(System::String^ hostConfig, System::String^ rootConfig, System::String^ instanceName);
+          HostedWebCore(_In_ System::String^ hostedWebCoreLibraryPath, _In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
+          HostedWebCore(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
 
           ~HostedWebCore();
       };

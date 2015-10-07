@@ -7,7 +7,7 @@
   /// <summary>
   /// Defines the test class for <see cref="IISTestApplicationManager"/>.
   /// </summary>
-  public class IISTestApplicationManagerTest
+  public class IISTestApplicationManagerTest : SequentialTest
   {
     /// <summary>
     /// Should start and then stop website.

@@ -3,15 +3,13 @@
   using System;
   using System.IO;
   using System.Linq;
-  using System.Threading;
   using Microsoft.Win32;
-  using Sitecore.LiveTesting.Initialization;
   using Xunit;
 
   /// <summary>
   /// Defines the test class for <see cref="HostedWebCore"/>.
   /// </summary>
-  public class HostedWebCoreTest : LiveTest
+  public class HostedWebCoreTest : SequentialTest
   {
     /// <summary>
     /// The host config template file name.
@@ -58,22 +56,6 @@
       this.rootConfigPath = Path.Combine(key.OpenSubKey(key.GetSubKeyNames().First(n => n.StartsWith("4.0"))).GetValue("Path").ToString(), "Config\\web.config");
 
       File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
-    }
-
-    /// <summary>
-    /// Creates an instance of corresponding class.
-    /// </summary>
-    /// <param name="testType">Type of the test to instantiate.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>Instance of the class.</returns>
-    public static new LiveTest Instantiate(Type testType, params object[] arguments)
-    {
-      if (LiveTest.InstantiatedByProxy(testType, arguments))
-      {
-        return LiveTest.Intercept(testType, null);
-      }
-
-      return (LiveTest)Activator.CreateInstance(testType, arguments);
     }
 
     /// <summary>
@@ -162,28 +144,6 @@
       Assert.ThrowsDelegate action = () => new HostedWebCore(this.hostedWebCoreLibraryPath, Path.GetFullPath(HostConfigTemplateFileName), this.rootConfigPath, DefaultInstanceName);
 
       Assert.Throws<InvalidOperationException>(action);      
-    }
-
-    /// <summary>
-    /// Event handler executed before each method call.
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="args">The arguments.</param>
-    protected override void OnAfterMethodCall(object sender, MethodCallEventArgs args)
-    {
-      base.OnAfterMethodCall(sender, args);
-      Monitor.Exit(typeof(HostedWebCore));
-    }
-
-    /// <summary>
-    /// Event handler executed before each method call.
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="args">The arguments.</param>
-    protected override void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
-    {
-      Monitor.Enter(typeof(HostedWebCore));
-      base.OnBeforeMethodCall(sender, args);
     }
 
     /// <summary>

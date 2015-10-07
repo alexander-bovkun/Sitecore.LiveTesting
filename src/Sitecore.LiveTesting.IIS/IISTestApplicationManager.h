@@ -13,6 +13,7 @@ namespace Sitecore
         public ref class IISTestApplicationManager : public Sitecore::LiveTesting::Applications::TestApplicationManager
         {
           private:
+            literal System::String^ DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME = "Sitecore.LiveTesting";
             literal System::String^ APPLICATION_NAME_TEMPLATE = "/LM/W3SVC/{0}/ROOT";
             literal System::String^ SITE_ROOT_XPATH = "/configuration/system.applicationHost/sites";
             literal System::String^ SITE_SEARCH_TEMPLATE = "site[@name='{0}']";
@@ -28,15 +29,21 @@ namespace Sitecore
               IIS::HostedWebCore^ get();
             }
 
+            static System::String^ GetDefaultRootConfigFileName();
             static IIS::HostedWebCore^ GetDefaultHostedWebCore();
             static System::Web::Hosting::ApplicationManager^ GetApplicationManagerFromDefaultAppDomain();
+            static int GetIncrementedGlobalSiteCounter();
 
-            virtual Sitecore::LiveTesting::Applications::TestApplicationHost^ GetAdjustedApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
-
-            virtual void CreateSiteForApplicationHost(Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
-            virtual void RemoveSiteForApplication(Sitecore::LiveTesting::Applications::TestApplication^ application);
+            virtual System::Xml::Linq::XDocument^ LoadHostConfiguration();
+            virtual System::Xml::Linq::XElement^ GetSiteConfigurationForApplication(_In_ System::Xml::Linq::XDocument^ hostConfiguration, _In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
+            virtual Sitecore::LiveTesting::Applications::TestApplicationHost^ AdjustApplicationHostToSiteConfiguration(_In_ System::Xml::Linq::XElement^ siteConfiguration);
+            virtual void SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration);
           public:
             IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType);
+            IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType);
+            IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig);
+            IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType);
+            IISTestApplicationManager(_In_ System::String^ hostConfig);
             IISTestApplicationManager(_In_ System::Type^ testApplicationType);
             IISTestApplicationManager();
 
