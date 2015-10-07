@@ -1,11 +1,11 @@
-#pragma unmanaged
-
 #include <stdexcept>
 #include <string>
 
 #include <comdef.h>
 
 #include "NativeHostedWebCore.h"
+
+#pragma unmanaged
 
 std::weak_ptr<NativeHostedWebCore> NativeHostedWebCore::instance;
 std::wstring NativeHostedWebCore::currentHostedWebCoreLibraryPath;
