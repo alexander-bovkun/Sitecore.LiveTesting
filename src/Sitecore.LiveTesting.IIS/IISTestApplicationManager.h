@@ -23,6 +23,13 @@ namespace Sitecore
             initonly IIS::HostedWebCore^ m_hostedWebCore;
 
             static int GetFreePort();
+            static System::AppDomain^ GetDefaultAppDomain();
+
+            ref class ApplicationManagerProvider : public System::MarshalByRefObject
+            {
+              internal:
+                System::Web::Hosting::ApplicationManager^ GetDefaultApplicationManager();
+            };
           protected:
             property IIS::HostedWebCore^ HostedWebCore
             {

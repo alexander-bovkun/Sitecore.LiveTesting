@@ -1,3 +1,6 @@
+#include <comdef.h>
+#include <mscoree.h>
+
 #include "IISTestApplicationManager.h"
 
 int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetFreePort()
@@ -12,6 +15,34 @@ int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetFree
   {
     listener->Stop();
   }
+}
+
+System::AppDomain^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultAppDomain()
+{
+  ICorRuntimeHost* pRuntimeHost;
+  HRESULT result = CoCreateInstance(CLSID_CorRuntimeHost, NULL, CLSCTX_INPROC_SERVER, IID_ICorRuntimeHost, reinterpret_cast<LPVOID*>(&pRuntimeHost));
+
+  if (result != S_OK)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
+  }
+
+  IUnknown* pAppDomain;
+
+  result = pRuntimeHost->GetDefaultDomain(&pAppDomain);
+  pRuntimeHost->Release();
+
+  if (result != S_OK)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
+  }
+
+  return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
+}
+
+System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::ApplicationManagerProvider::GetDefaultApplicationManager()
+{
+  return System::Web::Hosting::ApplicationManager::GetApplicationManager();
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::HostedWebCore::get()
@@ -50,7 +81,10 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
 
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationManagerFromDefaultAppDomain()
 {
-  return System::Web::Hosting::ApplicationManager::GetApplicationManager();
+  System::AppDomain^ appDomain = GetDefaultAppDomain();
+  ApplicationManagerProvider^ applicationManagerProvider = safe_cast<ApplicationManagerProvider^>(appDomain->CreateInstanceAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->GetName()->Name, ApplicationManagerProvider::typeid->FullName));
+
+  return applicationManagerProvider->GetDefaultApplicationManager();
 }
 
 int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetIncrementedGlobalSiteCounter()
