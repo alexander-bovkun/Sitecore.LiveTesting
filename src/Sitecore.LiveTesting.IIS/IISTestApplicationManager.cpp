@@ -50,6 +50,11 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetApp
   ApplicationSiteName = siteName;
 }
 
+void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetApplicationPort(int port)
+{
+  ApplicationPort = port;
+}
+
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::ApplicationManagerProvider::GetDefaultApplicationManager()
 {
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
@@ -121,9 +126,9 @@ System::Xml::Linq::XElement^ Sitecore::LiveTesting::IIS::Applications::IISTestAp
 
   if (site == nullptr)
   {
-    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>((System::Collections::IEnumerable^)System::Xml::XPath::Extensions::XPathEvaluate(hostConfiguration, SINGLE_APP_POOL_XPATH)))->Value;
+    System::String^ applicationPoolName = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>(safe_cast<System::Collections::IEnumerable^>(System::Xml::XPath::Extensions::XPathEvaluate(hostConfiguration, SINGLE_APP_POOL_XPATH))))->Value;
 
-    site = System::Xml::Linq::XElement::Parse(System::String::Format(NEW_SITE_TEMPLATE, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, GetIncrementedGlobalSiteCounter().ToString(), GetFreePort().ToString(), applicationPoolName, applicationHost->VirtualPath, System::IO::Path::GetFullPath(applicationHost->PhysicalPath) }));
+    site = System::Xml::Linq::XElement::Parse(System::String::Format(NEW_SITE_TEMPLATE, gcnew array<System::String^> { System::Environment::NewLine, applicationHost->ApplicationId, GetIncrementedGlobalSiteCounter().ToString(), applicationPoolName, applicationHost->VirtualPath, System::IO::Path::GetFullPath(applicationHost->PhysicalPath) }));
     sites->Add(site);
   }
 
@@ -138,6 +143,27 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
   }
 
   return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(System::Xml::Linq::XName::Get("id"))->Value), siteConfiguration->Element("application")->Element("virtualDirectory")->Attribute("path")->Value, siteConfiguration->Element("application")->Element("virtualDirectory")->Attribute("physicalPath")->Value);
+}
+
+void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetupApplicationEnvironment(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration)
+{
+  if (application == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("application");
+  }
+
+  if (siteConfiguration == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("siteConfiguration");
+  }
+
+  application->ExecuteAction(gcnew System::Action<System::String^>(SetApplicationSiteName), siteConfiguration->Attribute(SITE_NAME_ATTRIBUTE)->Value);
+
+  System::Xml::Linq::XAttribute^ bindingInformationAttribute = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>(safe_cast<System::Collections::IEnumerable^>(System::Xml::XPath::Extensions::XPathEvaluate(siteConfiguration, SITE_BINDING_XPATH))));
+  int freePort = GetFreePort();
+
+  bindingInformationAttribute->Value = System::String::Format(SITE_BINDING_TEMPLATE, freePort);
+  application->ExecuteAction(gcnew System::Action<int>(SetApplicationPort), freePort);
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration)
@@ -212,6 +238,16 @@ System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationMana
   return safe_cast<System::String^>(application->ExecuteAction(System::Delegate::CreateDelegate(System::Func<System::String^>::typeid, System::Web::Hosting::HostingEnvironment::typeid->GetProperty("ApplicationPhysicalPath")->GetGetMethod())));
 }
 
+int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationPort(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
+{
+  if (application == nullptr)
+  {
+    return ApplicationPort;
+  }
+
+  return safe_cast<int>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, int>(GetApplicationPort), gcnew array<System::Object^> { nullptr }));
+}
+
 Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
 {
   if (applicationHost == nullptr)
@@ -223,8 +259,8 @@ Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS
   System::Xml::Linq::XElement^ siteConfiguration = GetSiteConfigurationForApplication(hostConfiguration, applicationHost);
 
   Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(AdjustApplicationHostToSiteConfiguration(siteConfiguration));
-  application->ExecuteAction(gcnew System::Action<System::String^>(SetApplicationSiteName), applicationHost->ApplicationId);
 
+  SetupApplicationEnvironment(application, siteConfiguration);
   SaveHostConfiguration(hostConfiguration);
 
   return application;

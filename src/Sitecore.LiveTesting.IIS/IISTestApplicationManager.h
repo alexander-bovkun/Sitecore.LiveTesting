@@ -17,10 +17,14 @@ namespace Sitecore
             literal System::String^ APPLICATION_NAME_TEMPLATE = "/LM/W3SVC/{0}/ROOT";
             literal System::String^ SITE_ROOT_XPATH = "/configuration/system.applicationHost/sites";
             literal System::String^ SITE_SEARCH_TEMPLATE = "site[@name='{0}']";
-            literal System::String^ NEW_SITE_TEMPLATE = "<site name='{1}' id='{2}'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:{3}:localhost' />{0}</bindings>{0}<application applicationPool='{4}' path='{5}'>{0}<virtualDirectory path='{5}' physicalPath='{6}' />{0}</application>{0}</site>";
+            literal System::String^ NEW_SITE_TEMPLATE = "<site name='{1}' id='{2}'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:12345:localhost' />{0}</bindings>{0}<application applicationPool='{3}' path='{4}'>{0}<virtualDirectory path='{4}' physicalPath='{5}' />{0}</application>{0}</site>";
+            literal System::String^ SITE_NAME_ATTRIBUTE = "name";
+            literal System::String^ SITE_BINDING_XPATH = "bindings/binding[@protocol='http']/@bindingInformation";
+            literal System::String^ SITE_BINDING_TEMPLATE = "*:{0}:localhost";
             literal System::String^ SINGLE_APP_POOL_XPATH = "/configuration/system.applicationHost/applicationPools/add[last()]/@name";
 
             static System::String^ ApplicationSiteName;
+            static int ApplicationPort;
 
             initonly IIS::HostedWebCore^ m_hostedWebCore;
 
@@ -28,6 +32,7 @@ namespace Sitecore
             static System::AppDomain^ GetDefaultAppDomain();
 
             static void SetApplicationSiteName(System::String^ siteName);
+            static void SetApplicationPort(int port);
 
             ref class ApplicationManagerProvider : public System::MarshalByRefObject
             {
@@ -48,6 +53,7 @@ namespace Sitecore
             virtual System::Xml::Linq::XDocument^ LoadHostConfiguration();
             virtual System::Xml::Linq::XElement^ GetSiteConfigurationForApplication(_In_ System::Xml::Linq::XDocument^ hostConfiguration, _In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
             virtual Sitecore::LiveTesting::Applications::TestApplicationHost^ AdjustApplicationHostToSiteConfiguration(_In_ System::Xml::Linq::XElement^ siteConfiguration);
+            virtual void SetupApplicationEnvironment(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration);
             virtual void SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration);
           public:
             IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType);
@@ -61,6 +67,7 @@ namespace Sitecore
             static System::String^ GetApplicationSiteName(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
             static System::String^ GetApplicationVirtualPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
             static System::String^ GetApplicationPhysicalPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
+            static int GetApplicationPort(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
 
             Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
             void StopApplication(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application) override;
