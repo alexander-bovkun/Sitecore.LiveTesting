@@ -20,10 +20,14 @@ namespace Sitecore
             literal System::String^ NEW_SITE_TEMPLATE = "<site name='{1}' id='{2}'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:{3}:localhost' />{0}</bindings>{0}<application applicationPool='{4}' path='{5}'>{0}<virtualDirectory path='{5}' physicalPath='{6}' />{0}</application>{0}</site>";
             literal System::String^ SINGLE_APP_POOL_XPATH = "/configuration/system.applicationHost/applicationPools/add[last()]/@name";
 
+            static System::String^ ApplicationSiteName;
+
             initonly IIS::HostedWebCore^ m_hostedWebCore;
 
             static int GetFreePort();
             static System::AppDomain^ GetDefaultAppDomain();
+
+            static void SetApplicationSiteName(System::String^ siteName);
 
             ref class ApplicationManagerProvider : public System::MarshalByRefObject
             {
@@ -53,6 +57,10 @@ namespace Sitecore
             IISTestApplicationManager(_In_ System::String^ hostConfig);
             IISTestApplicationManager(_In_ System::Type^ testApplicationType);
             IISTestApplicationManager();
+
+            static System::String^ GetApplicationSiteName(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
+            static System::String^ GetApplicationVirtualPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
+            static System::String^ GetApplicationPhysicalPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
 
             Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
             void StopApplication(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application) override;

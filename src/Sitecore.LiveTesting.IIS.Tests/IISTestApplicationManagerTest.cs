@@ -1,5 +1,7 @@
 ﻿namespace Sitecore.LiveTesting.IIS.Tests
 {
+  using System.Xml.Linq;
+  using System.Xml.XPath;
   using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.IIS.Applications;
   using Xunit;
@@ -10,14 +12,18 @@
   public class IISTestApplicationManagerTest : SequentialTest
   {
     /// <summary>
-    /// Should start and then stop website.
+    /// Should start, initialize, execute request on and then stop website.
     /// </summary>
     [Fact]
-    public void ShouldStartAndThenStopWebsite()
+    public void ShouldStartInitializeExecuteRequestOnAndThenStopWebsite()
     {
       IISTestApplicationManager applicationManager = new IISTestApplicationManager();
       TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/", "..\\Website");
       TestApplication application = applicationManager.StartApplication(testApplicationHost);
+      applicationManager.StopApplication(application);
+      
+      XDocument hostConfiguration = XDocument.Load(HostedWebCore.CurrentHostConfig);
+      Assert.Empty(hostConfiguration.XPathSelectElement("/configuration/system.applicationHost/sites").Descendants());
     }
   }
 }
