@@ -97,11 +97,12 @@
   <ItemGroup>
     <ClCompile Include="HostedWebCore.cpp" />
     <ClCompile Include="IISTestApplicationManager.cpp" />
-    <ClCompile Include="ModuleRegistration.cpp" />
+    <ClCompile Include="HttpServer.cpp" />
     <ClCompile Include="NativeHostedWebCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HostedWebCore.h" />
+    <ClInclude Include="HttpServer.h" />
     <ClInclude Include="IISTestApplicationManager.h" />
     <ClInclude Include="NativeHostedWebCore.h" />
   </ItemGroup>

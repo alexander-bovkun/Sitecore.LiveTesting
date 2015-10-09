@@ -7,8 +7,13 @@
 #include <httpserv.h>
 #pragma warning(pop)
 
+#include "HttpServer.h"
+
+IHttpServer* pGlobalHttpServer = NULL;
+
 HRESULT RegisterModule(DWORD dwServerVersion, IHttpModuleRegistrationInfo* pModuleInfo, IHttpServer* pHttpServer)
 {
-  dwServerVersion; pModuleInfo; pHttpServer;
+  dwServerVersion; pModuleInfo;
+  pGlobalHttpServer = pHttpServer;
   return S_OK;
 }

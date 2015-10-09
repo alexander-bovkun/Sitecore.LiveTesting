@@ -21,10 +21,10 @@
     <ClCompile Include="NativeHostedWebCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModuleRegistration.cpp">
+    <ClCompile Include="IISTestApplicationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IISTestApplicationManager.cpp">
+    <ClCompile Include="HttpServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IISTestApplicationManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
