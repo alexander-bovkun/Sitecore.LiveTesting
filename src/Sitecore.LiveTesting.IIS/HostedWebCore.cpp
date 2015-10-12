@@ -39,6 +39,11 @@ Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(_In_ System::String^ ho
 {
 }
 
+Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
+{
+  this->~HostedWebCore();
+}
+
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 {
   if (m_pHostedWebCore)
@@ -46,9 +51,4 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
     delete m_pHostedWebCore;
     m_pHostedWebCore = NULL;
   }
-}
-
-Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
-{
-  this->~HostedWebCore();
 }
