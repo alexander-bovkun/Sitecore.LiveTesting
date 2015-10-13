@@ -188,27 +188,27 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
   }
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType, _In_ int connectionPoolSize) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, rootConfig, connectionPoolSize), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType, _In_ int connectionPoolSize) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, rootConfig, connectionPoolSize))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, rootConfig, Sitecore::LiveTesting::Applications::TestApplication::typeid, 5)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, rootConfig, 5))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, GetDefaultRootConfigFileName(), testApplicationType, 5)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, GetDefaultRootConfigFileName(), 5))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, GetDefaultRootConfigFileName())
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, GetDefaultRootConfigFileName(), 5))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetDefaultHostConfigFileName(), testApplicationType)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(GetDefaultHostConfigFileName(), GetDefaultRootConfigFileName(), 5))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(Sitecore::LiveTesting::Applications::TestApplication::typeid)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(GetDefaultHostConfigFileName(), GetDefaultRootConfigFileName(), 5))
 {
 }
 
