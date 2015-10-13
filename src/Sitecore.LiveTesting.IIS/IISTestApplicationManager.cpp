@@ -62,7 +62,7 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applicatio
 
 System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultHostConfigFileName()
 {
-  return System::IO::Path::Combine(System::Environment::SystemDirectory, "inetsrv\\config\\applicationHost.config");
+  return System::IO::Path::Combine(System::Environment::GetFolderPath(System::Environment::SpecialFolder::ProgramFilesX86), "IIS Express\\AppServer\\applicationHost.config");
 }
 
 System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultRootConfigFileName()
@@ -76,7 +76,8 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
 
   if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath))
   {
-    System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(hostConfig);
+    System::String^ rawConfiguration = System::IO::File::ReadAllText(hostConfig)->Replace("%IIS_BIN%", System::IO::Path::Combine(GetDefaultHostConfigFileName(), "..\\.."));
+    System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Parse(rawConfiguration);
     System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
 
     sites->RemoveNodes();
