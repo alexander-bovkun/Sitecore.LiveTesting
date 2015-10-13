@@ -60,28 +60,32 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applicatio
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
 }
 
-System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultRootConfigFileName()
+System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultHostConfigFileName()
 {
-  return System::IO::Path::Combine(System::IO::Path::GetDirectoryName(System::Configuration::ConfigurationManager::OpenMachineConfiguration()->FilePath), "web.config");
+  return System::IO::Path::Combine(System::Environment::SystemDirectory, "inetsrv\\config\\applicationHost.config");
 }
 
-Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultHostedWebCore()
+System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultRootConfigFileName()
 {
+  return System::IO::Path::Combine(System::Configuration::ConfigurationManager::OpenMachineConfiguration()->FilePath, "..\\web.config");
+}
+
+Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ int connectionPoolSize)
+{
+  connectionPoolSize;
+
   if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath))
   {
-    System::String^ rootConfigFileName = GetDefaultRootConfigFileName();
-    System::String^ iisBinPath = System::IO::Path::Combine(System::Environment::SystemDirectory, "inetsrv");
-    System::String^ iisConfigPath = System::IO::Path::Combine(iisBinPath, "config\\applicationHost.config");
-    System::String^ rawConfiguration = System::IO::File::ReadAllText(iisConfigPath)->Replace("%IIS_BIN%", iisBinPath)->Replace("%windir%", System::Environment::GetFolderPath(System::Environment::SpecialFolder::Windows))->Replace("%SystemDrive%", System::IO::Path::GetPathRoot(System::Environment::SystemDirectory));
-    System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Parse(rawConfiguration);
+    System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Load(hostConfig);
+    System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
 
-    System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH)->RemoveNodes();
+    sites->RemoveNodes();
 
     System::String^ hostConfigFileName = System::IO::Path::GetTempFileName();
 
     configuration->Save(hostConfigFileName);
     
-    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(hostConfigFileName, rootConfigFileName, DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME);
+    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(hostConfigFileName, rootConfig, DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME);
   }
   else
   {
@@ -184,15 +188,15 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
   }
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(gcnew IIS::HostedWebCore(hostConfig, rootConfig, DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType, _In_ int connectionPoolSize) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, rootConfig, connectionPoolSize), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, rootConfig, Sitecore::LiveTesting::Applications::TestApplication::typeid)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, rootConfig, Sitecore::LiveTesting::Applications::TestApplication::typeid, 5)
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, GetDefaultRootConfigFileName(), testApplicationType)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(hostConfig, GetDefaultRootConfigFileName(), testApplicationType, 5)
 {
 }
 
@@ -200,7 +204,7 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetDefaultHostedWebCore(), GetApplicationManagerFromDefaultAppDomain(), testApplicationType)
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager(GetDefaultHostConfigFileName(), testApplicationType)
 {
 }
 

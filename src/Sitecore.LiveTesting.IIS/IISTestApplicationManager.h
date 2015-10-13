@@ -45,8 +45,9 @@ namespace Sitecore
               IIS::HostedWebCore^ get();
             }
 
+            static System::String^ GetDefaultHostConfigFileName();
             static System::String^ GetDefaultRootConfigFileName();
-            static IIS::HostedWebCore^ GetDefaultHostedWebCore();
+            static IIS::HostedWebCore^ GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ int connectionPoolSize);
             static System::Web::Hosting::ApplicationManager^ GetApplicationManagerFromDefaultAppDomain();
             static int GetIncrementedGlobalSiteCounter();
 
@@ -57,7 +58,7 @@ namespace Sitecore
             virtual void SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration);
           public:
             IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType);
-            IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType);
+            IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType, _In_ int connectionPoolSize);
             IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig);
             IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType);
             IISTestApplicationManager(_In_ System::String^ hostConfig);
