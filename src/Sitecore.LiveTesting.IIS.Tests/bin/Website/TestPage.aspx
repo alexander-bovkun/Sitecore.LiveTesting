@@ -3,6 +3,6 @@
 <script runat="server">
   void Page_Load(object sender, EventArgs e)
   {
-    Response.Write("Hello World!");
+    Response.Write(Sitecore.LiveTesting.IIS.Tests.IISTestApplicationManagerTest.TestEnvironmentVariable);
   }
 </script>

@@ -24,6 +24,7 @@ namespace Sitecore
             literal System::String^ APP_POOL_ROOT_XPATH = "/configuration/system.applicationHost/applicationPools";
             literal System::String^ DEFAULT_APP_POOL_XML = "<add name='Sitecore.LiveTesting' managedRuntimeVersion='v4.0' managedPipelineMode='Integrated' />";
             literal System::String^ DEFAULT_SITE_XML = "<site name='{1}' id='{1}' serverAutoStart='true'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:{2}:localhost' />{0}</bindings>{0}<application applicationPool='Sitecore.LiveTesting' path='/'>{0}<virtualDirectory path='/' physicalPath='' />{0}</application>{0}</site>";
+            literal System::String^ DEFAULT_HOST_CONFIG_FILE_NAME = "Sitecore.LiveTesting.IIS.ApplicationHost.config";
             literal System::String^ SITE_SEARCH_TEMPLATE = "site[@name='{0}']";
             literal System::String^ SITE_NAME_ATTRIBUTE = "name";
             literal System::String^ SITE_APPLICATION_XPATH = "application";

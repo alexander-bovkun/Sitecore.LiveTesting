@@ -96,7 +96,7 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
       sites->Add(System::Xml::Linq::XElement::Parse(System::String::Format(DEFAULT_SITE_XML, System::Environment::NewLine, index, GetFreePort())));
     }
 
-    System::String^ hostConfigFileName = System::IO::Path::GetTempFileName();
+    System::String^ hostConfigFileName = System::IO::Path::GetFullPath(DEFAULT_HOST_CONFIG_FILE_NAME);
 
     configuration->Save(hostConfigFileName);
     
@@ -188,7 +188,7 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
 
   System::String^ virtualPath = System::Linq::Enumerable::Last(siteConfiguration->Elements(SITE_APPLICATION_XPATH))->Attribute("path")->Value;
 
-  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(System::Xml::Linq::XName::Get("id"))->Value, virtualPath), virtualPath, siteConfiguration->Element(SITE_APPLICATION_XPATH)->Element("virtualDirectory")->Attribute("physicalPath")->Value);
+  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(System::Xml::Linq::XName::Get("id"))->Value, virtualPath == ROOT_VIRTUAL_PATH ? System::String::Empty : virtualPath), virtualPath, siteConfiguration->Element(SITE_APPLICATION_XPATH)->Element("virtualDirectory")->Attribute("physicalPath")->Value);
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetupApplicationEnvironment(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration)
