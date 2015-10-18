@@ -101,5 +101,35 @@
       Assert.Equal(1, result.Length);
       Assert.Contains(application, result);
     }
+
+    /// <summary>
+    /// Should track nested applications.
+    /// </summary>
+    [Fact]
+    public void ShouldTrackNestedApplications()
+    {
+      ApplicationManager.GetApplicationManager().GetRunningApplications().Select(a => a.ID).ToList().ForEach(i => ApplicationManager.GetApplicationManager().ShutdownApplication(i));
+
+      TestApplicationManager applicationManager = new TestApplicationManager();
+      TestApplication application = applicationManager.StartApplication(this.applicationHost);
+      TestApplication nestedApplication = (TestApplication)application.ExecuteAction(new Func<TestApplicationHost, TestApplication>(CreateNestedApplication), new TestApplicationHost(this.applicationHost.ApplicationId + "Nested", this.applicationHost.VirtualPath, this.applicationHost.PhysicalPath));
+      
+      TestApplication[] result = applicationManager.GetRunningApplications().ToArray();
+
+      Assert.Equal(2, result.Length);
+      Assert.Contains(application, result);
+      Assert.Contains(nestedApplication, result);
+    }
+
+    /// <summary>
+    /// Creates nested application.
+    /// </summary>
+    /// <param name="applicationHost">The host information of the nested application to create.</param>
+    /// <returns>The created nested application.</returns>
+    private static TestApplication CreateNestedApplication(TestApplicationHost applicationHost)
+    {
+      TestApplicationManager applicationManager = new TestApplicationManager();
+      return applicationManager.StartApplication(applicationHost);
+    }
   }
 }
