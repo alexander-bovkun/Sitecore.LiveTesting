@@ -3,6 +3,7 @@
   using System;
   using System.Globalization;
   using System.Runtime.Serialization;
+  using System.Security.Permissions;
 
   /// <summary>
   /// The class that provides basic information about the hosting environment.
@@ -131,6 +132,7 @@
     /// </summary>
     /// <param name="info">The serialization information.</param>
     /// <param name="context">The streaming context.</param>
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
