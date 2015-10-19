@@ -13,12 +13,12 @@ std::wstring NativeHostedWebCore::currentHostConfig;
 std::wstring NativeHostedWebCore::currentRootConfig;
 std::wstring NativeHostedWebCore::currentInstanceName;
 
-NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath)
+NativeHostedWebCore::NativeHostedWebCore(const std::wstring& hostedWebCoreLibraryPath, const std::wstring& hostConfig, const std::wstring& rootConfig, const std::wstring& instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath.data())
 {
   PFN_WEB_CORE_ACTIVATE pfnActivation = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
   m_pfnShutdown = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_SHUTDOWN>("WebCoreShutdown");
 
-  HRESULT result = pfnActivation(hostConfig, rootConfig, instanceName);
+  HRESULT result = pfnActivation(hostConfig.data(), rootConfig.data(), instanceName.data());
 
   if (result != S_OK)
   {
@@ -31,7 +31,7 @@ NativeHostedWebCore::NativeHostedWebCore(PCWSTR hostedWebCoreLibraryPath, PCWSTR
   }
 }
 
-std::shared_ptr<NativeHostedWebCore> NativeHostedWebCore::GetInstance(PCWSTR hostedWebCoreLibraryPath, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName)
+std::shared_ptr<NativeHostedWebCore> NativeHostedWebCore::GetInstance(const std::wstring& hostedWebCoreLibraryPath, const std::wstring& hostConfig, const std::wstring& rootConfig, const std::wstring& instanceName)
 {
   std::shared_ptr<NativeHostedWebCore> result(instance.lock());
 
@@ -39,7 +39,7 @@ std::shared_ptr<NativeHostedWebCore> NativeHostedWebCore::GetInstance(PCWSTR hos
   {
     if (!((currentHostedWebCoreLibraryPath == hostedWebCoreLibraryPath) && (currentHostConfig == hostConfig) && (currentRootConfig == rootConfig) && (currentInstanceName == instanceName)))
     {
-      throw std::invalid_argument("Cannot create hosted web core with parameters other than ones specified during instantiation of the very first instance. Use GetCurrentIISBinFolder, GetCurrentHostConfig, GetCurrentRootConfig, GetCurrentInstanceName methods to get corresponding parameter values for the first instantiation.");
+      throw std::invalid_argument("Cannot create hosted web core with parameters other than ones specified during instantiation of the very first instance. Use GetCurrentHostedWebCoreLibraryPath, GetCurrentHostConfig, GetCurrentRootConfig, GetCurrentInstanceName methods to get corresponding parameter values for the first instantiation.");
     }
   }
   else

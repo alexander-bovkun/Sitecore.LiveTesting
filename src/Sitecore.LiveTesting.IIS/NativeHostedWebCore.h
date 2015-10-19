@@ -43,11 +43,11 @@ class NativeHostedWebCore
     Library m_hostedWebCoreLibrary;
     PFN_WEB_CORE_SHUTDOWN m_pfnShutdown;
 
-    NativeHostedWebCore(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
+    NativeHostedWebCore(const std::wstring& hostedWebCoreLibraryPath, const std::wstring& hostConfig, const std::wstring& rootConfig, const std::wstring& instanceName);
     NativeHostedWebCore(NativeHostedWebCore const&);
     void operator=(NativeHostedWebCore const&);
   public:
-    static std::shared_ptr<NativeHostedWebCore> GetInstance(PCWSTR iisBinFolder, PCWSTR hostConfig, PCWSTR rootConfig, PCWSTR instanceName);
+    static std::shared_ptr<NativeHostedWebCore> GetInstance(const std::wstring& hostedWebCoreLibraryPath, const std::wstring& hostConfig, const std::wstring& rootConfig, const std::wstring& instanceName);
     static const std::wstring& GetCurrentHostedWebCoreLibraryPath();
     static const std::wstring& GetCurrentHostConfig();
     static const std::wstring& GetCurrentRootConfig();
