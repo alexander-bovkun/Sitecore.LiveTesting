@@ -53,7 +53,7 @@ namespace Sitecore
             virtual System::Xml::Linq::XDocument^ LoadHostConfiguration();
             virtual System::Xml::Linq::XElement^ GetSiteConfigurationForApplication(_In_ System::Xml::Linq::XDocument^ hostConfiguration, _In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
             virtual Sitecore::LiveTesting::Applications::TestApplicationHost^ AdjustApplicationHostToSiteConfiguration(_In_ System::Xml::Linq::XElement^ siteConfiguration);
-            virtual void SetupApplicationEnvironment(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration);
+            virtual IISEnvironmentInfo^ CreateApplicationIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration);
             virtual void SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration);
           
             IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType);

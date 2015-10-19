@@ -145,7 +145,7 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
   return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(System::Xml::Linq::XName::Get("id"))->Value, virtualPath == ROOT_VIRTUAL_PATH ? System::String::Empty : virtualPath), virtualPath, siteConfiguration->Element(SITE_APPLICATION_XPATH)->Element("virtualDirectory")->Attribute("physicalPath")->Value);
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetupApplicationEnvironment(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration)
+Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateApplicationIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration)
 {
   if (application == nullptr)
   {
@@ -158,9 +158,8 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetupA
   }
 
   System::Xml::Linq::XAttribute^ bindingInformationAttribute = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>(safe_cast<System::Collections::IEnumerable^>(System::Xml::XPath::Extensions::XPathEvaluate(siteConfiguration, SITE_BINDING_XPATH))));
-  IISEnvironmentInfo^ environmentInfo = gcnew IISEnvironmentInfo(siteConfiguration->Attribute(SITE_NAME_ATTRIBUTE)->Value, int::Parse(bindingInformationAttribute->Value->Split(':')[1]));
-
-  application->ExecuteAction(gcnew System::Action<IISEnvironmentInfo^>(SetIISEnvironmentInfo), environmentInfo);
+  
+  return gcnew IISEnvironmentInfo(siteConfiguration->Attribute(SITE_NAME_ATTRIBUTE)->Value, int::Parse(bindingInformationAttribute->Value->Split(':')[1]));
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration)
@@ -211,7 +210,7 @@ Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS
 
   Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(AdjustApplicationHostToSiteConfiguration(siteConfiguration));
 
-  SetupApplicationEnvironment(application, siteConfiguration);
+  application->ExecuteAction(gcnew System::Action<IISEnvironmentInfo^>(SetIISEnvironmentInfo), CreateApplicationIISEnvironmentInfo(application, siteConfiguration));
   SaveHostConfiguration(hostConfiguration);
 
   return application;
