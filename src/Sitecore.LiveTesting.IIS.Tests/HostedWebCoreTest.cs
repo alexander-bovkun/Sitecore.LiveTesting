@@ -148,7 +148,7 @@
     [Fact]
     public void ShouldGuaranteeThreadSafetyOnHostedWebCoreConstructionAndDestruction()
     {
-      Task[] tasks = new Task[100];
+      Task[] tasks = new Task[10];
 
       for (int index = 0; index < tasks.Length; ++index)
       {
