@@ -5,6 +5,7 @@
   using System.Globalization;
   using System.IO;
   using System.Reflection;
+  using System.Security.Permissions;
   using System.Threading;
   using System.Web.Hosting;
 
@@ -160,6 +161,7 @@
     /// <param name="appDomain">The application domain.</param>
     /// <param name="assemblyName">The assembly name.</param>
     /// <param name="assemblyPath">The path to the assembly.</param>
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.ControlAppDomain)]
     protected static void RegisterExternalAssembly(AppDomain appDomain, string assemblyName, string assemblyPath)
     {
       if (appDomain == null)
@@ -274,6 +276,7 @@
       /// </summary>
       /// <param name="assemblyName">The assembly name.</param>
       /// <param name="assemblyPath">The path to the assembly.</param>
+      [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.ControlAppDomain)]
       internal void RegisterExternalAssembly(string assemblyName, string assemblyPath)
       {
         if (assemblyName == null)
