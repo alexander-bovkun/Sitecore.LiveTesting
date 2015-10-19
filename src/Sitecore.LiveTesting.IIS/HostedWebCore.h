@@ -1,8 +1,8 @@
 #pragma once
 
-#include "NativeHostedWebCore.h"
-
 #include <msclr\marshal_cppstd.h>
+
+#include "NativeHostedWebCore.h"
 
 namespace Sitecore
 {
@@ -13,7 +13,6 @@ namespace Sitecore
       public ref class HostedWebCore sealed : System::IDisposable
       {
         private:
-          msclr::interop::marshal_context^ m_marshalContext;
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
         protected:
           !HostedWebCore();
