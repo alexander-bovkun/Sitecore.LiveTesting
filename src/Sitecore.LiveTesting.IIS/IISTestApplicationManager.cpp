@@ -111,6 +111,10 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationManagerFromDefaultAppDomain()
 {
   System::AppDomain^ appDomain = GetDefaultAppDomain();
+
+  RegisterExternalAssembly(appDomain, TestApplicationManager::typeid->Assembly->GetName()->Name, TestApplicationManager::typeid->Assembly->Location);
+  RegisterExternalAssembly(appDomain, IISTestApplicationManager::typeid->Assembly->GetName()->Name, IISTestApplicationManager::typeid->Assembly->Location);
+
   ApplicationManagerProvider^ applicationManagerProvider = safe_cast<ApplicationManagerProvider^>(appDomain->CreateInstanceAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->GetName()->Name, ApplicationManagerProvider::typeid->FullName));
 
   return applicationManagerProvider->GetDefaultApplicationManager();
