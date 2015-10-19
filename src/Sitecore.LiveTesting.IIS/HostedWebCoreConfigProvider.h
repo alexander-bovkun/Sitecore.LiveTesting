@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sal.h>
+
 namespace Sitecore
 {
   namespace LiveTesting

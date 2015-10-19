@@ -42,6 +42,9 @@
     <ClCompile Include="HostedWebCoreConfigProvider.cpp">
       <Filter>Source Files\Configuration</Filter>
     </ClCompile>
+    <ClCompile Include="IISEnvironmentInfo.cpp">
+      <Filter>Source Files\Applications</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeHostedWebCore.h">
@@ -58,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="HostedWebCoreConfigProvider.h">
       <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="IISEnvironmentInfo.h">
+      <Filter>Header Files\Applications</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

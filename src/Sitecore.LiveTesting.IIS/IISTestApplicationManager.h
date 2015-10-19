@@ -2,6 +2,7 @@
 
 #include "HostedWebCore.h"
 #include "HostedWebCoreConfigProvider.h"
+#include "IISEnvironmentInfo.h"
 
 namespace Sitecore
 {
@@ -27,15 +28,13 @@ namespace Sitecore
             literal System::String^ SITE_BINDING_TEMPLATE = "*:{0}:localhost";
             literal System::String^ SINGLE_APP_POOL_XPATH = "/configuration/system.applicationHost/applicationPools/add[last()]/@name";
 
-            static System::String^ ApplicationSiteName;
-            static int ApplicationPort;
+            static IISEnvironmentInfo^ EnvironmentInfo;
 
             initonly IIS::HostedWebCore^ m_hostedWebCore;
 
             static System::AppDomain^ GetDefaultAppDomain();
 
-            static void SetApplicationSiteName(System::String^ siteName);
-            static void SetApplicationPort(int port);
+            static void SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo);
 
             ref class ApplicationManagerProvider : public System::MarshalByRefObject
             {
@@ -62,10 +61,7 @@ namespace Sitecore
             IISTestApplicationManager(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider, _In_ System::Type^ testApplicationType);
             IISTestApplicationManager();
 
-            static System::String^ GetApplicationSiteName(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
-            static System::String^ GetApplicationVirtualPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
-            static System::String^ GetApplicationPhysicalPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
-            static int GetApplicationPort(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
+            static Applications::IISEnvironmentInfo^ GetIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
 
             virtual Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
         };

@@ -29,7 +29,7 @@
 
       application.ExecuteAction(new Action<string>(InitializationAction), initializationToken);
 
-      HttpWebRequest request = WebRequest.CreateHttp(string.Format("http://localhost:{0}/TestPage.aspx", IISTestApplicationManager.GetApplicationPort(application)));
+      HttpWebRequest request = WebRequest.CreateHttp(string.Format("http://localhost:{0}/TestPage.aspx", IISTestApplicationManager.GetIISEnvironmentInfo(application).Port));
       using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
       {
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

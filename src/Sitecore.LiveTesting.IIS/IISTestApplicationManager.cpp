@@ -31,14 +31,9 @@ System::AppDomain^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationM
   return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetApplicationSiteName(System::String^ siteName)
+void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
 {
-  ApplicationSiteName = siteName;
-}
-
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetApplicationPort(int port)
-{
-  ApplicationPort = port;
+  EnvironmentInfo = iisEnvironmentInfo;
 }
 
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::ApplicationManagerProvider::GetDefaultApplicationManager()
@@ -101,7 +96,7 @@ System::Xml::Linq::XElement^ Sitecore::LiveTesting::IIS::Applications::IISTestAp
 
     for each (Sitecore::LiveTesting::Applications::TestApplication^ testApplication in GetRunningApplications())
     {
-      runningSites->Add(GetApplicationSiteName(testApplication));
+      runningSites->Add(GetIISEnvironmentInfo(testApplication)->SiteName);
     }
 
     for each (System::Xml::Linq::XElement^ siteElement in System::Linq::Enumerable::ToArray(sites->Elements(SITE_ELEMENT_NAME)))
@@ -162,12 +157,10 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetupA
     throw gcnew System::ArgumentNullException("siteConfiguration");
   }
 
-  application->ExecuteAction(gcnew System::Action<System::String^>(SetApplicationSiteName), siteConfiguration->Attribute(SITE_NAME_ATTRIBUTE)->Value);
-
   System::Xml::Linq::XAttribute^ bindingInformationAttribute = System::Linq::Enumerable::Single(System::Linq::Enumerable::Cast<System::Xml::Linq::XAttribute^>(safe_cast<System::Collections::IEnumerable^>(System::Xml::XPath::Extensions::XPathEvaluate(siteConfiguration, SITE_BINDING_XPATH))));
-  int port = int::Parse(bindingInformationAttribute->Value->Split(':')[1]);
+  IISEnvironmentInfo^ environmentInfo = gcnew IISEnvironmentInfo(siteConfiguration->Attribute(SITE_NAME_ATTRIBUTE)->Value, int::Parse(bindingInformationAttribute->Value->Split(':')[1]));
 
-  application->ExecuteAction(gcnew System::Action<int>(SetApplicationPort), port);
+  application->ExecuteAction(gcnew System::Action<IISEnvironmentInfo^>(SetIISEnvironmentInfo), environmentInfo);
 }
 
 void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SaveHostConfiguration(_In_ System::Xml::Linq::XDocument^ hostConfiguration)
@@ -196,44 +189,14 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
 {
 }
 
-System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationSiteName(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
+Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
 {
   if (application == nullptr)
   {
-    return ApplicationSiteName;
+    return EnvironmentInfo;
   }
 
-  return safe_cast<System::String^>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, System::String^>(GetApplicationSiteName), gcnew array<System::Object^> { nullptr }));
-}
-
-System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationVirtualPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
-{
-  if (application == nullptr)
-  {
-    throw gcnew System::ArgumentNullException("application");
-  }
-
-  return safe_cast<System::String^>(application->ExecuteAction(System::Delegate::CreateDelegate(System::Func<System::String^>::typeid, System::Web::Hosting::HostingEnvironment::typeid->GetProperty("ApplicationVirtualPath")->GetGetMethod())));
-}
-
-System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationPhysicalPath(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
-{
-  if (application == nullptr)
-  {
-    throw gcnew System::ArgumentNullException("application");
-  }
-
-  return safe_cast<System::String^>(application->ExecuteAction(System::Delegate::CreateDelegate(System::Func<System::String^>::typeid, System::Web::Hosting::HostingEnvironment::typeid->GetProperty("ApplicationPhysicalPath")->GetGetMethod())));
-}
-
-int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetApplicationPort(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
-{
-  if (application == nullptr)
-  {
-    return ApplicationPort;
-  }
-
-  return safe_cast<int>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, int>(GetApplicationPort), gcnew array<System::Object^> { nullptr }));
+  return safe_cast<IISEnvironmentInfo^>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, IISEnvironmentInfo^>(GetIISEnvironmentInfo), gcnew array<System::Object^> { nullptr }));
 }
 
 Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
