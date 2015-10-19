@@ -8,6 +8,11 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
   return m_hostedWebCore;
 }
 
+void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
+{
+  EnvironmentInfo = iisEnvironmentInfo;
+}
+
 System::AppDomain^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultAppDomain()
 {
   ICorRuntimeHost* pRuntimeHost;
@@ -31,17 +36,12 @@ System::AppDomain^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationM
   return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
-{
-  EnvironmentInfo = iisEnvironmentInfo;
-}
-
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::ApplicationManagerProvider::GetDefaultApplicationManager()
 {
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
 }
 
-Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetNewHostedWebCoreOrDefaultIfAlreadyHosted(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider)
+Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetNewHostedWebCoreOrExistingIfAlreadyHosted(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider)
 {
   if (hostedWebCoreConfigProvider == nullptr)
   {
@@ -140,9 +140,9 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
     throw gcnew System::ArgumentNullException("siteConfiguration");
   }
 
-  System::String^ virtualPath = System::Linq::Enumerable::Last(siteConfiguration->Elements(SITE_APPLICATION_XPATH))->Attribute("path")->Value;
+  System::String^ virtualPath = System::Linq::Enumerable::Last(siteConfiguration->Elements(SITE_APPLICATION_XPATH))->Attribute(SITE_APPLICATION_VIRTUAL_PATH_ATTRIBUTE_NAME)->Value;
 
-  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(System::Xml::Linq::XName::Get("id"))->Value, virtualPath == ROOT_VIRTUAL_PATH ? System::String::Empty : virtualPath), virtualPath, siteConfiguration->Element(SITE_APPLICATION_XPATH)->Element("virtualDirectory")->Attribute("physicalPath")->Value);
+  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(SITE_ID_ATTRIBUTE_NAME)->Value, virtualPath == ROOT_VIRTUAL_PATH ? System::String::Empty : virtualPath), virtualPath, siteConfiguration->Element(SITE_APPLICATION_XPATH)->Element(SITE_VIRTUAL_DIRECTORY_ELEMENT_NAME)->Attribute(VIRTUAL_DIRECTORY_PHYSICAL_PATH_ATTRIBUTE_NAME)->Value);
 }
 
 Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateApplicationIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration)
@@ -180,11 +180,11 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
   }
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetNewHostedWebCoreOrDefaultIfAlreadyHosted(hostedWebCoreConfigProvider))
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetNewHostedWebCoreOrExistingIfAlreadyHosted(hostedWebCoreConfigProvider))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetNewHostedWebCoreOrDefaultIfAlreadyHosted(gcnew Configuration::HostedWebCoreConfigProvider()))
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetNewHostedWebCoreOrExistingIfAlreadyHosted(gcnew Configuration::HostedWebCoreConfigProvider()))
 {
 }
 

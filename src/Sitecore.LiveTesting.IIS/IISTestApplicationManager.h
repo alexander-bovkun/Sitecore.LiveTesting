@@ -23,19 +23,20 @@ namespace Sitecore
             literal System::String^ SITE_SEARCH_TEMPLATE = "site[@name='{0}']";
             literal System::String^ SITE_NAME_ATTRIBUTE = "name";
             literal System::String^ SITE_APPLICATION_XPATH = "application";
+            literal System::String^ SITE_APPLICATION_VIRTUAL_PATH_ATTRIBUTE_NAME = "path";
+            literal System::String^ SITE_ID_ATTRIBUTE_NAME = "id";
+            literal System::String^ SITE_VIRTUAL_DIRECTORY_ELEMENT_NAME = "virtualDirectory";
+            literal System::String^ VIRTUAL_DIRECTORY_PHYSICAL_PATH_ATTRIBUTE_NAME = "physicalPath";
             literal System::String^ DEFAULT_SITE_APPLICATION_XML = "<application applicationPool='Sitecore.LiveTesting' path='{1}'>{0}<virtualDirectory path='/' physicalPath='{2}' />{0}</application>";
             literal System::String^ ROOT_VIRTUAL_PATH = "/";
             literal System::String^ SITE_BINDING_XPATH = "bindings/binding[@protocol='http']/@bindingInformation";
-            literal System::String^ SITE_BINDING_TEMPLATE = "*:{0}:localhost";
-            literal System::String^ SINGLE_APP_POOL_XPATH = "/configuration/system.applicationHost/applicationPools/add[last()]/@name";
 
             static IISEnvironmentInfo^ EnvironmentInfo;
 
             initonly IIS::HostedWebCore^ m_hostedWebCore;
 
-            static System::AppDomain^ GetDefaultAppDomain();
-
             static void SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo);
+            static System::AppDomain^ GetDefaultAppDomain();
 
             ref class ApplicationManagerProvider : public System::MarshalByRefObject
             {
@@ -48,7 +49,7 @@ namespace Sitecore
               IIS::HostedWebCore^ get();
             }
 
-            static IIS::HostedWebCore^ GetNewHostedWebCoreOrDefaultIfAlreadyHosted(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider);
+            static IIS::HostedWebCore^ GetNewHostedWebCoreOrExistingIfAlreadyHosted(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider);
             static System::Web::Hosting::ApplicationManager^ GetApplicationManagerFromDefaultAppDomain();
 
             virtual System::Xml::Linq::XDocument^ LoadHostConfiguration();
