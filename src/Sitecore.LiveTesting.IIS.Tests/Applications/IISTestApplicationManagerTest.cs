@@ -1,4 +1,4 @@
-﻿namespace Sitecore.LiveTesting.IIS.Tests
+﻿namespace Sitecore.LiveTesting.IIS.Tests.Applications
 {
   using System;
   using System.IO;

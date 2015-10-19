@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="HostedWebCoreTest.cs" />
-    <Compile Include="IISTestApplicationManagerTest.cs" />
+    <Compile Include="Applications\IISTestApplicationManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequentialTest.cs" />
   </ItemGroup>
