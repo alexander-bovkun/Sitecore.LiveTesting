@@ -1,7 +1,9 @@
 ﻿namespace Sitecore.LiveTesting.IIS.Tests
 {
   using System;
+  using System.Collections.Generic;
   using System.IO;
+  using System.Threading.Tasks;
   using Xunit;
 
   /// <summary>
@@ -138,6 +140,22 @@
       Assert.ThrowsDelegate action = () => new HostedWebCore(this.hostedWebCoreLibraryPath, Path.GetFullPath(HostConfigTemplateFileName), this.rootConfigPath, DefaultInstanceName);
 
       Assert.Throws<InvalidOperationException>(action);      
+    }
+
+    /// <summary>
+    /// Should guarantee thread safety on hosted web core consruction and destruction.
+    /// </summary>
+    [Fact]
+    public void ShouldGuaranteeThreadSafetyOnHostedWebCoreConstructionAndDestruction()
+    {
+      Task[] tasks = new Task[100];
+
+      for (int index = 0; index < tasks.Length; ++index)
+      {
+        tasks[index] = Task.Factory.StartNew(() => (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName)).Dispose());
+      }
+
+      Task.WaitAll(tasks);
     }
 
     /// <summary>

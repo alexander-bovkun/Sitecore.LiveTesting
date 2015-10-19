@@ -7,6 +7,8 @@
 
 #pragma unmanaged
 
+CriticalSection instanceCriticalSection;
+
 std::weak_ptr<NativeHostedWebCore> NativeHostedWebCore::instance;
 std::wstring NativeHostedWebCore::currentHostedWebCoreLibraryPath;
 std::wstring NativeHostedWebCore::currentHostConfig;
@@ -33,6 +35,7 @@ NativeHostedWebCore::NativeHostedWebCore(const std::wstring& hostedWebCoreLibrar
 
 std::shared_ptr<NativeHostedWebCore> NativeHostedWebCore::GetInstance(const std::wstring& hostedWebCoreLibraryPath, const std::wstring& hostConfig, const std::wstring& rootConfig, const std::wstring& instanceName)
 {
+  CriticalSectionGuard instanceGuard(instanceCriticalSection);
   std::shared_ptr<NativeHostedWebCore> result(instance.lock());
 
   if (result)
@@ -78,6 +81,8 @@ const std::wstring& NativeHostedWebCore::GetCurrentInstanceName()
 
 NativeHostedWebCore::~NativeHostedWebCore()
 {
+  CriticalSectionGuard instanceGuard(instanceCriticalSection);
+
   if (m_pfnShutdown)
   {
     HRESULT result = m_pfnShutdown(TRUE);
@@ -126,4 +131,24 @@ template<typename TFunctionPointer> TFunctionPointer Library::GetFunction(LPCSTR
   {
     throw std::runtime_error("Could not find the requested function.");
   }
+}
+
+CriticalSectionGuard::CriticalSectionGuard(CriticalSection& primitive) : m_criticalSection(primitive)
+{
+  EnterCriticalSection(&m_criticalSection.m_criticalSection);
+}
+
+CriticalSectionGuard::~CriticalSectionGuard()
+{
+  LeaveCriticalSection(&m_criticalSection.m_criticalSection);
+}
+
+CriticalSection::CriticalSection()
+{
+  InitializeCriticalSection(&m_criticalSection);
+}
+
+CriticalSection::~CriticalSection()
+{
+  DeleteCriticalSection(&m_criticalSection);
 }

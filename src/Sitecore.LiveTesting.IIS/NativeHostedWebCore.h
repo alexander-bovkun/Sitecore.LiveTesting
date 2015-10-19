@@ -10,6 +10,32 @@
 
 namespace
 {
+  class CriticalSection
+  {
+    private:
+      CRITICAL_SECTION m_criticalSection;
+
+      CriticalSection(CriticalSection const&);
+      void operator=(CriticalSection const&);
+
+      friend class CriticalSectionGuard;
+    public:
+      CriticalSection();
+      ~CriticalSection();
+  };
+
+  class CriticalSectionGuard
+  {
+    private:
+      CriticalSection& m_criticalSection;
+
+      CriticalSectionGuard(CriticalSectionGuard const&);
+      void operator=(CriticalSectionGuard const&);
+    public:
+      CriticalSectionGuard(CriticalSection& primitive);
+      ~CriticalSectionGuard();
+  };
+
   class Library
   {
     private:
