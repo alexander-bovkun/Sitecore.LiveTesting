@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Applications">
+      <UniqueIdentifier>{346ad11a-95ad-43b1-879b-6f05b5105358}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Applications">
+      <UniqueIdentifier>{f9327a9e-f2b1-41cf-b169-2d0c15e5aa23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Configuration">
+      <UniqueIdentifier>{217effd1-de13-4db7-81fa-69d6b3d3c6e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Configuration">
+      <UniqueIdentifier>{af9772fb-742a-4424-8318-c5f6e0492063}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HostedWebCore.cpp">
@@ -21,11 +33,14 @@
     <ClCompile Include="NativeHostedWebCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IISTestApplicationManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HttpServer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IISTestApplicationManager.cpp">
+      <Filter>Source Files\Applications</Filter>
+    </ClCompile>
+    <ClCompile Include="HostedWebCoreConfigProvider.cpp">
+      <Filter>Source Files\Configuration</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -35,11 +50,14 @@
     <ClInclude Include="HostedWebCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IISTestApplicationManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HttpServer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IISTestApplicationManager.h">
+      <Filter>Header Files\Applications</Filter>
+    </ClInclude>
+    <ClInclude Include="HostedWebCoreConfigProvider.h">
+      <Filter>Header Files\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

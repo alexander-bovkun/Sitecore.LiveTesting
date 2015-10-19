@@ -8,20 +8,6 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
   return m_hostedWebCore;
 }
 
-int Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetFreePort()
-{
-  System::Net::Sockets::TcpListener^ listener = gcnew System::Net::Sockets::TcpListener(System::Net::IPAddress::Loopback, 0);
-  listener->Start();
-  try
-  {
-    return ((System::Net::IPEndPoint^)listener->LocalEndpoint)->Port;
-  }
-  finally
-  {
-    listener->Stop();
-  }
-}
-
 System::AppDomain^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultAppDomain()
 {
   ICorRuntimeHost* pRuntimeHost;
@@ -60,47 +46,16 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applicatio
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
 }
 
-System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultHostConfigFileName()
+Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetNewHostedWebCoreOrDefaultIfAlreadyHosted(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider)
 {
-  return System::IO::Path::Combine(System::Environment::GetFolderPath(System::Environment::SpecialFolder::ProgramFilesX86), "IIS Express\\AppServer\\applicationHost.config");
-}
+  if (hostedWebCoreConfigProvider == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("hostedWebCoreConfigProvider");
+  }
 
-System::String^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultRootConfigFileName()
-{
-  return System::IO::Path::Combine(System::Configuration::ConfigurationManager::OpenMachineConfiguration()->FilePath, "..\\web.config");
-}
-
-Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ int connectionPoolSize)
-{
   if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath))
   {
-    System::String^ rawConfiguration = System::IO::File::ReadAllText(hostConfig)->Replace(IIS_BIN_ENVIRONMENT_VARIABLE_TOKEN, System::IO::Path::Combine(GetDefaultHostConfigFileName(), "..\\.."));
-    System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Parse(rawConfiguration);
-    System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
-    System::Xml::Linq::XElement^ appPools = System::Xml::XPath::Extensions::XPathSelectElement(configuration, APP_POOL_ROOT_XPATH);
-
-    for each (System::Xml::Linq::XElement^ site in System::Linq::Enumerable::ToArray(sites->Elements(SITE_ELEMENT_NAME)))
-    {
-      site->Remove();
-    }
-
-    for each (System::Xml::Linq::XElement^ appPool in System::Linq::Enumerable::ToArray(System::Linq::Enumerable::Concat(System::Linq::Enumerable::Concat(appPools->Elements(COLLECTION_ADD), appPools->Elements(COLLECTION_REMOVE)), appPools->Elements(COLLECTION_CLEAR))))
-    {
-      appPool->Remove();
-    }
-
-    appPools->Add(System::Xml::Linq::XElement::Parse(DEFAULT_APP_POOL_XML));
-
-    for (int index = 1; index <= connectionPoolSize; ++index)
-    {
-      sites->Add(System::Xml::Linq::XElement::Parse(System::String::Format(DEFAULT_SITE_XML, System::Environment::NewLine, index, GetFreePort())));
-    }
-
-    System::String^ hostConfigFileName = System::IO::Path::GetFullPath(DEFAULT_HOST_CONFIG_FILE_NAME);
-
-    configuration->Save(hostConfigFileName);
-    
-    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(hostConfigFileName, rootConfig, DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME);
+    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(hostedWebCoreConfigProvider->GetProcessedHostConfig(), hostedWebCoreConfigProvider->GetProcessedRootConfig(), DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME);
   }
   else
   {
@@ -233,27 +188,11 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
   }
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::Type^ testApplicationType, _In_ int connectionPoolSize) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, rootConfig, connectionPoolSize))
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetNewHostedWebCoreOrDefaultIfAlreadyHosted(hostedWebCoreConfigProvider))
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, rootConfig, 5))
-{
-}
-
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, GetDefaultRootConfigFileName(), 5))
-{
-}
-
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::String^ hostConfig) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(hostConfig, GetDefaultRootConfigFileName(), 5))
-{
-}
-
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), testApplicationType), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(GetDefaultHostConfigFileName(), GetDefaultRootConfigFileName(), 5))
-{
-}
-
-Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetHostedWebCoreForParametersOrDefaultIfAlreadyHosted(GetDefaultHostConfigFileName(), GetDefaultRootConfigFileName(), 1))
+Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager() : Sitecore::LiveTesting::Applications::TestApplicationManager(GetApplicationManagerFromDefaultAppDomain(), Sitecore::LiveTesting::Applications::TestApplication::typeid), m_hostedWebCore(GetNewHostedWebCoreOrDefaultIfAlreadyHosted(gcnew Configuration::HostedWebCoreConfigProvider()))
 {
 }
 
