@@ -12,6 +12,7 @@ namespace Sitecore
     {
       namespace Applications
       {
+        [System::Runtime::InteropServices::ComVisible(false)]
         public ref class IISTestApplicationManager : public Sitecore::LiveTesting::Applications::TestApplicationManager
         {
           private:

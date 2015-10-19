@@ -40,7 +40,7 @@ Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigProvider::HostedWe
   m_originalRootConfig = GetDefaultRootConfigFileName();
 }
 
-Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigProvider::HostedWebCoreConfigProvider(System::String^ originalHostConfig, System::String^ originalRootConfig)
+Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigProvider::HostedWebCoreConfigProvider(_In_ System::String^ originalHostConfig, _In_ System::String^ originalRootConfig)
 {
   if (originalHostConfig == nullptr)
   {

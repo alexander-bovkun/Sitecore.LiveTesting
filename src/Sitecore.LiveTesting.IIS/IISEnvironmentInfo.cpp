@@ -45,6 +45,7 @@ int Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::Port::get()
   return m_port;
 }
 
+[System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::SerializationFormatter)]
 void Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::GetObjectData(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext)
 {
   if (info == nullptr)
