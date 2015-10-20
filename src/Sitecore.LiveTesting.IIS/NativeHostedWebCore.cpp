@@ -15,6 +15,58 @@ std::wstring NativeHostedWebCore::currentHostConfig;
 std::wstring NativeHostedWebCore::currentRootConfig;
 std::wstring NativeHostedWebCore::currentInstanceName;
 
+CriticalSection::CriticalSection()
+{
+  InitializeCriticalSection(&m_criticalSection);
+}
+
+CriticalSection::~CriticalSection()
+{
+  DeleteCriticalSection(&m_criticalSection);
+}
+
+CriticalSectionGuard::CriticalSectionGuard(CriticalSection& primitive) : m_criticalSection(primitive)
+{
+  EnterCriticalSection(&m_criticalSection.m_criticalSection);
+}
+
+CriticalSectionGuard::~CriticalSectionGuard()
+{
+  LeaveCriticalSection(&m_criticalSection.m_criticalSection);
+}
+
+void Library::Deleter::operator()(HMODULE module)
+{
+  FreeLibrary(module);
+}
+
+Library::Library(LPCWSTR fileName) {
+  HMODULE module = LoadLibraryW(fileName);
+
+  if (module)
+  {
+    m_module = std::unique_ptr<HMODULE, Deleter>(module, Deleter());
+  }
+  else
+  {
+    throw std::runtime_error("Could not load the requested library.");
+  }
+}
+
+template<typename TFunctionPointer> TFunctionPointer Library::GetFunction(LPCSTR name) const
+{
+  FARPROC result = GetProcAddress(m_module.get(), name);
+
+  if (result)
+  {
+    return reinterpret_cast<TFunctionPointer>(result);
+  }
+  else
+  {
+    throw std::runtime_error("Could not find the requested function.");
+  }
+}
+
 NativeHostedWebCore::NativeHostedWebCore(const std::wstring& hostedWebCoreLibraryPath, const std::wstring& hostConfig, const std::wstring& rootConfig, const std::wstring& instanceName) : m_hostedWebCoreLibrary(hostedWebCoreLibraryPath.data())
 {
   PFN_WEB_CORE_ACTIVATE pfnActivation = m_hostedWebCoreLibrary.GetFunction<PFN_WEB_CORE_ACTIVATE>("WebCoreActivate");
@@ -104,51 +156,4 @@ NativeHostedWebCore::~NativeHostedWebCore()
       throw std::runtime_error(errorMessage);
     }
   }
-}
-
-Library::Library(LPCWSTR fileName) {
-  HMODULE module = LoadLibraryW(fileName);
-
-  if (module)
-  {
-    m_module = std::unique_ptr<HMODULE, Deleter>(module, Deleter());
-  }
-  else
-  {
-    throw std::runtime_error("Could not load the requested library.");
-  }
-}
-
-template<typename TFunctionPointer> TFunctionPointer Library::GetFunction(LPCSTR name) const
-{
-  FARPROC result = GetProcAddress(m_module.get(), name);
-
-  if (result)
-  {
-    return reinterpret_cast<TFunctionPointer>(result);
-  }
-  else
-  {
-    throw std::runtime_error("Could not find the requested function.");
-  }
-}
-
-CriticalSectionGuard::CriticalSectionGuard(CriticalSection& primitive) : m_criticalSection(primitive)
-{
-  EnterCriticalSection(&m_criticalSection.m_criticalSection);
-}
-
-CriticalSectionGuard::~CriticalSectionGuard()
-{
-  LeaveCriticalSection(&m_criticalSection.m_criticalSection);
-}
-
-CriticalSection::CriticalSection()
-{
-  InitializeCriticalSection(&m_criticalSection);
-}
-
-CriticalSection::~CriticalSection()
-{
-  DeleteCriticalSection(&m_criticalSection);
 }

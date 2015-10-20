@@ -43,10 +43,7 @@ namespace
       {
         typedef HMODULE pointer;
 
-        void operator()(HMODULE module)
-        {
-          FreeLibrary(module);
-        }
+        void operator()(HMODULE module);
       };
 
       std::unique_ptr<HMODULE, Deleter> m_module;
