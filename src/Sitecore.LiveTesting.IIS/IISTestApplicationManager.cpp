@@ -8,11 +8,6 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
   return m_hostedWebCore;
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
-{
-  EnvironmentInfo = iisEnvironmentInfo;
-}
-
 System::AppDomain^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetDefaultAppDomain()
 {
   ICorRuntimeHost* pRuntimeHost;
@@ -96,7 +91,7 @@ System::Xml::Linq::XElement^ Sitecore::LiveTesting::IIS::Applications::IISTestAp
 
     for each (Sitecore::LiveTesting::Applications::TestApplication^ testApplication in GetRunningApplications())
     {
-      runningSites->Add(GetIISEnvironmentInfo(testApplication)->SiteName);
+      runningSites->Add(IISEnvironmentInfo::GetApplicationInfo(testApplication)->SiteName);
     }
 
     for each (System::Xml::Linq::XElement^ siteElement in System::Linq::Enumerable::ToArray(sites->Elements(SITE_ELEMENT_NAME)))
@@ -188,16 +183,6 @@ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestAppl
 {
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
-{
-  if (application == nullptr)
-  {
-    return EnvironmentInfo;
-  }
-
-  return safe_cast<IISEnvironmentInfo^>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, IISEnvironmentInfo^>(GetIISEnvironmentInfo), gcnew array<System::Object^> { nullptr }));
-}
-
 Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
 {
   if (applicationHost == nullptr)
@@ -210,7 +195,7 @@ Sitecore::LiveTesting::Applications::TestApplication^ Sitecore::LiveTesting::IIS
 
   Sitecore::LiveTesting::Applications::TestApplication^ application = Sitecore::LiveTesting::Applications::TestApplicationManager::StartApplication(AdjustApplicationHostToSiteConfiguration(siteConfiguration));
 
-  application->ExecuteAction(gcnew System::Action<IISEnvironmentInfo^>(SetIISEnvironmentInfo), CreateApplicationIISEnvironmentInfo(application, siteConfiguration));
+  application->ExecuteAction(gcnew System::Action<IISEnvironmentInfo^>(IISEnvironmentInfo::SetApplicationInfo), CreateApplicationIISEnvironmentInfo(application, siteConfiguration));
   SaveHostConfiguration(hostConfiguration);
 
   return application;

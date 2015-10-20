@@ -31,11 +31,8 @@ namespace Sitecore
             literal System::String^ ROOT_VIRTUAL_PATH = "/";
             literal System::String^ SITE_BINDING_XPATH = "bindings/binding[@protocol='http']/@bindingInformation";
 
-            static IISEnvironmentInfo^ EnvironmentInfo;
-
             initonly IIS::HostedWebCore^ m_hostedWebCore;
 
-            static void SetIISEnvironmentInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo);
             static System::AppDomain^ GetDefaultAppDomain();
 
             ref class ApplicationManagerProvider : public System::MarshalByRefObject
@@ -62,8 +59,6 @@ namespace Sitecore
           public:
             IISTestApplicationManager(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider, _In_ System::Type^ testApplicationType);
             IISTestApplicationManager();
-
-            static Applications::IISEnvironmentInfo^ GetIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
 
             virtual Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
         };

@@ -22,6 +22,16 @@ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::IISEnvironmentInfo
   }
 }
 
+void Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::SetApplicationInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
+{
+  if (iisEnvironmentInfo == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("iisEnvironmentInfo");
+  }
+
+  EnvironmentInfo = iisEnvironmentInfo;
+}
+
 Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::IISEnvironmentInfo(_In_ System::String^ siteName, _In_ int port) : m_siteName(siteName), m_port(port)
 {
   if (siteName == nullptr)
@@ -43,6 +53,16 @@ System::String^ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::Si
 int Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::Port::get()
 {
   return m_port;
+}
+
+Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::GetApplicationInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
+{
+  if (application == nullptr)
+  {
+    return EnvironmentInfo;
+  }
+
+  return safe_cast<IISEnvironmentInfo^>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, IISEnvironmentInfo^>(GetApplicationInfo), gcnew array<System::Object^> { nullptr }));
 }
 
 [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::SerializationFormatter)]

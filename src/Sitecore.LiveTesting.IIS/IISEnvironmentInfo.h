@@ -17,10 +17,14 @@ namespace Sitecore
             literal System::String^ SITE_NAME_SERIALIZATION_KEY = "siteName";
             literal System::String^ PORT_SERIALIZATION_KEY = "port";
 
+            static IISEnvironmentInfo^ EnvironmentInfo;
+
             System::String^ m_siteName;
             int m_port;
           protected:
             IISEnvironmentInfo(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext context);
+          internal:
+            static void SetApplicationInfo(_In_ Applications::IISEnvironmentInfo^ iisEnvironmentInfo);
           public:
             IISEnvironmentInfo(_In_ System::String^ siteName, _In_ int port);
 
@@ -33,6 +37,8 @@ namespace Sitecore
             {
               int get();
             }
+
+            static Applications::IISEnvironmentInfo^ GetApplicationInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
 
             virtual void GetObjectData(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext context);
         };
