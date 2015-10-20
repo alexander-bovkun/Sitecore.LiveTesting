@@ -3,7 +3,7 @@
   using System;
   using System.Collections.Generic;
   using System.IO;
-  using System.Threading.Tasks;
+  using System.Threading;
   using Xunit;
 
   /// <summary>
@@ -95,7 +95,17 @@
         appDomain.SetData("instanceName", DefaultInstanceName);
 
         appDomain.DoCallBack(GetAlreadyHostedWebCore);
+
+        Assert.Equal(this.hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreLibraryPath);
+        Assert.Equal(this.hostConfigPath, HostedWebCore.CurrentHostConfig);
+        Assert.Equal(this.rootConfigPath, HostedWebCore.CurrentRootConfig);
+        Assert.Equal(DefaultInstanceName, HostedWebCore.CurrentInstanceName);
       }
+
+      Assert.Empty(HostedWebCore.CurrentHostedWebCoreLibraryPath);
+      Assert.Empty(HostedWebCore.CurrentHostConfig);
+      Assert.Empty(HostedWebCore.CurrentRootConfig);
+      Assert.Empty(HostedWebCore.CurrentInstanceName);
     }
 
     /// <summary>
@@ -148,14 +158,18 @@
     [Fact]
     public void ShouldGuaranteeThreadSafetyOnHostedWebCoreConstructionAndDestruction()
     {
-      Task[] tasks = new Task[10];
+      Thread[] threads = new Thread[10];
 
-      for (int index = 0; index < tasks.Length; ++index)
+      for (int index = 0; index < threads.Length; ++index)
       {
-        tasks[index] = Task.Factory.StartNew(() => (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName)).Dispose());
+        threads[index] = new Thread(() => (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName)).Dispose()); 
+        threads[index].Start();
       }
 
-      Task.WaitAll(tasks);
+      foreach (Thread thread in threads)
+      {
+        thread.Join();
+      }
     }
 
     /// <summary>
@@ -164,6 +178,10 @@
     private static void GetAlreadyHostedWebCore()
     {
       (new HostedWebCore(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), AppDomain.CurrentDomain.GetData("instanceName").ToString())).Dispose();
+      Assert.Equal(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), HostedWebCore.CurrentHostedWebCoreLibraryPath);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), HostedWebCore.CurrentHostConfig);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), HostedWebCore.CurrentRootConfig);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("instanceName").ToString(), HostedWebCore.CurrentInstanceName);
     }
   }
 }
