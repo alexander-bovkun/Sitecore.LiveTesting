@@ -1,3 +1,5 @@
+#include <msclr\marshal_cppstd.h>
+
 #include "HostedWebCore.h"
 
 #pragma managed(push, off)
