@@ -22,7 +22,7 @@ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::IISEnvironmentInfo
   }
 }
 
-void Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::SetApplicationInfo(Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
+void Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::SetApplicationInfo(_In_ Applications::IISEnvironmentInfo^ iisEnvironmentInfo)
 {
   if (iisEnvironmentInfo == nullptr)
   {

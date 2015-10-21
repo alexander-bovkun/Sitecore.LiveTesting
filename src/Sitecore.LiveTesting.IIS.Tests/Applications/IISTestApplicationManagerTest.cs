@@ -3,8 +3,6 @@
   using System;
   using System.IO;
   using System.Net;
-  using System.Xml.Linq;
-  using System.Xml.XPath;
   using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.IIS.Applications;
   using Xunit;
