@@ -43,13 +43,13 @@ Sitecore::LiveTesting::IIS::HostedWebCore^ Sitecore::LiveTesting::IIS::Applicati
     throw gcnew System::ArgumentNullException("hostedWebCoreConfigProvider");
   }
 
-  if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath))
+  if (System::String::IsNullOrEmpty(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreSetup->HostedWebCoreLibraryPath))
   {
     return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(hostedWebCoreConfigProvider->GetProcessedHostConfig(), hostedWebCoreConfigProvider->GetProcessedRootConfig(), DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME);
   }
   else
   {
-    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreLibraryPath, Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostConfig, Sitecore::LiveTesting::IIS::HostedWebCore::CurrentRootConfig, Sitecore::LiveTesting::IIS::HostedWebCore::CurrentInstanceName);
+    return gcnew Sitecore::LiveTesting::IIS::HostedWebCore(Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreSetup);
   }
 }
 
@@ -67,7 +67,7 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::Applicatio
 
 System::Xml::Linq::XDocument^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::LoadHostConfiguration()
 {
-  return System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostConfig);
+  return System::Xml::Linq::XDocument::Load(IIS::HostedWebCore::CurrentHostedWebCoreSetup->HostConfig);
 }
 
 System::Xml::Linq::XElement^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::GetSiteConfigurationForApplication(_In_ System::Xml::Linq::XDocument^ hostConfiguration, _In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost)
@@ -164,7 +164,7 @@ void Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::SaveHo
     throw gcnew System::ArgumentNullException("hostConfiguration");
   }
 
-  hostConfiguration->Save(IIS::HostedWebCore::CurrentHostConfig);
+  hostConfiguration->Save(IIS::HostedWebCore::CurrentHostedWebCoreSetup->HostConfig);
 }
 
 Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::IISTestApplicationManager(_In_ IIS::HostedWebCore^ hostedWebCore, _In_ System::Web::Hosting::ApplicationManager^ applicationManager, _In_ System::Type^ testApplicationType) : Sitecore::LiveTesting::Applications::TestApplicationManager(applicationManager, testApplicationType), m_hostedWebCore(hostedWebCore)

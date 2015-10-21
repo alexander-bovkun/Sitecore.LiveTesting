@@ -73,6 +73,6 @@ void Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::GetObjectData
     throw gcnew System::ArgumentNullException("info");
   }
 
-  info->AddValue(SITE_NAME_SERIALIZATION_KEY, m_siteName);
-  info->AddValue(PORT_SERIALIZATION_KEY, m_port);
+  info->AddValue(SITE_NAME_SERIALIZATION_KEY, SiteName);
+  info->AddValue(PORT_SERIALIZATION_KEY, Port);
 }

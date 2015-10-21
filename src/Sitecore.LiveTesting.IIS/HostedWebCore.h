@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HostedWebCoreSetup.h"
 #include "NativeHostedWebCore.h"
 
 namespace Sitecore
@@ -12,29 +13,17 @@ namespace Sitecore
       {
         private:
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
+
+          void CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
         protected:
           !HostedWebCore();
         public:
-          static property System::String^ CurrentHostedWebCoreLibraryPath
+          static property HostedWebCoreSetup^ CurrentHostedWebCoreSetup
           {
-            System::String^ get();
+            HostedWebCoreSetup^ get();
           }
 
-          static property System::String^ CurrentHostConfig
-          {
-            System::String^ get();
-          }
-
-          static property System::String^ CurrentRootConfig
-          {
-            System::String^ get();
-          }
-
-          static property System::String^ CurrentInstanceName
-          {
-            System::String^ get();
-          }
-
+          HostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
           HostedWebCore(_In_ System::String^ hostedWebCoreLibraryPath, _In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
           HostedWebCore(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
 

@@ -60,23 +60,23 @@
     [Fact]
     public void ShouldStartAndThenStopHostedWebCore()
     {
-      Assert.Equal(string.Empty, HostedWebCore.CurrentHostConfig);
-      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreLibraryPath);
-      Assert.Equal(string.Empty, HostedWebCore.CurrentInstanceName);
-      Assert.Equal(string.Empty, HostedWebCore.CurrentRootConfig);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.HostedWebCoreLibraryPath);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.InstanceName);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.RootConfig);
 
       using (new HostedWebCore(this.hostedWebCoreLibraryPath, this.hostConfigPath, this.rootConfigPath, DefaultInstanceName))
       {
-        Assert.Equal(this.hostConfigPath, HostedWebCore.CurrentHostConfig);
-        Assert.Equal(this.hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreLibraryPath);
-        Assert.Equal(DefaultInstanceName, HostedWebCore.CurrentInstanceName);
-        Assert.Equal(this.rootConfigPath, HostedWebCore.CurrentRootConfig);
+        Assert.Equal(this.hostConfigPath, HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+        Assert.Equal(this.hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreSetup.HostedWebCoreLibraryPath);
+        Assert.Equal(DefaultInstanceName, HostedWebCore.CurrentHostedWebCoreSetup.InstanceName);
+        Assert.Equal(this.rootConfigPath, HostedWebCore.CurrentHostedWebCoreSetup.RootConfig);
       }
-      
-      Assert.Equal(string.Empty, HostedWebCore.CurrentHostConfig);
-      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreLibraryPath);
-      Assert.Equal(string.Empty, HostedWebCore.CurrentInstanceName);
-      Assert.Equal(string.Empty, HostedWebCore.CurrentRootConfig);
+
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.HostedWebCoreLibraryPath);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.InstanceName);
+      Assert.Equal(string.Empty, HostedWebCore.CurrentHostedWebCoreSetup.RootConfig);
     }
 
     /// <summary>
@@ -98,10 +98,10 @@
 
           appDomain.DoCallBack(GetAlreadyHostedWebCore);
 
-          Assert.Equal(this.hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreLibraryPath);
-          Assert.Equal(this.hostConfigPath, HostedWebCore.CurrentHostConfig);
-          Assert.Equal(this.rootConfigPath, HostedWebCore.CurrentRootConfig);
-          Assert.Equal(DefaultInstanceName, HostedWebCore.CurrentInstanceName);
+          Assert.Equal(this.hostedWebCoreLibraryPath, HostedWebCore.CurrentHostedWebCoreSetup.HostedWebCoreLibraryPath);
+          Assert.Equal(this.hostConfigPath, HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+          Assert.Equal(this.rootConfigPath, HostedWebCore.CurrentHostedWebCoreSetup.RootConfig);
+          Assert.Equal(DefaultInstanceName, HostedWebCore.CurrentHostedWebCoreSetup.InstanceName);
         }
         finally
         {
@@ -109,10 +109,10 @@
         }
       }
 
-      Assert.Empty(HostedWebCore.CurrentHostedWebCoreLibraryPath);
-      Assert.Empty(HostedWebCore.CurrentHostConfig);
-      Assert.Empty(HostedWebCore.CurrentRootConfig);
-      Assert.Empty(HostedWebCore.CurrentInstanceName);
+      Assert.Empty(HostedWebCore.CurrentHostedWebCoreSetup.HostedWebCoreLibraryPath);
+      Assert.Empty(HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+      Assert.Empty(HostedWebCore.CurrentHostedWebCoreSetup.RootConfig);
+      Assert.Empty(HostedWebCore.CurrentHostedWebCoreSetup.InstanceName);
     }
 
     /// <summary>
@@ -203,10 +203,10 @@
     private static void GetAlreadyHostedWebCore()
     {
       (new HostedWebCore(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), AppDomain.CurrentDomain.GetData("instanceName").ToString())).Dispose();
-      Assert.Equal(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), HostedWebCore.CurrentHostedWebCoreLibraryPath);
-      Assert.Equal(AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), HostedWebCore.CurrentHostConfig);
-      Assert.Equal(AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), HostedWebCore.CurrentRootConfig);
-      Assert.Equal(AppDomain.CurrentDomain.GetData("instanceName").ToString(), HostedWebCore.CurrentInstanceName);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("hostedWebCoreLibraryPath").ToString(), HostedWebCore.CurrentHostedWebCoreSetup.HostedWebCoreLibraryPath);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("hostConfigPath").ToString(), HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("rootConfigPath").ToString(), HostedWebCore.CurrentHostedWebCoreSetup.RootConfig);
+      Assert.Equal(AppDomain.CurrentDomain.GetData("instanceName").ToString(), HostedWebCore.CurrentHostedWebCoreSetup.InstanceName);
     }
 
     /// <summary>
