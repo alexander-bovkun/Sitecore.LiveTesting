@@ -8,13 +8,16 @@ class CriticalSection
 {
   private:
     CRITICAL_SECTION m_criticalSection;
+    volatile bool m_disposed;
 
     CriticalSection(CriticalSection const&);
     void operator=(CriticalSection const&);
-
-    friend class CriticalSectionGuard;
   public:
     CriticalSection();
+
+    void Enter();
+    void Leave();
+
     ~CriticalSection();
 } instanceCriticalSection;
 
@@ -33,21 +36,39 @@ class CriticalSectionGuard
 CriticalSection::CriticalSection()
 {
   InitializeCriticalSection(&m_criticalSection);
+  m_disposed = false;
+}
+
+void CriticalSection::Enter()
+{
+  if (!m_disposed)
+  {
+    EnterCriticalSection(&m_criticalSection);
+  }
+}
+
+void CriticalSection::Leave()
+{
+  if (!m_disposed)
+  {
+    LeaveCriticalSection(&m_criticalSection);
+  }
 }
 
 CriticalSection::~CriticalSection()
 {
+  m_disposed = true;
   DeleteCriticalSection(&m_criticalSection);
 }
 
 CriticalSectionGuard::CriticalSectionGuard(CriticalSection& primitive) : m_criticalSection(primitive)
 {
-  EnterCriticalSection(&m_criticalSection.m_criticalSection);
+  m_criticalSection.Enter();
 }
 
 CriticalSectionGuard::~CriticalSectionGuard()
 {
-  LeaveCriticalSection(&m_criticalSection.m_criticalSection);
+  m_criticalSection.Leave();
 }
 
 #pragma managed(pop)
