@@ -10,6 +10,11 @@
   public class SequentialTest : LiveTest
   {
     /// <summary>
+    /// The sequential lock object.
+    /// </summary>
+    private static readonly object SequentialLock = new object();
+
+    /// <summary>
     /// Creates an instance of corresponding class.
     /// </summary>
     /// <param name="testType">Type of the test to instantiate.</param>
@@ -33,7 +38,7 @@
     protected override void OnAfterMethodCall(object sender, MethodCallEventArgs args)
     {
       base.OnAfterMethodCall(sender, args);
-      Monitor.Exit(typeof(SequentialTest));
+      Monitor.Exit(SequentialLock);
     }
 
     /// <summary>
@@ -43,7 +48,7 @@
     /// <param name="args">The arguments.</param>
     protected override void OnBeforeMethodCall(object sender, MethodCallEventArgs args)
     {
-      Monitor.Enter(typeof(SequentialTest));
+      Monitor.Enter(SequentialLock);
       base.OnBeforeMethodCall(sender, args);
     }
   }
