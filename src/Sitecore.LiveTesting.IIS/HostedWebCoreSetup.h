@@ -23,6 +23,8 @@ namespace Sitecore
           initonly System::String^ m_instanceName;
         
           HostedWebCoreSetup(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext context);
+          
+          [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::SerializationFormatter)]
           virtual void GetObjectData(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext context) sealed = System::Runtime::Serialization::ISerializable::GetObjectData;
         public:
           HostedWebCoreSetup(_In_ System::String^ hostedWebCoreLibraryPath, _In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);

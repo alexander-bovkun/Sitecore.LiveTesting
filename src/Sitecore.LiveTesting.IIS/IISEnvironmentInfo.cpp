@@ -65,7 +65,6 @@ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTest
   return safe_cast<IISEnvironmentInfo^>(application->ExecuteAction(gcnew System::Func<Sitecore::LiveTesting::Applications::TestApplication^, IISEnvironmentInfo^>(GetApplicationInfo), gcnew array<System::Object^> { nullptr }));
 }
 
-[System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::SerializationFormatter)]
 void Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::GetObjectData(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext)
 {
   if (info == nullptr)
