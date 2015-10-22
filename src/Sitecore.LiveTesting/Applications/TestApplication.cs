@@ -2,6 +2,7 @@
 {
   using System;
   using System.Reflection;
+  using System.Security.Permissions;
   using System.Threading;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;
@@ -19,6 +20,7 @@
     /// <summary>
     /// Initializes a new instance of the <see cref="TestApplication"/> class.
     /// </summary>
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.ControlAppDomain)]
     public TestApplication() : this(new InitializationManager(new TestApplicationInitializationActionDiscoverer(), new InitializationActionExecutor()))
     {
     }
@@ -27,6 +29,7 @@
     /// Initializes a new instance of the <see cref="TestApplication"/> class.
     /// </summary>
     /// <param name="initializationManager">The initialization manager.</param>
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.ControlAppDomain)]
     protected TestApplication(InitializationManager initializationManager)
     {
       if (initializationManager == null)
