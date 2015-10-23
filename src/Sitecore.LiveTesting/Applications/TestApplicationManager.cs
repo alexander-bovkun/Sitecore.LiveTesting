@@ -156,39 +156,6 @@
     }
 
     /// <summary>
-    /// Registers external assembly for the specified <see cref="AppDomain"/>.
-    /// </summary>
-    /// <param name="appDomain">The application domain.</param>
-    /// <param name="assemblyName">The assembly name.</param>
-    /// <param name="assemblyPath">The path to the assembly.</param>
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.ControlAppDomain)]
-    protected static void RegisterExternalAssembly(AppDomain appDomain, string assemblyName, string assemblyPath)
-    {
-      if (appDomain == null)
-      {
-        throw new ArgumentNullException("appDomain");
-      }
-
-      if (assemblyName == null)
-      {
-        throw new ArgumentNullException("assemblyName");
-      }
-
-      if (assemblyPath == null)
-      {
-        throw new ArgumentNullException("assemblyPath");
-      }
-
-      if (assemblyPath == string.Empty)
-      {
-        throw new ArgumentException("Assembly path cannot be an empty string", "assemblyPath");
-      }
-
-      ExternalAssemblyResolver externalAssemblyResolver = (ExternalAssemblyResolver)appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(ExternalAssemblyResolver).FullName);
-      externalAssemblyResolver.RegisterExternalAssembly(assemblyName, assemblyPath);
-    }
-
-    /// <summary>
     /// Ensures that the global initialization is performed.
     /// </summary>
     protected virtual void EnsureGlobalInitializationIsPerformed()
@@ -258,84 +225,6 @@
       if (disposableCandidate != null)
       {
         disposableCandidate.Dispose();
-      }
-    }
-
-    /// <summary>
-    /// Utility class used to register assemblies external to the codebase of the current <see cref="AppDomain"/>.
-    /// </summary>
-    private class ExternalAssemblyResolver : MarshalByRefObject
-    {
-      /// <summary>
-      /// The collection of registered external assemblies for the current <see cref="AppDomain"/>.
-      /// </summary>
-      private static readonly IDictionary<string, string> ExternalAssemblies = new Dictionary<string, string>();
-    
-      /// <summary>
-      /// Registers external assembly with the specified name to be resolved from the specified path.
-      /// </summary>
-      /// <param name="assemblyName">The assembly name.</param>
-      /// <param name="assemblyPath">The path to the assembly.</param>
-      [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.ControlAppDomain)]
-      internal void RegisterExternalAssembly(string assemblyName, string assemblyPath)
-      {
-        if (assemblyName == null)
-        {
-          throw new ArgumentNullException("assemblyName");
-        }
-
-        if (assemblyPath == null)
-        {
-          throw new ArgumentNullException("assemblyPath");
-        }
-
-        if (assemblyPath == string.Empty)
-        {
-          throw new ArgumentException("Assembly path cannot be an empty string", "assemblyPath");
-        }
-
-        lock (ExternalAssemblies)
-        {
-          if (ExternalAssemblies.Count == 0)
-          {
-            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
-          }
-
-          if (ExternalAssemblies.ContainsKey(assemblyName))
-          {
-            ExternalAssemblies[assemblyName] = assemblyPath;
-          }
-          else
-          {
-            ExternalAssemblies.Add(assemblyName, assemblyPath);
-          }
-        }
-      }
-
-      /// <summary>
-      /// Event handler that resolves assembly using content of registered external assemblies collection.
-      /// </summary>
-      /// <param name="sender">The sender.</param>
-      /// <param name="args">The arguments.</param>
-      /// <returns>Resolved assembly or <value>null</value> if assembly cannot be found.</returns>
-      private Assembly AssemblyResolve(object sender, ResolveEventArgs args)
-      {
-        string assemblyPath = null;
-
-        if (args == null)
-        {
-          throw new ArgumentNullException("args");
-        }
-        
-        lock (ExternalAssemblies)
-        {
-          if (!ExternalAssemblies.TryGetValue(args.Name, out assemblyPath))
-          {
-            return null;
-          }
-        }
-
-        return Assembly.LoadFrom(assemblyPath);
       }
     }
   }

@@ -96,9 +96,123 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::CreateHostedWebCore(_In_ HostedW
   }
 }
 
+System::AppDomain^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostAppDomain()
+{
+  ICorRuntimeHost* pRuntimeHost;
+  HRESULT result = CoCreateInstance(CLSID_CorRuntimeHost, NULL, CLSCTX_INPROC_SERVER, IID_ICorRuntimeHost, reinterpret_cast<LPVOID*>(&pRuntimeHost));
+
+  if (result != S_OK)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
+  }
+
+  IUnknown* pAppDomain;
+
+  result = pRuntimeHost->GetDefaultDomain(&pAppDomain);
+  pRuntimeHost->Release();
+
+  if (result != S_OK)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
+  }
+
+  return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
+}
+
+void Sitecore::LiveTesting::IIS::HostedWebCore::RegisterExternalAssembly(_In_ System::AppDomain^ appDomain, _In_ System::String^ assemblyName, _In_ System::String^ assemblyPath)
+{
+  if (appDomain == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("appDomain");
+  }
+
+  if (assemblyName == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("assemblyName");
+  }
+
+  if (assemblyPath == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("assemblyPath");
+  }
+
+  HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(appDomain->CreateInstanceFromAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->Location, HostAppDomainUtility::typeid->FullName));
+  hostAppDomainUtility->RegisterExternalAssembly(assemblyName, assemblyPath);
+}
+
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 {
   this->~HostedWebCore();
+}
+
+static Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::HostAppDomainUtility()
+{
+  externalAssemblies = gcnew System::Collections::Generic::Dictionary<System::String^, System::String^>();
+}
+
+System::Reflection::Assembly^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::AssemblyResolve(_In_ System::Object^, _In_ System::ResolveEventArgs^ args)
+{
+  System::String^ assemblyPath = nullptr;
+
+  if (args == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("args");
+  }
+
+  System::Threading::Monitor::Enter(externalAssemblies);
+  try
+  {
+    if (!externalAssemblies->TryGetValue(args->Name, assemblyPath))
+    {
+      return nullptr;
+    }
+  }
+  finally
+  {
+    System::Threading::Monitor::Exit(externalAssemblies);
+  }
+
+  return System::Reflection::Assembly::LoadFrom(assemblyPath);
+}
+
+void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::RegisterExternalAssembly(_In_ System::String^ assemblyName, _In_ System::String^ assemblyPath)
+{
+  if (assemblyName == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("assemblyName");
+  }
+
+  if (assemblyPath == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("assemblyPath");
+  }
+
+  System::Threading::Monitor::Enter(externalAssemblies);
+  try
+  {
+    if (externalAssemblies->Count == 0)
+    {
+      System::AppDomain::CurrentDomain->AssemblyResolve += gcnew System::ResolveEventHandler(this, &HostAppDomainUtility::AssemblyResolve);
+    }
+
+    if (externalAssemblies->ContainsKey(assemblyName))
+    {
+      externalAssemblies[assemblyName] = assemblyPath;
+    }
+    else
+    {
+      externalAssemblies->Add(assemblyName, assemblyPath);
+    }
+  }
+  finally
+  {
+    System::Threading::Monitor::Exit(externalAssemblies);
+  }
+}
+
+System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::GetApplicationManager()
+{
+  return System::Web::Hosting::ApplicationManager::GetApplicationManager();
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup)
@@ -128,27 +242,17 @@ Sitecore::LiveTesting::IIS::HostedWebCoreSetup^ Sitecore::LiveTesting::IIS::Host
   return gcnew HostedWebCoreSetup(gcnew System::String(NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().data()), gcnew System::String(NativeHostedWebCore::GetCurrentHostConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentRootConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentInstanceName().data()));
 }
 
-System::AppDomain^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostAppDomain()
+System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostApplicationManager()
 {
-  ICorRuntimeHost* pRuntimeHost;
-  HRESULT result = CoCreateInstance(CLSID_CorRuntimeHost, NULL, CLSCTX_INPROC_SERVER, IID_ICorRuntimeHost, reinterpret_cast<LPVOID*>(&pRuntimeHost));
+  System::AppDomain^ hostAppDomain = GetHostAppDomain();
 
-  if (result != S_OK)
-  {
-    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
-  }
+  RegisterExternalAssembly(hostAppDomain, Sitecore::LiveTesting::Applications::TestApplicationManager::typeid->Assembly->FullName, Sitecore::LiveTesting::Applications::TestApplicationManager::typeid->Assembly->Location);
+  RegisterExternalAssembly(hostAppDomain, HostedWebCore::typeid->Assembly->GetName()->Name, HostedWebCore::typeid->Assembly->Location);
 
-  IUnknown* pAppDomain;
+  HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(hostAppDomain->CreateInstanceAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->GetName()->Name, HostAppDomainUtility::typeid->FullName));
 
-  result = pRuntimeHost->GetDefaultDomain(&pAppDomain);
-  pRuntimeHost->Release();
+  return hostAppDomainUtility->GetApplicationManager();
 
-  if (result != S_OK)
-  {
-    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
-  }
-
-  return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
