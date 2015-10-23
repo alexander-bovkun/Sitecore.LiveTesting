@@ -1,3 +1,6 @@
+#include <comdef.h>
+#include <mscoree.h>
+
 #include <msclr\marshal_cppstd.h>
 
 #include "HostedWebCore.h"
@@ -98,13 +101,6 @@ Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
   this->~HostedWebCore();
 }
 
-Sitecore::LiveTesting::IIS::HostedWebCoreSetup^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreSetup::get()
-{
-  CriticalSectionGuard instanceGuard(instanceCriticalSection);
-
-  return gcnew HostedWebCoreSetup(gcnew System::String(NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().data()), gcnew System::String(NativeHostedWebCore::GetCurrentHostConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentRootConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentInstanceName().data()));
-}
-
 Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup)
 {
   if (hostedWebCoreSetup == nullptr)
@@ -123,6 +119,36 @@ Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(_In_ System::String^ ho
 Sitecore::LiveTesting::IIS::HostedWebCore::HostedWebCore(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName)
 {
   CreateHostedWebCore(gcnew HostedWebCoreSetup(System::IO::Path::Combine(System::Environment::GetFolderPath(System::Environment::SpecialFolder::ProgramFilesX86), "IIS Express\\hwebcore.dll"), hostConfig, rootConfig, instanceName));
+}
+
+Sitecore::LiveTesting::IIS::HostedWebCoreSetup^ Sitecore::LiveTesting::IIS::HostedWebCore::CurrentHostedWebCoreSetup::get()
+{
+  CriticalSectionGuard instanceGuard(instanceCriticalSection);
+
+  return gcnew HostedWebCoreSetup(gcnew System::String(NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().data()), gcnew System::String(NativeHostedWebCore::GetCurrentHostConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentRootConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentInstanceName().data()));
+}
+
+System::AppDomain^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostAppDomain()
+{
+  ICorRuntimeHost* pRuntimeHost;
+  HRESULT result = CoCreateInstance(CLSID_CorRuntimeHost, NULL, CLSCTX_INPROC_SERVER, IID_ICorRuntimeHost, reinterpret_cast<LPVOID*>(&pRuntimeHost));
+
+  if (result != S_OK)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
+  }
+
+  IUnknown* pAppDomain;
+
+  result = pRuntimeHost->GetDefaultDomain(&pAppDomain);
+  pRuntimeHost->Release();
+
+  if (result != S_OK)
+  {
+    throw gcnew System::InvalidOperationException(System::String::Format(gcnew System::String("Could not create an instance of ICorRuntimeHost interface implementation. {0}"), gcnew System::String(_com_error(result).ErrorMessage())));
+  }
+
+  return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()

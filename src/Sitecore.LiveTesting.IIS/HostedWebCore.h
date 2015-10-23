@@ -15,17 +15,19 @@ namespace Sitecore
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
 
           void CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
-        protected:
+
           !HostedWebCore();
         public:
+          HostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
+          HostedWebCore(_In_ System::String^ hostedWebCoreLibraryPath, _In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
+          HostedWebCore(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
+
           static property HostedWebCoreSetup^ CurrentHostedWebCoreSetup
           {
             HostedWebCoreSetup^ get();
           }
-
-          HostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
-          HostedWebCore(_In_ System::String^ hostedWebCoreLibraryPath, _In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
-          HostedWebCore(_In_ System::String^ hostConfig, _In_ System::String^ rootConfig, _In_ System::String^ instanceName);
+          
+          System::AppDomain^ GetHostAppDomain();
 
           ~HostedWebCore();
       };

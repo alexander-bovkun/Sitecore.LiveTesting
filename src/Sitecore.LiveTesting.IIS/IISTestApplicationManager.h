@@ -35,8 +35,6 @@ namespace Sitecore
 
             bool m_disposed;
 
-            static System::AppDomain^ GetDefaultAppDomain();
-
             ref class ApplicationManagerProvider : public System::MarshalByRefObject
             {
               internal:
@@ -51,7 +49,7 @@ namespace Sitecore
             static IIS::HostedWebCore^ GetNewHostedWebCoreOrExistingIfAlreadyHosted(_In_ Configuration::HostedWebCoreConfigProvider^ hostedWebCoreConfigProvider);
             
             [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
-            static System::Web::Hosting::ApplicationManager^ GetApplicationManagerFromDefaultAppDomain();
+            static System::Web::Hosting::ApplicationManager^ GetApplicationManagerFromDefaultAppDomain(_In_ IIS::HostedWebCore^ hostedWebCore);
 
             virtual System::Xml::Linq::XDocument^ LoadHostConfiguration();
             virtual System::Xml::Linq::XElement^ GetSiteConfigurationForApplication(_In_ System::Xml::Linq::XDocument^ hostConfiguration, _In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost);
