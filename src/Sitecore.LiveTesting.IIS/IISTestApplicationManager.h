@@ -13,7 +13,7 @@ namespace Sitecore
       namespace Applications
       {
         [System::Runtime::InteropServices::ComVisible(false)]
-        public ref class IISTestApplicationManager : public Sitecore::LiveTesting::Applications::TestApplicationManager
+        public ref class IISTestApplicationManager : public Sitecore::LiveTesting::Applications::TestApplicationManager, public System::IDisposable
         {
           private:
             literal System::String^ DEFAULT_HOSTED_WEB_CORE_INSTANCE_NAME = "Sitecore.LiveTesting";
@@ -32,6 +32,8 @@ namespace Sitecore
             literal System::String^ SITE_BINDING_XPATH = "bindings/binding[@protocol='http']/@bindingInformation";
 
             initonly IIS::HostedWebCore^ m_hostedWebCore;
+
+            bool m_disposed;
 
             static System::AppDomain^ GetDefaultAppDomain();
 
@@ -66,6 +68,8 @@ namespace Sitecore
             IISTestApplicationManager();
 
             virtual Sitecore::LiveTesting::Applications::TestApplication^ StartApplication(_In_ Sitecore::LiveTesting::Applications::TestApplicationHost^ applicationHost) override;
+        
+            virtual ~IISTestApplicationManager();
         };
       }
     }

@@ -20,25 +20,27 @@
     [Fact]
     public void ShouldStartInitializeExecuteRequestOnAndThenStopWebsite()
     {
-      IISTestApplicationManager applicationManager = new IISTestApplicationManager();
-      TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/", "..\\Website");
-      TestApplication application = applicationManager.StartApplication(testApplicationHost);
-      string initializationToken = string.Format("Sitecore.LiveTesting.{0}.Test", new Random().Next());
-
-      application.ExecuteAction(new Action<string>(InitializationAction), initializationToken);
-
-      HttpWebRequest request = WebRequest.CreateHttp(string.Format("http://localhost:{0}/TestPage.aspx", IISEnvironmentInfo.GetApplicationInfo(application).Port));
-      using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+      using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
       {
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
-        {
-          Assert.Contains(initializationToken, streamReader.ReadToEnd());
-        }
-      }
+        TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/", "..\\Website");
+        TestApplication application = applicationManager.StartApplication(testApplicationHost);
+        string initializationToken = string.Format("Sitecore.LiveTesting.{0}.Test", new Random().Next());
 
-      applicationManager.StopApplication(application);
-      Assert.Null(applicationManager.GetRunningApplication(testApplicationHost));
+        application.ExecuteAction(new Action<string>(InitializationAction), initializationToken);
+
+        HttpWebRequest request = WebRequest.CreateHttp(string.Format("http://localhost:{0}/TestPage.aspx", IISEnvironmentInfo.GetApplicationInfo(application).Port));
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        {
+          Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+          using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+          {
+            Assert.Contains(initializationToken, streamReader.ReadToEnd());
+          }
+        }
+
+        applicationManager.StopApplication(application);
+        Assert.Null(applicationManager.GetRunningApplication(testApplicationHost));
+      }
     }
 
     /// <summary>
