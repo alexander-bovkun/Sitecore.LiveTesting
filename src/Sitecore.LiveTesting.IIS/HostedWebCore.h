@@ -12,6 +12,8 @@ namespace Sitecore
       public ref class HostedWebCore sealed : public System::IDisposable
       {
         private:
+          literal System::String^ PROCESS_HOST_FIELD_NAME = "_theProcessHost";
+
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
 
           void CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
@@ -20,6 +22,8 @@ namespace Sitecore
 
           [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
           void RegisterExternalAssembly(_In_ System::AppDomain^ appDomain, _In_ System::String^ assemblyName, _In_ System::String^ assemblyPath);
+
+          void ResetProcessHost(_In_ System::AppDomain^ appDomain);
 
           !HostedWebCore();
 
@@ -34,6 +38,8 @@ namespace Sitecore
             internal:
               [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
               void RegisterExternalAssembly(_In_ System::String^ assemblyName, _In_ System::String^ assemblyPath);
+
+              void ResetProcessHost();
               
               System::Web::Hosting::ApplicationManager^ GetApplicationManager();
           };

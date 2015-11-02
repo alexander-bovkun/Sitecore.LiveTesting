@@ -140,6 +140,17 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::RegisterExternalAssembly(_In_ Sy
   hostAppDomainUtility->RegisterExternalAssembly(assemblyName, assemblyPath);
 }
 
+void Sitecore::LiveTesting::IIS::HostedWebCore::ResetProcessHost(_In_ System::AppDomain^ appDomain)
+{
+  if (appDomain == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("appDomain");
+  }
+
+  HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(appDomain->CreateInstanceFromAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->Location, HostAppDomainUtility::typeid->FullName));
+  hostAppDomainUtility->ResetProcessHost();
+}
+
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 {
   this->~HostedWebCore();
@@ -210,6 +221,16 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::RegisterEx
   }
 }
 
+void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetProcessHost()
+{
+  System::Reflection::FieldInfo^ processHostFieldInfo = System::Web::Hosting::ProcessHost::typeid->GetField(PROCESS_HOST_FIELD_NAME, System::Reflection::BindingFlags::NonPublic | System::Reflection::BindingFlags::Static);
+
+  if (processHostFieldInfo != nullptr)
+  {
+    processHostFieldInfo->SetValue(nullptr, nullptr);
+  }
+}
+
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::GetApplicationManager()
 {
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
@@ -263,5 +284,7 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
   {
     delete m_pHostedWebCore;
     m_pHostedWebCore = NULL;
+
+    ResetProcessHost(GetHostAppDomain());
   }
 }
