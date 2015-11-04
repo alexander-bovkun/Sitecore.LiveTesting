@@ -94,6 +94,10 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::CreateHostedWebCore(_In_ HostedW
   {
     throw gcnew System::ArgumentException(gcnew System::String(e.what()));
   }
+  finally
+  {
+    marshalContext->~marshal_context();
+  }
 }
 
 System::AppDomain^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostAppDomain()
