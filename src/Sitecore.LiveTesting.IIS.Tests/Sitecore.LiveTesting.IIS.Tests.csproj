@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Configuration\HostedWebCoreConfigProviderTest.cs" />
     <Compile Include="HostedWebCoreTest.cs" />
     <Compile Include="Applications\IISTestApplicationManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
