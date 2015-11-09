@@ -29,7 +29,7 @@ namespace Sitecore
 
           !HostedWebCore();
 
-          ref class HostAppDomainUtility : public System::MarshalByRefObject
+          ref class HostAppDomainUtility sealed : public System::MarshalByRefObject
           {
             private:
               static initonly System::Collections::Generic::IDictionary<System::String^, System::String^>^ externalAssemblies;
