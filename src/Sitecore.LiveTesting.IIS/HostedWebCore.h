@@ -13,6 +13,8 @@ namespace Sitecore
       {
         private:
           literal System::String^ PROCESS_HOST_FIELD_NAME = "_theProcessHost";
+          literal System::String^ MANAGED_V2_NATIVE_MODULE_NAME = "webengine.dll";
+          literal System::String^ MANAGED_V4_NATIVE_MODULE_NAME = "webengine4.dll";
 
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
 
@@ -23,7 +25,7 @@ namespace Sitecore
           [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
           void RegisterExternalAssembly(_In_ System::AppDomain^ appDomain, _In_ System::String^ assemblyName, _In_ System::String^ assemblyPath);
 
-          void ResetProcessHost(_In_ System::AppDomain^ appDomain);
+          void ResetManagedEnvironment(_In_ System::AppDomain^ appDomain);
 
           !HostedWebCore();
 
@@ -34,12 +36,14 @@ namespace Sitecore
 
               static HostAppDomainUtility();
 
+              static void ReloadModule(_In_ System::Diagnostics::ProcessModule^ module);
+
               System::Reflection::Assembly^ AssemblyResolve(_In_ System::Object^ sender, _In_ System::ResolveEventArgs^ args);
             internal:
               [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
               void RegisterExternalAssembly(_In_ System::String^ assemblyName, _In_ System::String^ assemblyPath);
 
-              void ResetProcessHost();
+              void ResetManagedEnvironment();
               
               System::Web::Hosting::ApplicationManager^ GetApplicationManager();
           };

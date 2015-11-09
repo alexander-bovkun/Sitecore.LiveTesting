@@ -12,6 +12,9 @@
   /// </summary>
   public class IISTestApplicationManagerTest : SequentialTest
   {
+    /// <summary>
+    /// The test environment variable.
+    /// </summary>
     public static string TestEnvironmentVariable;
 
     /// <summary>
@@ -40,6 +43,27 @@
 
         applicationManager.StopApplication(application);
         Assert.Null(applicationManager.GetRunningApplication(testApplicationHost));
+      }
+    }
+
+    /// <summary>
+    /// Should be operable after restart.
+    /// </summary>
+    [Fact]
+    public void ShouldBeOperableAfterRestart()
+    {
+      for (int index = 0; index < 2; ++index)
+      {
+        using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
+        {
+          TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/", "..\\Website");
+          TestApplication application = applicationManager.StartApplication(testApplicationHost);
+
+          HttpWebRequest request = WebRequest.CreateHttp(string.Format("http://localhost:{0}/TestPage.aspx", IISEnvironmentInfo.GetApplicationInfo(application).Port));
+          request.GetResponse().Dispose();
+
+          applicationManager.StopApplication(application);
+        }
       }
     }
 

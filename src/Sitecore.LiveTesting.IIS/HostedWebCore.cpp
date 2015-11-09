@@ -144,7 +144,7 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::RegisterExternalAssembly(_In_ Sy
   hostAppDomainUtility->RegisterExternalAssembly(assemblyName, assemblyPath);
 }
 
-void Sitecore::LiveTesting::IIS::HostedWebCore::ResetProcessHost(_In_ System::AppDomain^ appDomain)
+void Sitecore::LiveTesting::IIS::HostedWebCore::ResetManagedEnvironment(_In_ System::AppDomain^ appDomain)
 {
   if (appDomain == nullptr)
   {
@@ -152,7 +152,7 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::ResetProcessHost(_In_ System::Ap
   }
 
   HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(appDomain->CreateInstanceFromAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->Location, HostAppDomainUtility::typeid->FullName));
-  hostAppDomainUtility->ResetProcessHost();
+  hostAppDomainUtility->ResetManagedEnvironment();
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
@@ -163,6 +163,36 @@ Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 static Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::HostAppDomainUtility()
 {
   externalAssemblies = gcnew System::Collections::Generic::Dictionary<System::String^, System::String^>();
+}
+
+void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ReloadModule(_In_ System::Diagnostics::ProcessModule^ module)
+{
+  if (module == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("module");
+  }
+
+  msclr::interop::marshal_context^ marshalContext = gcnew msclr::interop::marshal_context();
+
+  try
+  {
+    unsigned int counter = 0;
+    
+    while (HMODULE handle = GetModuleHandle(marshalContext->marshal_as<LPCSTR>(module->ModuleName)))
+    {
+      FreeLibrary(handle);
+      ++counter;
+    }
+
+    while (counter-- > 0)
+    {
+      LoadLibrary(marshalContext->marshal_as<LPCSTR>(module->FileName));
+    }
+  }
+  finally
+  {
+    marshalContext->~marshal_context();
+  }
 }
 
 System::Reflection::Assembly^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::AssemblyResolve(_In_ System::Object^, _In_ System::ResolveEventArgs^ args)
@@ -225,13 +255,21 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::RegisterEx
   }
 }
 
-void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetProcessHost()
+void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManagedEnvironment()
 {
   System::Reflection::FieldInfo^ processHostFieldInfo = System::Web::Hosting::ProcessHost::typeid->GetField(PROCESS_HOST_FIELD_NAME, System::Reflection::BindingFlags::NonPublic | System::Reflection::BindingFlags::Static);
 
   if (processHostFieldInfo != nullptr)
   {
     processHostFieldInfo->SetValue(nullptr, nullptr);
+  }
+
+  for each (System::Diagnostics::ProcessModule^ processModule in System::Diagnostics::Process::GetCurrentProcess()->Modules)
+  {
+    if ((processModule->ModuleName == MANAGED_V2_NATIVE_MODULE_NAME) || (processModule->ModuleName == MANAGED_V4_NATIVE_MODULE_NAME))
+    {
+      ReloadModule(processModule);
+    }
   }
 }
 
@@ -289,6 +327,9 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
     delete m_pHostedWebCore;
     m_pHostedWebCore = NULL;
 
-    ResetProcessHost(GetHostAppDomain());
+    if (NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty())
+    {
+      ResetManagedEnvironment(GetHostAppDomain());
+    }
   }
 }
