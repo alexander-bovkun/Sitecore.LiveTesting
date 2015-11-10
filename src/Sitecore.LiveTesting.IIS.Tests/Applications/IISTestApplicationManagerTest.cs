@@ -68,12 +68,64 @@
     }
 
     /// <summary>
+    /// Should get application instance from another AppDomain.
+    /// </summary>
+    [Fact]
+    public void ShouldGetApplicationInstanceFromAnotherAppDomain()
+    {
+      using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
+      {
+        TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/", "..\\Website");
+        TestApplication application = applicationManager.StartApplication(testApplicationHost);
+        AppDomain domain = AppDomain.CreateDomain("TestDomain", null, AppDomain.CurrentDomain.SetupInformation);
+
+        application.ExecuteAction(new Action<string>(InitializationAction), "AppTokenFromAnotherDomain");
+
+        try
+        {
+          domain.DoCallBack(GetRemoteApplicationAndCheckVariables);
+        }
+        finally
+        {
+          AppDomain.Unload(domain);
+        }
+
+        applicationManager.StopApplication(application);
+      }
+    }
+
+    /// <summary>
     /// Initialization action that will be executed on the side of hosted application.
     /// </summary>
     /// <param name="initializationToken">Random initialization token which presense will be checked.</param>
     private static void InitializationAction(string initializationToken)
     {
       TestEnvironmentVariable = initializationToken;
+    }
+
+    /// <summary>
+    /// Gets the value of test environment variable.
+    /// </summary>
+    /// <returns></returns>
+    private static string GetTestEnvironmentVariable()
+    {
+      return TestEnvironmentVariable;
+    }
+
+    /// <summary>
+    /// Gets remote application and checks variables.
+    /// </summary>
+    private static void GetRemoteApplicationAndCheckVariables()
+    {
+      using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
+      {
+        TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/", "..\\Website");
+        TestApplication application = applicationManager.StartApplication(testApplicationHost);
+
+        string result = (string)application.ExecuteAction(new Func<string>(GetTestEnvironmentVariable));
+
+        Assert.Equal("AppTokenFromAnotherDomain", result);
+      }
     }
   }
 }
