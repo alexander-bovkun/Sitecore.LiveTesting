@@ -132,6 +132,15 @@
       }
 
       this.ApplicationManager.ShutdownApplication(application.Id);
+
+      // The following try block helps resolve AppDomain unload deadlock issue on some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+      try
+      {
+        typeof(ApplicationManager).Assembly.GetSatelliteAssembly(CultureInfo.InvariantCulture);
+      }
+      catch (FileNotFoundException)
+      {
+      }
     }
 
     /// <summary>
