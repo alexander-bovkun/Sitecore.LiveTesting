@@ -3,7 +3,6 @@
   using System;
   using System.Reflection;
   using System.Security.Permissions;
-  using System.Threading;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;
 
