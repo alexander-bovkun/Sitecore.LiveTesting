@@ -13,9 +13,70 @@
   public class IISTestApplicationManagerTest : SequentialTest
   {
     /// <summary>
+    /// The host config template file name.
+    /// </summary>
+    private const string HostConfigTemplateFileName = "..\\..\\applicationHost.config";
+
+    /// <summary>
+    /// The root config relative path.
+    /// </summary>
+    private const string RootConfigRelativePath = "..\\web.config";
+
+    /// <summary>
+    /// The default app pool name.
+    /// </summary>
+    private const string DefaultInstanceName = "DefaultInstance";
+
+    /// <summary>
     /// The test environment variable.
     /// </summary>
     public static string TestEnvironmentVariable;
+
+    /// <summary>
+    /// Should use already created hosted web core instance.
+    /// </summary>
+    [Fact]
+    public void ShouldUseAlreadyCreatedHostedWebCoreInstance()
+    {
+      const string HostConfigWithExpandedVariablesPath = "applicationHostWithExpandedVariables.config";
+
+      string iisBinFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "IIS Express");
+      string hostConfigPath = Path.GetFullPath(HostConfigWithExpandedVariablesPath);
+
+      File.WriteAllText(hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
+
+      using (HostedWebCore hostedWebCore = new HostedWebCore(hostConfigPath, Path.Combine(System.Configuration.ConfigurationManager.OpenMachineConfiguration().FilePath, RootConfigRelativePath), DefaultInstanceName))
+      {
+        using (TestIISTestApplicationManager applicationManager = new TestIISTestApplicationManager())
+        {
+          Assert.NotEqual(hostedWebCore, applicationManager.WebCore);
+        }
+        
+        Assert.Equal(HostConfigWithExpandedVariablesPath, Path.GetFileName(HostedWebCore.CurrentHostedWebCoreSetup.HostConfig));
+      }
+
+      Assert.Empty(HostedWebCore.CurrentHostedWebCoreSetup.HostConfig);
+    }
+
+    /// <summary>
+    /// Should throw invalid operation exception if no sites are available.
+    /// </summary>
+    [Fact]
+    public void ShouldThrowInvalidOperationExceptionIfNoSitesAreAvailable()
+    {
+      using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
+      {
+        for (int index = 0; index < 5; ++index)
+        {
+          TestApplicationHost testApplicationHost = new TestApplicationHost(string.Format("MyApplication{0}", index), "/", "..\\Website");
+          applicationManager.StartApplication(testApplicationHost);          
+        }
+
+        Assert.ThrowsDelegate action = () => applicationManager.StartApplication(new TestApplicationHost("MyApplication_", "/", "..\\Website"));
+        
+        Assert.Throws<InvalidOperationException>(action);
+      }      
+    }
 
     /// <summary>
     /// Should start, initialize, execute request on and then stop website.
@@ -43,6 +104,25 @@
 
         applicationManager.StopApplication(application);
         Assert.Null(applicationManager.GetRunningApplication(testApplicationHost));
+      }
+    }
+
+    /// <summary>
+    /// Should start website with custom virtual path.
+    /// </summary>
+    [Fact]
+    public void ShouldStartWebsiteWithCustomVirtualPath()
+    {
+      using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
+      {
+        TestApplicationHost testApplicationHost = new TestApplicationHost("MyApplication", "/virtualPath", "..\\Website");
+        TestApplication application = applicationManager.StartApplication(testApplicationHost);
+
+        HttpWebRequest request = WebRequest.CreateHttp(string.Format("http://localhost:{0}/virtualPath/TestPage.aspx", IISEnvironmentInfo.GetApplicationInfo(application).Port));
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        {
+          Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
       }
     }
 
@@ -125,6 +205,23 @@
         string result = (string)application.ExecuteAction(new Func<string>(GetTestEnvironmentVariable));
 
         Assert.Equal("AppTokenFromAnotherDomain", result);
+      }
+    }
+
+    /// <summary>
+    /// The extended version of <see cref="IISTestApplicationManager"/> which exposes protected properties for testing purposes.
+    /// </summary>
+    private class TestIISTestApplicationManager : IISTestApplicationManager
+    {
+      /// <summary>
+      /// Gets instance of <see cref="HostedWebCore"/>.
+      /// </summary>
+      internal HostedWebCore WebCore
+      {
+        get
+        {
+          return this.HostedWebCore;
+        }
       }
     }
   }

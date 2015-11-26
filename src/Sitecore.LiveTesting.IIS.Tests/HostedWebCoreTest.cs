@@ -16,6 +16,11 @@
     private const string HostConfigTemplateFileName = "..\\..\\applicationHost.config";
 
     /// <summary>
+    /// The root config relative path.
+    /// </summary>
+    private const string RootConfigRelativePath = "..\\web.config";
+
+    /// <summary>
     /// The default app pool name.
     /// </summary>
     private const string DefaultInstanceName = "DefaultInstance";
@@ -48,7 +53,7 @@
       this.iisBinFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "IIS Express");
       this.hostedWebCoreLibraryPath = Path.Combine(this.iisBinFolder, "hwebcore.dll");
       this.hostConfigPath = Path.GetFullPath("applicationHostWithExpandedVariables.config");
-      this.rootConfigPath = Path.Combine(Path.GetDirectoryName(System.Configuration.ConfigurationManager.OpenMachineConfiguration().FilePath), "web.config");
+      this.rootConfigPath = Path.Combine(System.Configuration.ConfigurationManager.OpenMachineConfiguration().FilePath, RootConfigRelativePath);
 
       File.WriteAllText(this.hostConfigPath, File.ReadAllText(HostConfigTemplateFileName).Replace("%IIS_BIN%", this.iisBinFolder).Replace("%windir%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)));
     }
