@@ -92,9 +92,11 @@ Sitecore::LiveTesting::Applications::TestApplicationHost^ Sitecore::LiveTesting:
     throw gcnew System::ArgumentNullException("siteConfiguration");
   }
 
-  System::String^ virtualPath = System::Linq::Enumerable::Last(siteConfiguration->Elements(SITE_APPLICATION_XPATH))->Attribute(SITE_APPLICATION_VIRTUAL_PATH_ATTRIBUTE_NAME)->Value;
+  System::Xml::Linq::XElement^ applicationConfiguration = System::Linq::Enumerable::Last(siteConfiguration->Elements(SITE_APPLICATION_XPATH));
+  System::String^ virtualPath = applicationConfiguration->Attribute(SITE_APPLICATION_VIRTUAL_PATH_ATTRIBUTE_NAME)->Value;
+  System::String^ physicalPath = applicationConfiguration->Element(SITE_VIRTUAL_DIRECTORY_ELEMENT_NAME)->Attribute(VIRTUAL_DIRECTORY_PHYSICAL_PATH_ATTRIBUTE_NAME)->Value;
 
-  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(SITE_ID_ATTRIBUTE_NAME)->Value, virtualPath == ROOT_VIRTUAL_PATH ? System::String::Empty : virtualPath), virtualPath, siteConfiguration->Element(SITE_APPLICATION_XPATH)->Element(SITE_VIRTUAL_DIRECTORY_ELEMENT_NAME)->Attribute(VIRTUAL_DIRECTORY_PHYSICAL_PATH_ATTRIBUTE_NAME)->Value);
+  return gcnew Sitecore::LiveTesting::Applications::TestApplicationHost(System::String::Format(APPLICATION_NAME_TEMPLATE, siteConfiguration->Attribute(SITE_ID_ATTRIBUTE_NAME)->Value, virtualPath == ROOT_VIRTUAL_PATH ? System::String::Empty : virtualPath), virtualPath, physicalPath);
 }
 
 Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager::CreateApplicationIISEnvironmentInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application, _In_ System::Xml::Linq::XElement^ siteConfiguration)
