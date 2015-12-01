@@ -130,8 +130,6 @@
         throw new ArgumentNullException("application");
       }
 
-      this.ApplicationManager.ShutdownApplication(application.Id);
-
       // The following try block helps resolve AppDomain unload deadlock issue on some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
       try
       {
@@ -140,6 +138,8 @@
       catch (FileNotFoundException)
       {
       }
+
+      this.ApplicationManager.ShutdownApplication(application.Id);
     }
 
     /// <summary>

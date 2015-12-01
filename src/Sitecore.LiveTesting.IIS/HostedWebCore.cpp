@@ -329,6 +329,15 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 
     if (NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty())
     {
+      // The following try block helps resolve AppDomain unload deadlock issue on some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+      try
+      {
+        System::Web::Hosting::ApplicationManager::typeid->Assembly->GetSatelliteAssembly(System::Globalization::CultureInfo::InvariantCulture);
+      }
+      catch (System::IO::FileNotFoundException^)
+      {
+      }
+
       ResetManagedEnvironment(GetHostAppDomain());
     }
   }
