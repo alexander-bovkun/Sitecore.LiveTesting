@@ -130,7 +130,7 @@
         throw new ArgumentNullException("application");
       }
 
-      // The following try block helps resolve AppDomain unload deadlock issue on some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+      // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
       try
       {
         typeof(ApplicationManager).Assembly.GetSatelliteAssembly(CultureInfo.InvariantCulture);
@@ -140,6 +140,10 @@
       }
 
       this.ApplicationManager.ShutdownApplication(application.Id);
+
+      // Use finalizer completion as an indicator that AppDomain has been completely unloaded.
+      GC.Collect(0, GCCollectionMode.Forced);
+      GC.WaitForPendingFinalizers();
     }
 
     /// <summary>

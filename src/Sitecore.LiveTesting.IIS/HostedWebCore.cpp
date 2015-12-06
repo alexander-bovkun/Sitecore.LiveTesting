@@ -320,16 +320,14 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebC
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 {
-  CriticalSectionGuard instanceGuard(instanceCriticalSection);
+  bool hostedWebCoreStopped = false;
 
-  if (m_pHostedWebCore)
   {
-    delete m_pHostedWebCore;
-    m_pHostedWebCore = NULL;
+    CriticalSectionGuard instanceGuard(instanceCriticalSection);
 
-    if (NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty())
+    if (m_pHostedWebCore)
     {
-      // The following try block helps resolve AppDomain unload deadlock issue on some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+      // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
       try
       {
         System::Web::Hosting::ApplicationManager::typeid->Assembly->GetSatelliteAssembly(System::Globalization::CultureInfo::InvariantCulture);
@@ -338,7 +336,19 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
       {
       }
 
-      ResetManagedEnvironment(GetHostAppDomain());
+      delete m_pHostedWebCore;
+      m_pHostedWebCore = NULL;
+
+      hostedWebCoreStopped = NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty();
     }
+  }
+
+  if (hostedWebCoreStopped)
+  {
+    // Use finalizer completion as an indicator that AppDomain has been completely unloaded.
+    System::GC::Collect(0, System::GCCollectionMode::Forced);
+    System::GC::WaitForPendingFinalizers();
+
+    ResetManagedEnvironment(GetHostAppDomain());
   }
 }
