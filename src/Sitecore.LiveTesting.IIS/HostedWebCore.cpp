@@ -290,6 +290,9 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
           }
           catch (System::AppDomainUnloadedException^)
           {
+            System::Threading::Thread::Sleep(500);
+            System::GC::Collect(0, System::GCCollectionMode::Forced);
+            System::GC::WaitForPendingFinalizers();
           }
         }
       }
@@ -354,31 +357,27 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebC
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 {
-  bool hostedWebCoreStopped = false;
+  CriticalSectionGuard instanceGuard(instanceCriticalSection);
 
+  if (m_pHostedWebCore)
   {
-    CriticalSectionGuard instanceGuard(instanceCriticalSection);
-
-    if (m_pHostedWebCore)
+    // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+    try
     {
-      // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
-      try
-      {
-        System::Web::Hosting::ApplicationManager::typeid->Assembly->GetSatelliteAssembly(System::Globalization::CultureInfo::InvariantCulture);
-      }
-      catch (System::IO::FileNotFoundException^)
-      {
-      }
-
-      delete m_pHostedWebCore;
-      m_pHostedWebCore = NULL;
-
-      hostedWebCoreStopped = NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty();
+      System::Web::Hosting::ApplicationManager::typeid->Assembly->GetSatelliteAssembly(System::Globalization::CultureInfo::InvariantCulture);
     }
-  }
+    catch (System::IO::FileNotFoundException^)
+    {
+    }
 
-  if (hostedWebCoreStopped)
-  {
-    ResetManagedEnvironment(GetHostAppDomain());
+    delete m_pHostedWebCore;
+    m_pHostedWebCore = NULL;
+
+    System::GC::SuppressFinalize(this);
+
+    if (NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty())
+    {
+      ResetManagedEnvironment(GetHostAppDomain());
+    }
   }
 }
