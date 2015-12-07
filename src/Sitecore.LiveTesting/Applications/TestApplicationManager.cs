@@ -140,10 +140,7 @@
       }
 
       this.ApplicationManager.ShutdownApplication(application.Id);
-
-      // Use finalizer completion as an indicator that AppDomain has been completely unloaded.
-      GC.Collect(0, GCCollectionMode.Forced);
-      GC.WaitForPendingFinalizers();
+      this.WaitUntilApplicationUnloaded(application);
     }
 
     /// <summary>
@@ -215,6 +212,25 @@
         {
           AppDomain.CurrentDomain.DomainUnload += TestDomainOnDomainUnload;
         }
+      }
+    }
+
+    /// <summary>
+    /// Waits until application is unloaded.
+    /// </summary>
+    /// <param name="application">The application.</param>
+    protected virtual void WaitUntilApplicationUnloaded(TestApplication application)
+    {
+      try
+      {
+        while (true)
+        {
+          application.ToString();
+          Thread.Sleep(50);
+        }
+      }
+      catch (AppDomainUnloadedException)
+      {
       }
     }
 

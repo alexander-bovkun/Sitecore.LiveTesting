@@ -258,17 +258,51 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::RegisterEx
 void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManagedEnvironment()
 {
   System::Reflection::FieldInfo^ processHostFieldInfo = System::Web::Hosting::ProcessHost::typeid->GetField(PROCESS_HOST_FIELD_NAME, System::Reflection::BindingFlags::NonPublic | System::Reflection::BindingFlags::Static);
+  System::Reflection::MethodInfo^ cloneAppDomainsCollectionMethodInfo = System::Web::Hosting::ApplicationManager::typeid->GetMethod(CLONE_APP_DOMAINS_COLLECTION_METHOD_NAME, System::Reflection::BindingFlags::NonPublic | System::Reflection::BindingFlags::Instance);
+  System::Type^ lockableAppDomainContextType = System::Web::Hosting::ApplicationManager::typeid->Assembly->GetType(LOCKABLE_APP_DOMAIN_CONTEXT_TYPE_NAME);
 
-  if (processHostFieldInfo != nullptr)
+  if ((processHostFieldInfo != nullptr) && (cloneAppDomainsCollectionMethodInfo != nullptr) && (lockableAppDomainContextType != nullptr))
   {
-    processHostFieldInfo->SetValue(nullptr, nullptr);
-  }
+    System::Reflection::PropertyInfo^ hostEnvPropertyInfo = lockableAppDomainContextType->GetProperty(HOST_ENV_PROPERTY_NAME, System::Reflection::BindingFlags::NonPublic | System::Reflection::BindingFlags::Instance);
 
-  for each (System::Diagnostics::ProcessModule^ processModule in System::Diagnostics::Process::GetCurrentProcess()->Modules)
-  {
-    if ((processModule->ModuleName == MANAGED_V2_NATIVE_MODULE_NAME) || (processModule->ModuleName == MANAGED_V4_NATIVE_MODULE_NAME))
+    if (hostEnvPropertyInfo != nullptr)
     {
-      ReloadModule(processModule);
+      System::Collections::IDictionary^ runningAppDomains = safe_cast<System::Collections::IDictionary^>(cloneAppDomainsCollectionMethodInfo->Invoke(System::Web::Hosting::ApplicationManager::GetApplicationManager(), nullptr));
+
+      for each (System::Collections::DictionaryEntry^ entry in runningAppDomains)
+      {
+        System::Web::Hosting::HostingEnvironment^ hostingEnvironment = safe_cast<System::Web::Hosting::HostingEnvironment^>(hostEnvPropertyInfo->GetValue(entry->Value, nullptr));
+
+        while (hostingEnvironment != nullptr)
+        {
+          try
+          {
+            System::String^ applicationId = hostingEnvironment->ApplicationID;
+            
+            if (System::String::IsNullOrEmpty(applicationId))
+            {
+              break;
+            }
+            else
+            {
+              System::Threading::Thread::Sleep(50);
+            }
+          }
+          catch (System::AppDomainUnloadedException^)
+          {
+          }
+        }
+      }
+
+      processHostFieldInfo->SetValue(nullptr, nullptr);
+
+      for each (System::Diagnostics::ProcessModule^ processModule in System::Diagnostics::Process::GetCurrentProcess()->Modules)
+      {
+        if ((processModule->ModuleName == MANAGED_V2_NATIVE_MODULE_NAME) || (processModule->ModuleName == MANAGED_V4_NATIVE_MODULE_NAME))
+        {
+          ReloadModule(processModule);
+        }
+      }
     }
   }
 }
@@ -345,10 +379,6 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 
   if (hostedWebCoreStopped)
   {
-    // Use finalizer completion as an indicator that AppDomain has been completely unloaded.
-    System::GC::Collect(0, System::GCCollectionMode::Forced);
-    System::GC::WaitForPendingFinalizers();
-
     ResetManagedEnvironment(GetHostAppDomain());
   }
 }

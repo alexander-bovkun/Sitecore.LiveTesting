@@ -13,6 +13,9 @@ namespace Sitecore
       {
         private:
           literal System::String^ PROCESS_HOST_FIELD_NAME = "_theProcessHost";
+          literal System::String^ CLONE_APP_DOMAINS_COLLECTION_METHOD_NAME = "CloneAppDomainsCollection";
+          literal System::String^ LOCKABLE_APP_DOMAIN_CONTEXT_TYPE_NAME = "System.Web.Hosting.LockableAppDomainContext";
+          literal System::String^ HOST_ENV_PROPERTY_NAME = "HostEnv";
           literal System::String^ MANAGED_V2_NATIVE_MODULE_NAME = "webengine.dll";
           literal System::String^ MANAGED_V4_NATIVE_MODULE_NAME = "webengine4.dll";
 
