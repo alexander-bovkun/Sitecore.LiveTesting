@@ -157,7 +157,10 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::ResetManagedEnvironment(_In_ Sys
 
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 {
-  this->~HostedWebCore();
+  if (m_pHostedWebCore)
+  {
+    this->~HostedWebCore();
+  }
 }
 
 static Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::HostAppDomainUtility()
@@ -273,9 +276,9 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
       {
         System::Web::Hosting::HostingEnvironment^ hostingEnvironment = safe_cast<System::Web::Hosting::HostingEnvironment^>(hostEnvPropertyInfo->GetValue(entry->Value, nullptr));
 
-        while (hostingEnvironment != nullptr)
+        try
         {
-          try
+          while (hostingEnvironment != nullptr)
           {
             System::String^ applicationId = hostingEnvironment->ApplicationID;
             
@@ -288,14 +291,15 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
               System::Threading::Thread::Sleep(50);
             }
           }
-          catch (System::AppDomainUnloadedException^)
-          {
-            System::Threading::Thread::Sleep(500);
-            System::GC::Collect(0, System::GCCollectionMode::Forced);
-            System::GC::WaitForPendingFinalizers();
-          }
+        }
+        catch (System::AppDomainUnloadedException^)
+        {
         }
       }
+
+      System::Threading::Thread::Sleep(500);
+      System::GC::Collect(0, System::GCCollectionMode::Forced);
+      System::GC::WaitForPendingFinalizers();
 
       processHostFieldInfo->SetValue(nullptr, nullptr);
 
@@ -352,7 +356,6 @@ System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebC
   HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(hostAppDomain->CreateInstanceAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->GetName()->Name, HostAppDomainUtility::typeid->FullName));
 
   return hostAppDomainUtility->GetApplicationManager();
-
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()

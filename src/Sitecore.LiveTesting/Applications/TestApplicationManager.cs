@@ -223,10 +223,18 @@
     {
       try
       {
-        while (true)
+        while (application != null)
         {
-          application.ToString();
-          Thread.Sleep(50);
+          string applicationId = application.Id;
+          
+          if (string.IsNullOrEmpty(applicationId))
+          {
+            break;
+          }
+          else
+          {
+            Thread.Sleep(50);
+          }
         }
       }
       catch (AppDomainUnloadedException)
