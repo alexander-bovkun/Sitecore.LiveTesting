@@ -130,15 +130,6 @@
         throw new ArgumentNullException("application");
       }
 
-      // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
-      try
-      {
-        typeof(ApplicationManager).Assembly.GetSatelliteAssembly(CultureInfo.InvariantCulture);
-      }
-      catch (FileNotFoundException)
-      {
-      }
-
       this.ApplicationManager.ShutdownApplication(application.Id);
       this.WaitUntilApplicationUnloaded(application);
     }
@@ -234,6 +225,15 @@
           else
           {
             Thread.Sleep(50);
+            
+            // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+            try
+            {
+              typeof(ApplicationManager).Assembly.GetSatelliteAssembly(CultureInfo.InvariantCulture);
+            }
+            catch (FileNotFoundException)
+            {
+            }
           }
         }
       }

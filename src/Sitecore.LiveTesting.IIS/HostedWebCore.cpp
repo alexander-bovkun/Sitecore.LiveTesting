@@ -289,6 +289,15 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
             else
             {
               System::Threading::Thread::Sleep(50);
+
+              // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
+              try
+              {
+                System::Web::Hosting::ApplicationManager::typeid->Assembly->GetSatelliteAssembly(System::Globalization::CultureInfo::InvariantCulture);
+              }
+              catch (System::IO::FileNotFoundException^)
+              {
+              }
             }
           }
         }
@@ -364,15 +373,6 @@ Sitecore::LiveTesting::IIS::HostedWebCore::~HostedWebCore()
 
   if (m_pHostedWebCore)
   {
-    // The following try block helps resolve AppDomain unload deadlock issue in some environments so that AppDomain.DomainUnload event handlers will be processed shortly after Assembly.GetSatelliteAssembly call.
-    try
-    {
-      System::Web::Hosting::ApplicationManager::typeid->Assembly->GetSatelliteAssembly(System::Globalization::CultureInfo::InvariantCulture);
-    }
-    catch (System::IO::FileNotFoundException^)
-    {
-    }
-
     delete m_pHostedWebCore;
     m_pHostedWebCore = NULL;
 
