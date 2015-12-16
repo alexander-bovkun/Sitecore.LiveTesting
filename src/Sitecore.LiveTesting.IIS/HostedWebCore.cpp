@@ -276,6 +276,7 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
       {
         System::Web::Hosting::HostingEnvironment^ hostingEnvironment = safe_cast<System::Web::Hosting::HostingEnvironment^>(hostEnvPropertyInfo->GetValue(entry->Value, nullptr));
 
+        // Wait for AppDomain to completely unload so that ongoing library reload do not cause AccessViolationException.
         try
         {
           while (hostingEnvironment != nullptr)
@@ -306,6 +307,16 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
         }
       }
 
+      // Clear private _appDomains collection which may contain references to already unloaded AppDomains.
+      try
+      {
+        System::Web::Hosting::ApplicationManager::GetApplicationManager()->ShutdownAll();
+      }
+      catch (System::AppDomainUnloadedException^)
+      {
+      }
+
+      // Wait for all finalizers to complete so that ongoing library reload do not cause AccessViolationException.
       System::Threading::Thread::Sleep(500);
       System::GC::Collect(0, System::GCCollectionMode::Forced);
       System::GC::WaitForPendingFinalizers();
