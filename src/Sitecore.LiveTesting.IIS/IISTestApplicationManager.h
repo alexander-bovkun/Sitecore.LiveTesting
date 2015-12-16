@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sal.h>
+
 #include "HostedWebCore.h"
 #include "HostedWebCoreConfigProvider.h"
 #include "IISEnvironmentInfo.h"

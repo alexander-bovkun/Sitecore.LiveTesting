@@ -48,6 +48,9 @@
     <ClCompile Include="HostedWebCoreSetup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IISLiveTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeHostedWebCore.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files\Applications</Filter>
     </ClInclude>
     <ClInclude Include="HostedWebCoreSetup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IISLiveTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
