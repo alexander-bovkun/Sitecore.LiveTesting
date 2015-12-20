@@ -21,6 +21,8 @@ namespace Sitecore
 
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
 
+          static void ReloadModule(_In_ System::Diagnostics::ProcessModule^ module);
+
           void CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
 
           System::AppDomain^ GetHostAppDomain();
@@ -38,8 +40,6 @@ namespace Sitecore
               static initonly System::Collections::Generic::IDictionary<System::String^, System::String^>^ externalAssemblies;
 
               static HostAppDomainUtility();
-
-              static void ReloadModule(_In_ System::Diagnostics::ProcessModule^ module);
 
               System::Reflection::Assembly^ AssemblyResolve(_In_ System::Object^ sender, _In_ System::ResolveEventArgs^ args);
             internal:

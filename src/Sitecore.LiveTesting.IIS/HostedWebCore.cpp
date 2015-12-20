@@ -76,6 +76,36 @@ CriticalSectionGuard::~CriticalSectionGuard()
 
 #pragma managed(pop)
 
+void Sitecore::LiveTesting::IIS::HostedWebCore::ReloadModule(_In_ System::Diagnostics::ProcessModule^ module)
+{
+  if (module == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("module");
+  }
+
+  msclr::interop::marshal_context^ marshalContext = gcnew msclr::interop::marshal_context();
+
+  try
+  {
+    unsigned int counter = 0;
+    
+    while (HMODULE handle = GetModuleHandle(marshalContext->marshal_as<LPCSTR>(module->ModuleName)))
+    {
+      FreeLibrary(handle);
+      ++counter;
+    }
+
+    while (counter-- > 0)
+    {
+      LoadLibrary(marshalContext->marshal_as<LPCSTR>(module->FileName));
+    }
+  }
+  finally
+  {
+    marshalContext->~marshal_context();
+  }
+}
+
 void Sitecore::LiveTesting::IIS::HostedWebCore::CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup)
 {
   msclr::interop::marshal_context^ marshalContext = gcnew msclr::interop::marshal_context();
@@ -83,6 +113,17 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::CreateHostedWebCore(_In_ HostedW
   try
   {
     CriticalSectionGuard instanceGuard(instanceCriticalSection);
+
+    if (NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().empty())
+    {
+      for each (System::Diagnostics::ProcessModule^ processModule in System::Diagnostics::Process::GetCurrentProcess()->Modules)
+      {
+        if ((processModule->ModuleName == MANAGED_V2_NATIVE_MODULE_NAME) || (processModule->ModuleName == MANAGED_V4_NATIVE_MODULE_NAME))
+        {
+          ReloadModule(processModule);
+        }
+      }
+    }
     
     m_pHostedWebCore = new std::shared_ptr<NativeHostedWebCore>(NativeHostedWebCore::GetInstance(marshalContext->marshal_as<PCWSTR>(hostedWebCoreSetup->HostedWebCoreLibraryPath), marshalContext->marshal_as<PCWSTR>(hostedWebCoreSetup->HostConfig), marshalContext->marshal_as<PCWSTR>(hostedWebCoreSetup->RootConfig), marshalContext->marshal_as<PCWSTR>(hostedWebCoreSetup->InstanceName)));
   }
@@ -166,36 +207,6 @@ Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
 static Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::HostAppDomainUtility()
 {
   externalAssemblies = gcnew System::Collections::Generic::Dictionary<System::String^, System::String^>();
-}
-
-void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ReloadModule(_In_ System::Diagnostics::ProcessModule^ module)
-{
-  if (module == nullptr)
-  {
-    throw gcnew System::ArgumentNullException("module");
-  }
-
-  msclr::interop::marshal_context^ marshalContext = gcnew msclr::interop::marshal_context();
-
-  try
-  {
-    unsigned int counter = 0;
-    
-    while (HMODULE handle = GetModuleHandle(marshalContext->marshal_as<LPCSTR>(module->ModuleName)))
-    {
-      FreeLibrary(handle);
-      ++counter;
-    }
-
-    while (counter-- > 0)
-    {
-      LoadLibrary(marshalContext->marshal_as<LPCSTR>(module->FileName));
-    }
-  }
-  finally
-  {
-    marshalContext->~marshal_context();
-  }
 }
 
 System::Reflection::Assembly^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::AssemblyResolve(_In_ System::Object^, _In_ System::ResolveEventArgs^ args)
@@ -316,20 +327,12 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
       {
       }
 
-      // Wait for all finalizers to complete so that ongoing library reload do not cause AccessViolationException.
+      // Wait for all finalizers to complete so that ongoing library reload do not cause AccessViolationException when HostedWebCore is re-started.
       System::Threading::Thread::Sleep(500);
       System::GC::Collect(0, System::GCCollectionMode::Forced);
       System::GC::WaitForPendingFinalizers();
 
       processHostFieldInfo->SetValue(nullptr, nullptr);
-
-      for each (System::Diagnostics::ProcessModule^ processModule in System::Diagnostics::Process::GetCurrentProcess()->Modules)
-      {
-        if ((processModule->ModuleName == MANAGED_V2_NATIVE_MODULE_NAME) || (processModule->ModuleName == MANAGED_V4_NATIVE_MODULE_NAME))
-        {
-          ReloadModule(processModule);
-        }
-      }
     }
   }
 }
