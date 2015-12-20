@@ -17,7 +17,7 @@ namespace Sitecore
 
           static IISLiveTest();
         public:
-          static Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager^ GetDefaultTestApplicationManager(_In_ System::Type^ testType, _In_ ... array<System::Object^>^ arguments);
+          static Sitecore::LiveTesting::IIS::Applications::IISTestApplicationManager^ GetDefaultTestApplicationManager(_In_ System::Type^ testType, ... _In_ array<System::Object^>^ arguments);
       };
     }
   }
