@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Configuration">
       <UniqueIdentifier>{af9772fb-742a-4424-8318-c5f6e0492063}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Requests">
+      <UniqueIdentifier>{21e66046-4012-40c9-8255-1bce4c64d7d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Requests">
+      <UniqueIdentifier>{0bfb5f5b-431a-43c0-98e8-773331281af1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HostedWebCore.cpp">
@@ -51,6 +57,9 @@
     <ClCompile Include="IISLiveTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IISRequestManager.cpp">
+      <Filter>Source Files\Requests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeHostedWebCore.h">
@@ -76,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="IISLiveTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IISRequestManager.h">
+      <Filter>Header Files\Requests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

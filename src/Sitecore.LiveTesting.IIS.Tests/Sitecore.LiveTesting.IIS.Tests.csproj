@@ -35,6 +35,7 @@
     <Compile Include="HostedWebCoreTest.cs" />
     <Compile Include="Applications\IISTestApplicationManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Requests\IISRequestManagerTest.cs" />
     <Compile Include="SequentialTest.cs" />
   </ItemGroup>
   <ItemGroup>

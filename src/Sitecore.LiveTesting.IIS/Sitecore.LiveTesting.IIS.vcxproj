@@ -100,6 +100,7 @@
     <ClCompile Include="HostedWebCoreSetup.cpp" />
     <ClCompile Include="IISEnvironmentInfo.cpp" />
     <ClCompile Include="IISLiveTest.cpp" />
+    <ClCompile Include="IISRequestManager.cpp" />
     <ClCompile Include="IISTestApplicationManager.cpp" />
     <ClCompile Include="HttpServer.cpp" />
     <ClCompile Include="NativeHostedWebCore.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="HttpServer.h" />
     <ClInclude Include="IISEnvironmentInfo.h" />
     <ClInclude Include="IISLiveTest.h" />
+    <ClInclude Include="IISRequestManager.h" />
     <ClInclude Include="IISTestApplicationManager.h" />
     <ClInclude Include="NativeHostedWebCore.h" />
   </ItemGroup>

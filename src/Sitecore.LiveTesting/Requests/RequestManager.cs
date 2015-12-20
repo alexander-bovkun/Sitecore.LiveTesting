@@ -51,7 +51,7 @@
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns>The <see cref="Response"/>.</returns>
-    public Response ExecuteRequest(Request request)
+    public virtual Response ExecuteRequest(Request request)
     {
       if (request == null)
       {
