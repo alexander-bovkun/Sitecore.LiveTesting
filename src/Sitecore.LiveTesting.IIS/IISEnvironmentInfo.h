@@ -38,7 +38,7 @@ namespace Sitecore
               int get();
             }
 
-            static Applications::IISEnvironmentInfo^ GetApplicationInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application);
+            static Applications::IISEnvironmentInfo^ GetApplicationInfo(_In_opt_ Sitecore::LiveTesting::Applications::TestApplication^ application);
 
             [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::SerializationFormatter)]
             virtual void GetObjectData(_In_ System::Runtime::Serialization::SerializationInfo^ info, _In_ System::Runtime::Serialization::StreamingContext context);

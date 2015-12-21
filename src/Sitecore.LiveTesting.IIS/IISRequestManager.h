@@ -10,8 +10,14 @@ namespace Sitecore
     {
       namespace Requests
       {
+        [System::Runtime::InteropServices::ComVisible(false)]
         public ref class IISRequestManager : public Sitecore::LiveTesting::Requests::RequestManager
         {
+          private:
+            literal System::String^ BASE_URL_TEMPLATE = "http://localhost:{0}";
+            literal System::String^ HOST_NAME = "localhost";
+            literal System::String^ HTTP_VERSION_PREFIX = "HTTP/";
+            literal System::String^ HEADER_VALUE_SEPARATOR = ",";
           protected:
             virtual System::Net::HttpWebRequest^ CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request);
             virtual Sitecore::LiveTesting::Requests::Response^ CreateResponseModelFromHttpWebResponse(_In_ System::Net::HttpWebResponse^ httpWebReponse);

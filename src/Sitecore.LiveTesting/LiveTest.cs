@@ -47,7 +47,7 @@
     /// <summary>
     /// The default test application manager.
     /// </summary>
-    private static readonly TestApplicationManager DefaultTestApplicationManager = new TestApplicationManager();
+    private static readonly TestApplicationManager DefaultTestApplicationManager = HostingEnvironment.IsHosted ? null : new TestApplicationManager();
 
     /// <summary>
     /// The test initialization manager.

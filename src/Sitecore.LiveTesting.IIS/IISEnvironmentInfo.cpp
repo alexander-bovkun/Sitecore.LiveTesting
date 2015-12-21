@@ -55,7 +55,7 @@ int Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::Port::get()
   return m_port;
 }
 
-Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::GetApplicationInfo(_In_ Sitecore::LiveTesting::Applications::TestApplication^ application)
+Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo^ Sitecore::LiveTesting::IIS::Applications::IISEnvironmentInfo::GetApplicationInfo(_In_opt_ Sitecore::LiveTesting::Applications::TestApplication^ application)
 {
   if (application == nullptr)
   {
