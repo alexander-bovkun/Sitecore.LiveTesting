@@ -14,8 +14,10 @@ namespace Sitecore
         public ref class IISRequestManager : public Sitecore::LiveTesting::Requests::RequestManager
         {
           private:
-            literal System::String^ BASE_URL_TEMPLATE = "http://localhost:{0}";
-            literal System::String^ HOST_NAME = "localhost";
+            literal System::String^ DEFAULT_SCHEME = "http";
+            literal System::String^ DEFAULT_HOST_NAME = "localhost";
+            literal System::String^ GET_VERB = "GET";
+            literal System::String^ HEAD_VERB = "HEAD";
             literal System::String^ HTTP_VERSION_PREFIX = "HTTP/";
             literal System::String^ HEADER_VALUE_SEPARATOR = ",";
           protected:

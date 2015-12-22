@@ -15,29 +15,33 @@ System::Net::HttpWebRequest^ Sitecore::LiveTesting::IIS::Requests::IISRequestMan
     throw gcnew System::InvalidOperationException("Cannot execute request in environment which is not hosted. Consider using Sitecore.LiveTesting.IIS.Applications.IISTestApplicationManager.StartApplication to create corresponding application and execute the action on it's behalf.");
   }
 
-  System::String^ url = System::String::Format(BASE_URL_TEMPLATE, environmentInfo->Port);
-
-  if (!System::String::IsNullOrEmpty(request->Path))
-  {
-    System::String^ path = request->Path->Replace('\\', '/');
-
-    if (!path->StartsWith("/"))
-    {
-      path = '/' + path;
-    }
-
-    url += path;
-  }
+  System::String^ normalizedQueryString = request->QueryString->StartsWith("?") ? request->QueryString : "?" + request->QueryString;
+  System::String^ normalizedPath = request->Path->Replace('\\', '/');
+  System::String^ url = (gcnew System::UriBuilder(DEFAULT_SCHEME, DEFAULT_HOST_NAME, environmentInfo->Port, normalizedPath, normalizedQueryString))->ToString();
 
   System::Net::HttpWebRequest^ result = safe_cast<System::Net::HttpWebRequest^>(System::Net::WebRequest::Create(url));
-  
+
   result->AllowAutoRedirect = false;
   result->KeepAlive = false;
 
-  result->Host = HOST_NAME;
+  result->Host = DEFAULT_HOST_NAME;
   result->Method = request->Verb;
   result->ProtocolVersion = System::Version::Parse(request->HttpVersion->Replace(HTTP_VERSION_PREFIX, System::String::Empty));
-  
+
+  if ((request->Verb != GET_VERB) && (request->Verb != HEAD_VERB))
+  {
+    System::IO::StreamWriter^ streamWriter = gcnew System::IO::StreamWriter(result->GetRequestStream());
+
+    try
+    {
+      streamWriter->Write(request->Data);
+    }
+    finally
+    {
+      streamWriter->~StreamWriter();
+    }
+  }
+
   for each (System::Collections::Generic::KeyValuePair<System::String^, System::String^>^ header in request->Headers)
   {
     result->Headers->Add(header->Key, header->Value);

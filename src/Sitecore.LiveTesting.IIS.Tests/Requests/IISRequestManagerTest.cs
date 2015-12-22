@@ -57,10 +57,14 @@
     private static void RequestExecutionTest()
     {
       IISRequestManager requestManager = new IISRequestManager();
+      Request request = new Request { Path = "\\IntegratedPipelineTestPage.aspx", QueryString = "queryString=test", Data = "data", Verb = "POST" };
 
-      Response result = requestManager.ExecuteRequest(new Request { Path = "\\TestPage.aspx" });
+      request.Headers.Add("custom-header", "header value");
+
+      Response result = requestManager.ExecuteRequest(request);
 
       Assert.Equal(200, result.StatusCode);
+      Assert.Equal("OK", result.StatusDescription);
       Assert.Equal(string.Empty, result.Content);
     }
 

@@ -65,6 +65,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Website\IntegratedPipelineTestPage.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="bin\Website\TestPage.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
