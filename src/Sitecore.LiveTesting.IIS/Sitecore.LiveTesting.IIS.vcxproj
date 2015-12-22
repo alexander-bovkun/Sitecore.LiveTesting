@@ -103,6 +103,7 @@
     <ClCompile Include="IISRequestManager.cpp" />
     <ClCompile Include="IISTestApplicationManager.cpp" />
     <ClCompile Include="HttpServer.cpp" />
+    <ClCompile Include="InitializationHandlerModule.cpp" />
     <ClCompile Include="NativeHostedWebCore.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +115,7 @@
     <ClInclude Include="IISLiveTest.h" />
     <ClInclude Include="IISRequestManager.h" />
     <ClInclude Include="IISTestApplicationManager.h" />
+    <ClInclude Include="InitializationHandlerModule.h" />
     <ClInclude Include="NativeHostedWebCore.h" />
   </ItemGroup>
   <ItemGroup>

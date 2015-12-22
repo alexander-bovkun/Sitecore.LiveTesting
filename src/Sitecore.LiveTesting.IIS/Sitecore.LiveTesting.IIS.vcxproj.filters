@@ -60,6 +60,9 @@
     <ClCompile Include="IISRequestManager.cpp">
       <Filter>Source Files\Requests</Filter>
     </ClCompile>
+    <ClCompile Include="InitializationHandlerModule.cpp">
+      <Filter>Source Files\Requests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeHostedWebCore.h">
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IISRequestManager.h">
+      <Filter>Header Files\Requests</Filter>
+    </ClInclude>
+    <ClInclude Include="InitializationHandlerModule.h">
       <Filter>Header Files\Requests</Filter>
     </ClInclude>
   </ItemGroup>
