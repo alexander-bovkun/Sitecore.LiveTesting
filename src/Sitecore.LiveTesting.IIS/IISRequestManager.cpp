@@ -1,6 +1,10 @@
 #include "IISEnvironmentInfo.h"
 #include "IISRequestManager.h"
 
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager) : Sitecore::LiveTesting::Requests::RequestManager(initializationManager)
+{
+}
+
 System::Net::HttpWebRequest^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request)
 {
   if (request == nullptr)
@@ -90,6 +94,10 @@ Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests:
   System::Net::HttpWebResponse^ httpWebReponse = safe_cast<System::Net::HttpWebResponse^>(exception->Response);
 
   return CreateResponseModelFromHttpWebResponse(httpWebReponse);
+}
+
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager()
+{
 }
 
 Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::ExecuteRequest(_In_ Sitecore::LiveTesting::Requests::Request^ request)

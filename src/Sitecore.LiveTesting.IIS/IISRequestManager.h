@@ -21,10 +21,14 @@ namespace Sitecore
             literal System::String^ HTTP_VERSION_PREFIX = "HTTP/";
             literal System::String^ HEADER_VALUE_SEPARATOR = ",";
           protected:
+            IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager);
+
             virtual System::Net::HttpWebRequest^ CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request);
             virtual Sitecore::LiveTesting::Requests::Response^ CreateResponseModelFromHttpWebResponse(_In_ System::Net::HttpWebResponse^ httpWebReponse);
             virtual Sitecore::LiveTesting::Requests::Response^ CreateResponseModelFromWebException(_In_ System::Net::WebException^ exception);
           public:
+            IISRequestManager();
+
             virtual Sitecore::LiveTesting::Requests::Response^ ExecuteRequest(_In_ Sitecore::LiveTesting::Requests::Request^ request) override;
         };
       }
