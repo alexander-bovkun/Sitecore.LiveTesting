@@ -11,5 +11,7 @@
     {
       Xunit.Assert.Equal("data", inputStream.ReadToEnd());
     }
+    
+    Response.Headers.Add("custom-response-header", "header value");
   }
 </script>

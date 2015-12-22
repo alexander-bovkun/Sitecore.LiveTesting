@@ -66,6 +66,7 @@
       Assert.Equal(200, result.StatusCode);
       Assert.Equal("OK", result.StatusDescription);
       Assert.Equal(string.Empty, result.Content);
+      Assert.Equal("header value", result.Headers["custom-response-header"]);
     }
 
     /// <summary>
