@@ -4,6 +4,8 @@
   using Sitecore.LiveTesting.Applications;
   using Sitecore.LiveTesting.IIS.Applications;
   using Sitecore.LiveTesting.IIS.Requests;
+  using Sitecore.LiveTesting.IIS.Tests.Applications;
+  using Sitecore.LiveTesting.Initialization;
   using Sitecore.LiveTesting.Requests;
   using Xunit;
 
@@ -52,6 +54,20 @@
     }
 
     /// <summary>
+    /// Should perform initialization routines.
+    /// </summary>
+    [Fact]
+    public void ShouldPerformInitializationRoutines()
+    {
+      using (IISTestApplicationManager applicationManager = new IISTestApplicationManager())
+      {
+        TestApplication application = applicationManager.StartApplication(new TestApplicationHost("RequestManagerTest", "/", "..\\Website"));
+
+        application.ExecuteAction((Action)InitializationRoutinesTest);
+      }
+    }
+
+    /// <summary>
     /// The request execution test.
     /// </summary>
     private static void RequestExecutionTest()
@@ -80,6 +96,35 @@
 
       Assert.Equal(404, result.StatusCode);
       Assert.Contains("The resource cannot be found", result.Content);
+    }
+
+    /// <summary>
+    /// The initialization routines test.
+    /// </summary>
+    private static void InitializationRoutinesTest()
+    {
+      IISRequestManager requestManager = new IISRequestManager();
+      Request request = new Request { Path = "/TestPage.aspx", InitializationHandlers = { new InitializationHandler(typeof(SampleRequestInitializationHandler)) } };
+
+      request.Headers.Add("custom-header", "header value");
+
+      Response result = requestManager.ExecuteRequest(request);
+
+      Assert.Contains("0123456789", result.Content);
+    }
+
+    /// <summary>
+    /// Defines the sample request initialization handler.
+    /// </summary>
+    private class SampleRequestInitializationHandler
+    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="SampleRequestInitializationHandler"/> class.
+      /// </summary>
+      public SampleRequestInitializationHandler()
+      {
+        IISTestApplicationManagerTest.TestEnvironmentVariable = "0123456789";
+      }
     }
   }
 }
