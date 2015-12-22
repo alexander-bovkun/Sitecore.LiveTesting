@@ -1,3 +1,5 @@
+#include "InitializationHandlerModule.h"
+
 #include "HostedWebCoreConfigProvider.h"
 
 System::String^ Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigProvider::GetDefaultHostConfigFileName()
@@ -63,6 +65,7 @@ System::String^ Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigPr
   System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
   System::Xml::Linq::XElement^ appPools = System::Xml::XPath::Extensions::XPathSelectElement(configuration, APP_POOL_ROOT_XPATH);
   System::Xml::Linq::XElement^ globalModules = System::Xml::XPath::Extensions::XPathSelectElement(configuration, GLOBAL_MODULES_ROOT_XPATH);
+  System::Xml::Linq::XElement^ requestModules = System::Xml::XPath::Extensions::XPathSelectElement(configuration, REQUEST_MODULES_ROOT_XPATH);
 
   for each (System::Xml::Linq::XElement^ site in System::Linq::Enumerable::ToArray(sites->Elements(SITE_ELEMENT_NAME)))
   {
@@ -82,6 +85,7 @@ System::String^ Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigPr
   }
 
   globalModules->Add(System::Xml::Linq::XElement::Parse(System::String::Format(DEFAULT_GLOBAL_MODULE_XML, System::Reflection::Assembly::GetExecutingAssembly()->Location)));
+  requestModules->Add(System::Xml::Linq::XElement::Parse(System::String::Format(DEFAULT_REQUEST_MODULE_XML, Sitecore::LiveTesting::IIS::Requests::InitializationHandlerModule::typeid->FullName, System::Reflection::Assembly::GetExecutingAssembly()->GetName()->Name)));
 
   System::String^ hostConfigFileName = System::IO::Path::GetFullPath(DEFAULT_HOST_CONFIG_FILE_NAME);
 

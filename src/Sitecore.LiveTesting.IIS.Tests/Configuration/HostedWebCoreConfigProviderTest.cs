@@ -7,6 +7,7 @@
   using System.Xml.Linq;
   using System.Xml.XPath;
   using Sitecore.LiveTesting.IIS.Configuration;
+  using Sitecore.LiveTesting.IIS.Requests;
   using Xunit;
 
   /// <summary>
@@ -104,6 +105,22 @@
 
       Assert.NotNull(liveTestingModule);
       Assert.Equal(typeof(HostedWebCore).Assembly.Location, liveTestingModule.Attribute("image").Value);
+    }
+
+    /// <summary>
+    /// The should register managed request module.
+    /// </summary>
+    [Fact]
+    public void ShouldRegisterManagedRequestModule()
+    {
+      string processedHostConfigFileName = (new HostedWebCoreConfigProvider(this.hostConfigFileName, ConfigurationManager.OpenMachineConfiguration().FilePath)).GetProcessedHostConfig();
+
+      XDocument processedFile = XDocument.Load(processedHostConfigFileName);
+      XElement liveTestingModule = processedFile.XPathSelectElement("/configuration/location/system.webServer/modules/add[@name='Sitecore.LiveTesting.IIS']");
+
+      Assert.NotNull(liveTestingModule);
+      Assert.Equal(string.Format("{0}, {1}", typeof(InitializationHandlerModule).FullName, typeof(InitializationHandlerModule).Assembly.GetName().Name), liveTestingModule.Attribute("type").Value);
+      Assert.Equal("managedHandler,runtimeVersionv4.0", liveTestingModule.Attribute("preCondition").Value);
     }
 
     /// <summary>
