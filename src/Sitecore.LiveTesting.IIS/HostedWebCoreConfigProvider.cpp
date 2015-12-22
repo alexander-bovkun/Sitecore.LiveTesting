@@ -62,6 +62,7 @@ System::String^ Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigPr
   System::Xml::Linq::XDocument^ configuration = System::Xml::Linq::XDocument::Parse(rawConfiguration);
   System::Xml::Linq::XElement^ sites = System::Xml::XPath::Extensions::XPathSelectElement(configuration, SITE_ROOT_XPATH);
   System::Xml::Linq::XElement^ appPools = System::Xml::XPath::Extensions::XPathSelectElement(configuration, APP_POOL_ROOT_XPATH);
+  System::Xml::Linq::XElement^ globalModules = System::Xml::XPath::Extensions::XPathSelectElement(configuration, GLOBAL_MODULES_ROOT_XPATH);
 
   for each (System::Xml::Linq::XElement^ site in System::Linq::Enumerable::ToArray(sites->Elements(SITE_ELEMENT_NAME)))
   {
@@ -79,6 +80,8 @@ System::String^ Sitecore::LiveTesting::IIS::Configuration::HostedWebCoreConfigPr
   {
     sites->Add(System::Xml::Linq::XElement::Parse(System::String::Format(DEFAULT_SITE_XML, System::Environment::NewLine, index, GetFreePort())));
   }
+
+  globalModules->Add(System::Xml::Linq::XElement::Parse(System::String::Format(DEFAULT_GLOBAL_MODULE_XML, System::Reflection::Assembly::GetExecutingAssembly()->Location)));
 
   System::String^ hostConfigFileName = System::IO::Path::GetFullPath(DEFAULT_HOST_CONFIG_FILE_NAME);
 

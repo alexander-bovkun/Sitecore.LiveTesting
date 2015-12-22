@@ -92,6 +92,21 @@
     }
 
     /// <summary>
+    /// Should register native global module.
+    /// </summary>
+    [Fact]
+    public void ShouldRegisterNativeGlobalModule()
+    {
+      string processedHostConfigFileName = (new HostedWebCoreConfigProvider(this.hostConfigFileName, ConfigurationManager.OpenMachineConfiguration().FilePath)).GetProcessedHostConfig();
+
+      XDocument processedFile = XDocument.Load(processedHostConfigFileName);
+      XElement liveTestingModule = processedFile.XPathSelectElement("/configuration/system.webServer/globalModules/add[@name='Sitecore.LiveTesting.IIS']");
+
+      Assert.NotNull(liveTestingModule);
+      Assert.Equal(typeof(HostedWebCore).Assembly.Location, liveTestingModule.Attribute("image").Value);
+    }
+
+    /// <summary>
     /// Should return original root config.
     /// </summary>
     [Fact]
