@@ -104,26 +104,42 @@
     private static void InitializationRoutinesTest()
     {
       IISRequestManager requestManager = new IISRequestManager();
-      Request request = new Request { Path = "/TestPage.aspx", InitializationHandlers = { new InitializationHandler(typeof(SampleRequestInitializationHandler)) } };
-
-      request.Headers.Add("custom-header", "header value");
+      Request request = new Request { Path = "\\NonExistingPage.aspx", InitializationHandlers = { new InitializationHandler(typeof(SampleRequestInitializationHandler)) } };
 
       Response result = requestManager.ExecuteRequest(request);
 
-      Assert.Contains("0123456789", result.Content);
+      Assert.Equal(200, result.StatusCode);
+      Assert.Equal("test", result.Content);
     }
 
     /// <summary>
     /// Defines the sample request initialization handler.
     /// </summary>
-    private class SampleRequestInitializationHandler
+    private class SampleRequestInitializationHandler : IInitializationContextAware, IDisposable
     {
       /// <summary>
-      /// Initializes a new instance of the <see cref="SampleRequestInitializationHandler"/> class.
+      /// The initialization context.
       /// </summary>
-      public SampleRequestInitializationHandler()
+      private RequestInitializationContext initializationContext;
+
+      /// <summary>
+      /// The set initialization context.
+      /// </summary>
+      /// <param name="context">The context.</param>
+      public void SetInitializationContext(object context)
       {
-        IISTestApplicationManagerTest.TestEnvironmentVariable = "0123456789";
+        this.initializationContext = (RequestInitializationContext)context;
+      }
+
+      /// <summary>
+      /// The dispose.
+      /// </summary>
+      public void Dispose()
+      {
+        Assert.Equal("/NonExistingPage.aspx", this.initializationContext.HttpContext.Request.RawUrl);
+
+        this.initializationContext.Response.StatusCode = 200;
+        this.initializationContext.Response.Content = "test";
       }
     }
   }

@@ -21,6 +21,8 @@ namespace Sitecore
             literal System::String^ HTTP_VERSION_PREFIX = "HTTP/";
             literal System::String^ HEADER_VALUE_SEPARATOR = ",";
             literal System::String^ SITECORE_LIVE_TESTING_TOKEN_KEY = "Sitecore.LiveTesting.Token";
+            literal System::String^ UNDEFINED_STRING = "";
+            literal int UNDEFINED_INTEGER = int::MinValue;
 
             static initonly System::Collections::Generic::IDictionary<int, Sitecore::LiveTesting::Initialization::RequestInitializationContext^>^ initializationContexts;
             

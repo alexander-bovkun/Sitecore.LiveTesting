@@ -12,19 +12,29 @@ static Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManage
 void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnBeginRequest(_In_ System::Object^ sender, _In_ System::EventArgs^)
 {
   System::Web::HttpApplication^ application = safe_cast<System::Web::HttpApplication^>(sender);
-  int token = int::Parse(application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY]);
-  Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext = GetRequestInitializationContext(token);
+  int token;
 
-  InitializationManager->Initialize(token, requestInitializationContext);
+  if (int::TryParse(application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY], token))
+  {
+    Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext = GetRequestInitializationContext(token);
+
+    requestInitializationContext->HttpContext = application->Context;
+
+    InitializationManager->Initialize(token, requestInitializationContext);
+  }
 }
 
 void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnEndRequest(_In_ System::Object^ sender, _In_ System::EventArgs^)
 {
   System::Web::HttpApplication^ application = safe_cast<System::Web::HttpApplication^>(sender);
-  int token = int::Parse(application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY]);
-  Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext = GetRequestInitializationContext(token);
+  int token;
 
-  InitializationManager->Cleanup(token, requestInitializationContext);
+  if (int::TryParse(application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY], token))
+  {
+    Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext = GetRequestInitializationContext(token);
+
+    InitializationManager->Cleanup(token, requestInitializationContext);
+  }
 }
 
 Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager) : Sitecore::LiveTesting::Requests::RequestManager(initializationManager)
@@ -115,24 +125,37 @@ void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::MapResponseModelFr
     throw gcnew System::ArgumentNullException("httpWebReponse");
   }
 
-  System::IO::StreamReader^ responseStreamReader = gcnew System::IO::StreamReader(httpWebReponse->GetResponseStream());
+  if (System::Object::ReferenceEquals(response->Content, UNDEFINED_STRING))
+  {
+    System::IO::StreamReader^ responseStreamReader = gcnew System::IO::StreamReader(httpWebReponse->GetResponseStream());
 
-  try
-  {
-    response->Content = responseStreamReader->ReadToEnd();
-  }
-  finally
-  {
-    responseStreamReader->~StreamReader();
+    try
+    {
+      response->Content = responseStreamReader->ReadToEnd();
+    }
+    finally
+    {
+      responseStreamReader->~StreamReader();
+    }
   }
 
   for each (System::String^ headerKey in httpWebReponse->Headers->AllKeys)
   {
-    response->Headers->Add(headerKey, System::String::Join(HEADER_VALUE_SEPARATOR, httpWebReponse->Headers->GetValues(headerKey)));
+    if (!response->Headers->ContainsKey(headerKey))
+    {
+      response->Headers->Add(headerKey, System::String::Join(HEADER_VALUE_SEPARATOR, httpWebReponse->Headers->GetValues(headerKey)));
+    }
   }
 
-  response->StatusCode = System::Convert::ToInt32(httpWebReponse->StatusCode);
-  response->StatusDescription = httpWebReponse->StatusDescription;
+  if (response->StatusCode == UNDEFINED_INTEGER)
+  {
+    response->StatusCode = System::Convert::ToInt32(httpWebReponse->StatusCode);
+  }
+
+  if (System::Object::ReferenceEquals(response->StatusDescription, UNDEFINED_STRING))
+  {
+    response->StatusDescription = httpWebReponse->StatusDescription;
+  }
 }
 
 void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::MapResponseModelFromWebException(_In_ Sitecore::LiveTesting::Requests::Response^ response, _In_ System::Net::WebException^ exception)
@@ -160,6 +183,10 @@ Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests:
 {
   System::Net::HttpWebRequest^ httpWebRequest = CreateHttpWebRequestFromRequestModel(request);
   Sitecore::LiveTesting::Requests::Response^ result = gcnew Sitecore::LiveTesting::Requests::Response();
+
+  result->Content = UNDEFINED_STRING;
+  result->StatusCode = UNDEFINED_INTEGER;
+  result->StatusDescription = UNDEFINED_STRING;
 
   int token = AddRequestInitializationContext(gcnew Sitecore::LiveTesting::Initialization::RequestInitializationContext(request, result));
 
