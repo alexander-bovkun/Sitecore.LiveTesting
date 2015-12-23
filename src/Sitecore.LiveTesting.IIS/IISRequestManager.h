@@ -22,17 +22,20 @@ namespace Sitecore
             literal System::String^ HEADER_VALUE_SEPARATOR = ",";
             literal System::String^ SITECORE_LIVE_TESTING_TOKEN_KEY = "Sitecore.LiveTesting.Token";
 
-            static int tokenCounter = 0;
+            static initonly System::Collections::Generic::IDictionary<int, Sitecore::LiveTesting::Initialization::RequestInitializationContext^>^ initializationContexts;
+            
+            static int tokenCounter;
 
-            initonly System::Object^ m_requestLock;
-
-            int m_currentToken;
-            Sitecore::LiveTesting::Initialization::RequestInitializationContext^ m_initializationContext;
+            static IISRequestManager();
 
             void OnBeginRequest(_In_ System::Object^ sender, _In_ System::EventArgs^ args);
             void OnEndRequest(_In_ System::Object^ sender, _In_ System::EventArgs^ args);
           protected:
             IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager);
+
+            static int AddRequestInitializationContext(_In_ Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext);
+            static Sitecore::LiveTesting::Initialization::RequestInitializationContext^ GetRequestInitializationContext(_In_ int token);
+            static void RemoveRequestInitializationContext(_In_ int token);
 
             virtual System::Net::HttpWebRequest^ CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request);
             virtual void MapResponseModelFromHttpWebResponse(_In_ Sitecore::LiveTesting::Requests::Response^ response, _In_ System::Net::HttpWebResponse^ httpWebReponse);

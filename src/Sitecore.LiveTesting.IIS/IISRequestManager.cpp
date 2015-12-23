@@ -3,32 +3,55 @@
 
 #include "IISRequestManager.h"
 
-void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnBeginRequest(_In_ System::Object^ sender, _In_ System::EventArgs^ args)
+static Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager()
 {
-  args;
-
-  System::Web::HttpApplication^ application = safe_cast<System::Web::HttpApplication^>(sender);
-
-  if (application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY] == m_currentToken.ToString(System::Globalization::CultureInfo::InvariantCulture))
-  {
-    InitializationManager->Initialize(m_currentToken, m_initializationContext);
-  }
+  initializationContexts = gcnew System::Collections::Concurrent::ConcurrentDictionary<int, Sitecore::LiveTesting::Initialization::RequestInitializationContext^>();
+  tokenCounter = 0;
 }
 
-void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnEndRequest(_In_ System::Object^ sender, _In_ System::EventArgs^ args)
+void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnBeginRequest(_In_ System::Object^ sender, _In_ System::EventArgs^)
 {
-  args;
-
   System::Web::HttpApplication^ application = safe_cast<System::Web::HttpApplication^>(sender);
+  int token = int::Parse(application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY]);
+  Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext = GetRequestInitializationContext(token);
 
-  if (application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY] == m_currentToken.ToString(System::Globalization::CultureInfo::InvariantCulture))
-  {
-    InitializationManager->Cleanup(m_currentToken, m_initializationContext);
-  }
+  InitializationManager->Initialize(token, requestInitializationContext);
 }
 
-Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager) : Sitecore::LiveTesting::Requests::RequestManager(initializationManager), m_requestLock(gcnew System::Object())
+void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnEndRequest(_In_ System::Object^ sender, _In_ System::EventArgs^)
 {
+  System::Web::HttpApplication^ application = safe_cast<System::Web::HttpApplication^>(sender);
+  int token = int::Parse(application->Request->Headers[SITECORE_LIVE_TESTING_TOKEN_KEY]);
+  Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext = GetRequestInitializationContext(token);
+
+  InitializationManager->Cleanup(token, requestInitializationContext);
+}
+
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager) : Sitecore::LiveTesting::Requests::RequestManager(initializationManager)
+{
+}
+
+int Sitecore::LiveTesting::IIS::Requests::IISRequestManager::AddRequestInitializationContext(_In_ Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext)
+{
+  if (requestInitializationContext == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("requestInitializationContext");
+  }
+
+  int currentToken = System::Threading::Interlocked::Increment(tokenCounter);
+  initializationContexts->Add(currentToken, requestInitializationContext);
+
+  return currentToken;
+}
+
+Sitecore::LiveTesting::Initialization::RequestInitializationContext^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::GetRequestInitializationContext(_In_ int token)
+{
+  return initializationContexts[token];
+}
+
+void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::RemoveRequestInitializationContext(_In_ int token)
+{
+  initializationContexts->Remove(token);
 }
 
 System::Net::HttpWebRequest^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request)
@@ -129,26 +152,23 @@ void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::MapResponseModelFr
   MapResponseModelFromHttpWebResponse(response, httpWebReponse);
 }
 
-Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager() : m_requestLock(gcnew System::Object())
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager()
 {
 }
 
 Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::ExecuteRequest(_In_ Sitecore::LiveTesting::Requests::Request^ request)
 {
   System::Net::HttpWebRequest^ httpWebRequest = CreateHttpWebRequestFromRequestModel(request);
-  Sitecore::LiveTesting::Requests::Response^ response = gcnew Sitecore::LiveTesting::Requests::Response();
+  Sitecore::LiveTesting::Requests::Response^ result = gcnew Sitecore::LiveTesting::Requests::Response();
 
-  System::Threading::Monitor::Enter(m_requestLock);
+  int token = AddRequestInitializationContext(gcnew Sitecore::LiveTesting::Initialization::RequestInitializationContext(request, result));
 
   try
   {
-    m_currentToken = tokenCounter++;
-    m_initializationContext = gcnew Sitecore::LiveTesting::Initialization::RequestInitializationContext(request, response);
+    httpWebRequest->Headers->Add(SITECORE_LIVE_TESTING_TOKEN_KEY, token.ToString(System::Globalization::CultureInfo::InvariantCulture));
 
     InitializationHandlerModule::BeginRequest += gcnew System::EventHandler(this, &Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnBeginRequest);
     InitializationHandlerModule::EndRequest += gcnew System::EventHandler(this, &Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnEndRequest);
-
-    httpWebRequest->Headers->Add(SITECORE_LIVE_TESTING_TOKEN_KEY, m_currentToken.ToString(System::Globalization::CultureInfo::InvariantCulture));
 
     try
     {
@@ -156,7 +176,7 @@ Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests:
 
       try
       {
-        MapResponseModelFromHttpWebResponse(response, httpWebResponse);
+        MapResponseModelFromHttpWebResponse(result, httpWebResponse);
       }
       finally
       {
@@ -165,18 +185,18 @@ Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests:
     }
     catch (System::Net::WebException^ exception)
     {
-      MapResponseModelFromWebException(response, exception);
+      MapResponseModelFromWebException(result, exception);
     }
     finally
     {
       InitializationHandlerModule::EndRequest -= gcnew System::EventHandler(this, &Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnEndRequest);
       InitializationHandlerModule::BeginRequest -= gcnew System::EventHandler(this, &Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnBeginRequest);
     }
-
-    return response;
   }
   finally
   {
-    System::Threading::Monitor::Exit(m_requestLock);
+    RemoveRequestInitializationContext(token);
   }
+
+  return result;
 }
