@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="HostedWebCoreConfigProvider.cpp" />
     <ClCompile Include="HostedWebCore.cpp" />
     <ClCompile Include="HostedWebCoreSetup.cpp" />

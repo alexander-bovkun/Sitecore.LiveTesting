@@ -63,6 +63,9 @@
     <ClCompile Include="InitializationHandlerModule.cpp">
       <Filter>Source Files\Requests</Filter>
     </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeHostedWebCore.h">
