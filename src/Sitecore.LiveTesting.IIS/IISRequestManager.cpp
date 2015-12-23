@@ -186,8 +186,9 @@ void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::MapResponseModelFr
   MapResponseModelFromHttpWebResponse(response, httpWebReponse);
 }
 
-Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager() : Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(gcnew Sitecore::LiveTesting::Initialization::InitializationManager(gcnew Sitecore::LiveTesting::Initialization::RequestInitializationActionDiscoverer(), gcnew Sitecore::LiveTesting::Initialization::InitializationActionExecutor()))
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager()
 {
+  m_initializationManager = gcnew Sitecore::LiveTesting::Initialization::InitializationManager(gcnew Sitecore::LiveTesting::Initialization::RequestInitializationActionDiscoverer(), gcnew Sitecore::LiveTesting::Initialization::InitializationActionExecutor());
 }
 
 Sitecore::LiveTesting::Requests::Response^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::ExecuteRequest(_In_ Sitecore::LiveTesting::Requests::Request^ request)
