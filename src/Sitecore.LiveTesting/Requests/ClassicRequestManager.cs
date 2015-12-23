@@ -1,8 +1,8 @@
 ﻿namespace Sitecore.LiveTesting.Requests
 {
   using System;
-  using System.IO;
   using System.Globalization;
+  using System.IO;
   using System.Web;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;

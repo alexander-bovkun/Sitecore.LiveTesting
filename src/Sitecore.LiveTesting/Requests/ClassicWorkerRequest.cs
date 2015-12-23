@@ -109,7 +109,9 @@
     /// <returns>The local address.</returns>
     public override string GetLocalAddress()
     {
-      return this.context.Request.Address;
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      return classicRequest == null ? "127.0.0.1" : classicRequest.Address;
     }
 
     /// <summary>
@@ -118,7 +120,9 @@
     /// <returns>The local port number.</returns>
     public override int GetLocalPort()
     {
-      return this.context.Request.Port;
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      return classicRequest == null ? 80 : classicRequest.Port;
     }
 
     /// <summary>
@@ -127,7 +131,9 @@
     /// <returns>The remote address.</returns>
     public override string GetRemoteAddress()
     {
-      return this.context.Request.ClientAddress;
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      return classicRequest == null ? "127.0.0.1" : classicRequest.ClientAddress;
     }
 
     /// <summary>
@@ -136,7 +142,9 @@
     /// <returns>The remote port number. </returns>
     public override int GetRemotePort()
     {
-      return this.context.Request.ClientPort;
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      return classicRequest == null ? 0 : classicRequest.ClientPort;
     }
 
     /// <summary>
@@ -153,7 +161,9 @@
         throw new ArgumentNullException("name");
       }
 
-      if (this.context.Request.ServerVariables.TryGetValue(name, out result))
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      if ((classicRequest != null) && classicRequest.ServerVariables.TryGetValue(name, out result))
       {
         return result;
       }
@@ -167,7 +177,9 @@
     /// <returns>The user token.</returns>
     public override IntPtr GetUserToken()
     {
-      return this.context.Request.UserToken;
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      return classicRequest == null ? new IntPtr() : classicRequest.UserToken;
     }
 
     /// <summary>
@@ -232,7 +244,9 @@
     /// <returns>The value indicating whether the request is secure or not.</returns>
     public override bool IsSecure()
     {
-      return this.context.Request.IsSecure;
+      ClassicRequest classicRequest = this.context.Request as ClassicRequest;
+
+      return classicRequest != null && classicRequest.IsSecure;
     }
 
     /// <summary>

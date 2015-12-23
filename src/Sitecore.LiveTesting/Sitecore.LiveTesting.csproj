@@ -73,6 +73,7 @@
     <Compile Include="Initialization\InitializationManager.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Requests\ClassicRequest.cs" />
     <Compile Include="Requests\Request.cs" />
     <Compile Include="Requests\ClassicRequestManager.cs" />
     <Compile Include="Requests\RequestManager.cs" />
