@@ -41,6 +41,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Applications\TestApplicationExtensions.cs" />
     <Compile Include="Configuration\SitecoreConfigurationSwitcher.cs" />
     <Compile Include="Configuration\XPathNodeIteratorExtensions.cs" />
     <Compile Include="Diagnostics\DumpType.cs" />
