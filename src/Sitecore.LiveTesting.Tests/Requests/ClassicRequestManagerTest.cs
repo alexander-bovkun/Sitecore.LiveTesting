@@ -6,9 +6,9 @@
   using Xunit;
 
   /// <summary>
-  /// Defines the test class for <see cref="RequestManager"/>.
+  /// Defines the test class for <see cref="ClassicRequestManager"/>.
   /// </summary>
-  public class RequestManagerTest : LiveTest
+  public class ClassicRequestManagerTest : LiveTest
   {
     /// <summary>
     /// Should request page.
@@ -16,7 +16,7 @@
     [Fact]
     public void ShouldRequestPage()
     {
-      RequestManager manager = new RequestManager();
+      ClassicRequestManager manager = new ClassicRequestManager();
       Request request = new Request { Path = "TestPage.aspx" };
 
       Response response = manager.ExecuteRequest(request);
@@ -31,7 +31,7 @@
     [Fact]
     public void ShouldCallInitializationHandlerBeforeAndAfterRequest()
     {
-      RequestManager manager = new RequestManager();
+      ClassicRequestManager manager = new ClassicRequestManager();
       Request request = new Request { Path = "TestPage.aspx", InitializationHandlers = { new InitializationHandler(typeof(SampleRequestInitializationHandler), new object[] { "parameter" }) } };
 
       Response response = manager.ExecuteRequest(request);
@@ -45,7 +45,7 @@
     [Fact]
     public void ShouldSetCustomHeaders()
     {
-      RequestManager manager = new RequestManager();
+      ClassicRequestManager manager = new ClassicRequestManager();
       Request request = new Request { Path = "TestPage.aspx", QueryString = "header=MyCustomHeader", Headers = { { "MyCustomHeader", "custom-header-value" } } };
 
       Response response = manager.ExecuteRequest(request);

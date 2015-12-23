@@ -28,6 +28,8 @@ namespace Sitecore
             
             static int tokenCounter;
 
+            initonly Sitecore::LiveTesting::Initialization::InitializationManager^ m_initializationManager;
+
             static IISRequestManager();
 
             void OnBeginRequest(_In_ System::Object^ sender, _In_ System::EventArgs^ args);
@@ -38,6 +40,11 @@ namespace Sitecore
             static int AddRequestInitializationContext(_In_ Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext);
             static Sitecore::LiveTesting::Initialization::RequestInitializationContext^ GetRequestInitializationContext(_In_ int token);
             static void RemoveRequestInitializationContext(_In_ int token);
+
+            property Sitecore::LiveTesting::Initialization::InitializationManager^ InitializationManager
+            {
+              Sitecore::LiveTesting::Initialization::InitializationManager^ get();
+            }
 
             virtual System::Net::HttpWebRequest^ CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request);
             virtual void MapResponseModelFromHttpWebResponse(_In_ Sitecore::LiveTesting::Requests::Response^ response, _In_ System::Net::HttpWebResponse^ httpWebReponse);

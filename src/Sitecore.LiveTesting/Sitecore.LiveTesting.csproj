@@ -74,11 +74,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Requests\Request.cs" />
+    <Compile Include="Requests\ClassicRequestManager.cs" />
     <Compile Include="Requests\RequestManager.cs" />
     <Compile Include="Requests\Response.cs" />
     <Compile Include="Applications\TestApplication.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="Requests\WorkerRequest.cs" />
+    <Compile Include="Requests\ClassicWorkerRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

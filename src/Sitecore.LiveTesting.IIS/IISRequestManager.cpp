@@ -37,8 +37,14 @@ void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::OnEndRequest(_In_ 
   }
 }
 
-Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager) : Sitecore::LiveTesting::Requests::RequestManager(initializationManager)
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(_In_ Sitecore::LiveTesting::Initialization::InitializationManager^ initializationManager)
 {
+  if (initializationManager == nullptr)
+  {
+    throw gcnew System::ArgumentNullException("initializationManager");
+  }
+
+  m_initializationManager = initializationManager;
 }
 
 int Sitecore::LiveTesting::IIS::Requests::IISRequestManager::AddRequestInitializationContext(_In_ Sitecore::LiveTesting::Initialization::RequestInitializationContext^ requestInitializationContext)
@@ -62,6 +68,11 @@ Sitecore::LiveTesting::Initialization::RequestInitializationContext^ Sitecore::L
 void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::RemoveRequestInitializationContext(_In_ int token)
 {
   initializationContexts->Remove(token);
+}
+
+Sitecore::LiveTesting::Initialization::InitializationManager^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::InitializationManager::get()
+{
+  return m_initializationManager;
 }
 
 System::Net::HttpWebRequest^ Sitecore::LiveTesting::IIS::Requests::IISRequestManager::CreateHttpWebRequestFromRequestModel(_In_ Sitecore::LiveTesting::Requests::Request^ request)
@@ -175,7 +186,7 @@ void Sitecore::LiveTesting::IIS::Requests::IISRequestManager::MapResponseModelFr
   MapResponseModelFromHttpWebResponse(response, httpWebReponse);
 }
 
-Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager()
+Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager() : Sitecore::LiveTesting::IIS::Requests::IISRequestManager::IISRequestManager(gcnew Sitecore::LiveTesting::Initialization::InitializationManager(gcnew Sitecore::LiveTesting::Initialization::RequestInitializationActionDiscoverer(), gcnew Sitecore::LiveTesting::Initialization::InitializationActionExecutor()))
 {
 }
 

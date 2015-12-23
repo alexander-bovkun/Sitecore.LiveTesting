@@ -12,7 +12,7 @@
   /// <summary>
   /// Defines the more convenient version of <see cref="SimpleWorkerRequest"/> to use.
   /// </summary>
-  internal class WorkerRequest : SimpleWorkerRequest
+  internal class ClassicWorkerRequest : SimpleWorkerRequest
   {
     /// <summary>
     /// The connection count.
@@ -45,12 +45,12 @@
     private object endOfSendCallbackData;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="WorkerRequest"/> class.
+    /// Initializes a new instance of the <see cref="ClassicWorkerRequest"/> class.
     /// </summary>
     /// <param name="initializationManager">The initialization Manager.</param>
     /// <param name="context">The request initialization context.</param>
     /// <param name="writer">The writer.</param>
-    internal WorkerRequest(InitializationManager initializationManager, RequestInitializationContext context, TextWriter writer) : base(context.Request.Path, context.Request.QueryString, writer)
+    internal ClassicWorkerRequest(InitializationManager initializationManager, RequestInitializationContext context, TextWriter writer) : base(context.Request.Path, context.Request.QueryString, writer)
     {
       if (initializationManager == null)
       {

@@ -73,7 +73,7 @@
     <Compile Include="Initialization\InitializationManagerTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Requests\RequestManagerTest.cs" />
+    <Compile Include="Requests\ClassicRequestManagerTest.cs" />
     <Compile Include="Applications\TestApplicationTest.cs" />
   </ItemGroup>
   <ItemGroup>
