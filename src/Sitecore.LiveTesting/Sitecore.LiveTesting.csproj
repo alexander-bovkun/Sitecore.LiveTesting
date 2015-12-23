@@ -62,9 +62,6 @@
     <Compile Include="Initialization\InitializationHandlerAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Initialization\LiveTestWithInitialization.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="LiveTest.cs" />
     <Compile Include="Initialization\MethodCallEventArgs.cs">
       <SubType>Code</SubType>

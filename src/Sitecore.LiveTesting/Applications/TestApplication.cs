@@ -1,7 +1,6 @@
 ﻿namespace Sitecore.LiveTesting.Applications
 {
   using System;
-  using System.Reflection;
   using System.Security.Permissions;
   using System.Web.Hosting;
   using Sitecore.LiveTesting.Initialization;
@@ -70,28 +69,6 @@
     public virtual object CreateObject(Type type, params object[] arguments)
     {
       return Activator.CreateInstance(type, arguments);
-    }
-
-    /// <summary>
-    /// Execute action in the application context for the specified application host.
-    /// </summary>
-    /// <param name="targetAction">The target action.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>The result of action execution.</returns>
-    [Obsolete("Use another overload with delegate parameter instead.")]
-    public virtual object ExecuteAction(MethodBase targetAction, params object[] arguments)
-    {
-      if (targetAction == null)
-      {
-        throw new ArgumentNullException("targetAction");
-      }
-
-      if (!targetAction.IsStatic)
-      {
-        throw new NotSupportedException("Instance methods are not supported");
-      }
-
-      return targetAction.Invoke(null, arguments);
     }
 
     /// <summary>
