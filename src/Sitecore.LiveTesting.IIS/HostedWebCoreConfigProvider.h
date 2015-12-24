@@ -26,7 +26,7 @@ namespace Sitecore
             literal System::String^ DEFAULT_SITE_XML = "<site name='{1}' id='{1}' serverAutoStart='true'>{0}<bindings>{0}<binding protocol='http' bindingInformation='*:{2}:localhost' />{0}</bindings>{0}<application applicationPool='Sitecore.LiveTesting' path='/'>{0}<virtualDirectory path='/' physicalPath='' />{0}</application>{0}</site>";
             literal System::String^ DEFAULT_GLOBAL_MODULE_XML = "<add name='Sitecore.LiveTesting.IIS' image='{0}' />";
             literal System::String^ DEFAULT_REQUEST_MODULE_XML = "<add name='Sitecore.LiveTesting.IIS' type='{0}, {1}' preCondition='managedHandler,runtimeVersionv4.0' />";
-            literal System::String^ DEFAULT_HOST_CONFIG_FILE_NAME = "Sitecore.LiveTesting.IIS.ApplicationHost.config";
+            literal System::String^ DEFAULT_HOST_CONFIG_FILE_NAME = "..\\Sitecore.LiveTesting.IIS.ApplicationHost.config";
 
             static System::String^ GetDefaultHostConfigFileName();
             static System::String^ GetDefaultRootConfigFileName();
