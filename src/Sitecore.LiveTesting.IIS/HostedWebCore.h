@@ -21,10 +21,10 @@ namespace Sitecore
 
           std::shared_ptr<NativeHostedWebCore>* m_pHostedWebCore;
 
-          [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
+          [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::UnmanagedCode)]
           static void ReloadModule(_In_ System::Diagnostics::ProcessModule^ module);
 
-          [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
+          [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::UnmanagedCode)]
           void CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
 
           System::AppDomain^ GetHostAppDomain();
