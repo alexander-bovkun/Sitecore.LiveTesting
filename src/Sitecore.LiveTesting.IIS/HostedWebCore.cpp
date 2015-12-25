@@ -164,25 +164,14 @@ System::AppDomain^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostAppDomain()
   return safe_cast<System::AppDomain^>(System::Runtime::InteropServices::Marshal::GetObjectForIUnknown(System::IntPtr(pAppDomain)));
 }
 
-void Sitecore::LiveTesting::IIS::HostedWebCore::RegisterExternalAssembly(_In_ System::AppDomain^ appDomain, _In_ System::String^ assemblyName, _In_ System::String^ assemblyPath)
+Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostAppDomainUtility(_In_ System::AppDomain^ appDomain)
 {
   if (appDomain == nullptr)
   {
     throw gcnew System::ArgumentNullException("appDomain");
   }
 
-  if (assemblyName == nullptr)
-  {
-    throw gcnew System::ArgumentNullException("assemblyName");
-  }
-
-  if (assemblyPath == nullptr)
-  {
-    throw gcnew System::ArgumentNullException("assemblyPath");
-  }
-
-  HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(appDomain->CreateInstanceFromAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->Location, HostAppDomainUtility::typeid->FullName));
-  hostAppDomainUtility->RegisterExternalAssembly(assemblyName, assemblyPath);
+  return safe_cast<HostAppDomainUtility^>(appDomain->CreateInstanceFromAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->Location, HostAppDomainUtility::typeid->FullName));
 }
 
 void Sitecore::LiveTesting::IIS::HostedWebCore::ResetManagedEnvironment(_In_ System::AppDomain^ appDomain)
@@ -192,8 +181,7 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::ResetManagedEnvironment(_In_ Sys
     throw gcnew System::ArgumentNullException("appDomain");
   }
 
-  HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(appDomain->CreateInstanceFromAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->Location, HostAppDomainUtility::typeid->FullName));
-  hostAppDomainUtility->ResetManagedEnvironment();
+  GetHostAppDomainUtility(appDomain)->ResetManagedEnvironment();
 }
 
 Sitecore::LiveTesting::IIS::HostedWebCore::!HostedWebCore()
@@ -337,6 +325,11 @@ void Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::ResetManag
   }
 }
 
+System::Web::Hosting::ProcessHost^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::GetProcessHost()
+{
+  return safe_cast<System::Web::Hosting::ProcessHost^>((gcnew System::Web::Hosting::ProcessHostFactoryHelper())->GetProcessHost(nullptr));
+}
+
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebCore::HostAppDomainUtility::GetApplicationManager()
 {
   return System::Web::Hosting::ApplicationManager::GetApplicationManager();
@@ -369,14 +362,19 @@ Sitecore::LiveTesting::IIS::HostedWebCoreSetup^ Sitecore::LiveTesting::IIS::Host
   return gcnew HostedWebCoreSetup(gcnew System::String(NativeHostedWebCore::GetCurrentHostedWebCoreLibraryPath().data()), gcnew System::String(NativeHostedWebCore::GetCurrentHostConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentRootConfig().data()), gcnew System::String(NativeHostedWebCore::GetCurrentInstanceName().data()));
 }
 
+System::Web::Hosting::ProcessHost^ Sitecore::LiveTesting::IIS::HostedWebCore::GetProcessHost()
+{
+  HostAppDomainUtility^ hostAppDomainUtility = GetHostAppDomainUtility(GetHostAppDomain());
+
+  return hostAppDomainUtility->GetProcessHost();
+}
+
 System::Web::Hosting::ApplicationManager^ Sitecore::LiveTesting::IIS::HostedWebCore::GetHostApplicationManager()
 {
-  System::AppDomain^ hostAppDomain = GetHostAppDomain();
+  HostAppDomainUtility^ hostAppDomainUtility = GetHostAppDomainUtility(GetHostAppDomain());
 
-  RegisterExternalAssembly(hostAppDomain, Sitecore::LiveTesting::Applications::TestApplicationManager::typeid->Assembly->FullName, Sitecore::LiveTesting::Applications::TestApplicationManager::typeid->Assembly->Location);
-  RegisterExternalAssembly(hostAppDomain, HostedWebCore::typeid->Assembly->GetName()->Name, HostedWebCore::typeid->Assembly->Location);
-
-  HostAppDomainUtility^ hostAppDomainUtility = safe_cast<HostAppDomainUtility^>(hostAppDomain->CreateInstanceAndUnwrap(System::Reflection::Assembly::GetExecutingAssembly()->GetName()->Name, HostAppDomainUtility::typeid->FullName));
+  hostAppDomainUtility->RegisterExternalAssembly(Sitecore::LiveTesting::Applications::TestApplicationManager::typeid->Assembly->FullName, Sitecore::LiveTesting::Applications::TestApplicationManager::typeid->Assembly->Location);
+  hostAppDomainUtility->RegisterExternalAssembly(HostedWebCore::typeid->Assembly->GetName()->Name, HostedWebCore::typeid->Assembly->Location);
 
   return hostAppDomainUtility->GetApplicationManager();
 }

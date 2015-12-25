@@ -12,6 +12,8 @@ namespace Sitecore
       public ref class HostedWebCore sealed : public System::IDisposable
       {
         private:
+          ref class HostAppDomainUtility;
+
           literal System::String^ PROCESS_HOST_FIELD_NAME = "_theProcessHost";
           literal System::String^ CLONE_APP_DOMAINS_COLLECTION_METHOD_NAME = "CloneAppDomainsCollection";
           literal System::String^ LOCKABLE_APP_DOMAIN_CONTEXT_TYPE_NAME = "System.Web.Hosting.LockableAppDomainContext";
@@ -28,9 +30,7 @@ namespace Sitecore
           void CreateHostedWebCore(_In_ HostedWebCoreSetup^ hostedWebCoreSetup);
 
           System::AppDomain^ GetHostAppDomain();
-
-          [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
-          void RegisterExternalAssembly(_In_ System::AppDomain^ appDomain, _In_ System::String^ assemblyName, _In_ System::String^ assemblyPath);
+          HostAppDomainUtility^ GetHostAppDomainUtility(_In_ System::AppDomain^ appDomain);
 
           void ResetManagedEnvironment(_In_ System::AppDomain^ appDomain);
 
@@ -50,6 +50,7 @@ namespace Sitecore
 
               void ResetManagedEnvironment();
               
+              System::Web::Hosting::ProcessHost^ GetProcessHost();
               System::Web::Hosting::ApplicationManager^ GetApplicationManager();
           };
         public:
@@ -61,6 +62,8 @@ namespace Sitecore
           {
             HostedWebCoreSetup^ get();
           }
+
+          System::Web::Hosting::ProcessHost^ GetProcessHost();
 
           [System::Security::Permissions::SecurityPermission(System::Security::Permissions::SecurityAction::LinkDemand, Flags = System::Security::Permissions::SecurityPermissionFlag::ControlAppDomain)]
           System::Web::Hosting::ApplicationManager^ GetHostApplicationManager();
